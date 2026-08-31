@@ -11,7 +11,7 @@
 
 | 레인 | 담당 | 소유 경로 | 핵심 핸드오프 |
 | --- | --- | --- | --- |
-| **Product & Decision** | TODO | `README.md` · `docs/SCOPE.md` · `docs/PRD.md` · `docs/knowledge-base/04-decisions.md` · `docs/grill/` · Master Deck | 제품 목표, Scope, Decision Log |
+| **Product & Decision** | TODO | `README.md` · `docs/SCOPE.md` · `docs/REUSE_MAP.md` · `docs/PRD.md` · `docs/knowledge-base/04-decisions.md` · `docs/grill/` · Master Deck | 제품 목표, Scope, Decision Log |
 | **Knowledge & Spec** | TODO | `docs/SRS.md` · `docs/knowledge-base/00·01·02·03·05` | KB Index, SRS, Requirement ID |
 | **Delivery & GitHub** | TODO | `.github/**` · `docs/TRACEABILITY.md` · `docs/TEAM_OPERATIONS.md` · GitHub Project | Issue, Board, 추적성 |
 | **UX & Build** | TODO | `src/**` · `docs/ux/**` · `docs/TECH_LEARNING_PLAN.md` | UI/UX Issue, Source, Deploy URL |

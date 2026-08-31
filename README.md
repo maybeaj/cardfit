@@ -28,6 +28,7 @@
 | --- | --- |
 | 이 제품이 왜 필요한가 | [KB Index](docs/knowledge-base/00-index.md) → [제품 맥락](docs/knowledge-base/01-product-context.md) |
 | 근거가 사실인가 가정인가 | [근거 대장](docs/knowledge-base/02-research-evidence.md) |
+| 2차에서 뭘 가져오고 뭘 버렸나 | [Reuse Map](docs/REUSE_MAP.md) |
 | 무엇을 만들고 무엇을 안 만드나 | [범위 잠금](docs/SCOPE.md) |
 | 요구사항이 무엇인가 | [PRD](docs/PRD.md) → [SRS](docs/SRS.md) |
 | 요구사항이 실제로 구현됐나 | [추적표](docs/TRACEABILITY.md) → GitHub Issue → 배포 URL |
@@ -43,6 +44,7 @@
 cardfit/
 ├── README.md                     # 제출 허브 (이 파일)
 ├── docs/
+│   ├── REUSE_MAP.md              # 2차 결과 재사용·폐기·추가확인 판정
 │   ├── SCOPE.md                  # 범위 잠금 1장 — 이 문서가 모든 "넣을까요?"의 답
 │   ├── PRD.md                    # 제품 목적·범위·우선순위
 │   ├── SRS.md                    # FR / UI / NFR + Acceptance Criteria

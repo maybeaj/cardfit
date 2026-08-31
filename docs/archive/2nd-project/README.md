@@ -16,6 +16,8 @@
 
 ## Reuse Map — 무엇이 어디로 가는가
 
+> **항목 단위 판정은 [`docs/REUSE_MAP.md`](../../REUSE_MAP.md)가 정본입니다.** 아래는 파일 단위 요약입니다.
+
 | 2차 자산 | 목적지 | 처리 |
 | --- | --- | --- |
 | 워크북 10번 근거 등급표 (Fact 13 / Inference 6 / Assumption 8 / 미확인 22) | `knowledge-base/02-research-evidence.md` | **거의 그대로** — 형식이 KB Status 필드와 1:1 |
