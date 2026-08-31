@@ -5,6 +5,8 @@
 
 ---
 
+> 스킬 정의는 [`.claude/skills/`](../../.claude/README.md)에 있습니다. `grill-it` · `goal-setting` 2종만 가져왔습니다.
+
 ## 사용 횟수 제한
 
 | 스킬 | 횟수 | 시점 | 시간 제한 |
@@ -19,7 +21,8 @@
 
 | 항목 | 내용 |
 | --- | --- |
-| 입력 | PRD · KB Index · SCOPE |
+| 입력 | `docs/PRD.md` · `docs/knowledge-base/00-index.md` · `docs/SCOPE.md` · `docs/SRS.md` |
+| 결정 원장 | `docs/grill/GRILL_LEDGER.md` — 스킬이 자동 생성·갱신 |
 | 상위 쟁점 5개 | TODO |
 | 수용 / 보류 / 기각 | TODO — 각각 근거 한 줄 |
 | 반영 위치 | TODO — 수용한 것만 PRD/SRS/Decision Log에 |
