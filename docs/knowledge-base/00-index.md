@@ -16,6 +16,20 @@
 | [03 도메인·기술 노트](03-domain-and-tech-notes.md) | 카드 도메인 규칙, 교차 산업 메커니즘, 기술 제약 | Knowledge |
 | [04 Decision Log](04-decisions.md) | 되돌리기 비싼 결정과 재검토 조건 | Product |
 | [05 용어집](05-glossary.md) | 팀과 AI가 같은 뜻으로 써야 하는 용어 | Knowledge |
+| [06 Open Questions](06-open-questions.md) | 근거가 없어 답하지 않아야 하는 질문과 검증 방법 | Product · Research |
+
+## 빠른 탐색
+
+| 질문 | 먼저 볼 문서 | 이어서 볼 결정·요구사항 |
+| --- | --- | --- |
+| 이 제품은 누구의 어떤 문제를 푸는가? | [01 제품 맥락](01-product-context.md) P1~P5 | PRD §1~4 · FR-001~FR-006 |
+| 왜 미래 지출을 입력받는가? | [01 제품 맥락](01-product-context.md) P2 · [E-04](02-research-evidence.md) | FR-001 · FR-009 · D-007 |
+| 왜 “현재 조합 유지”도 결과인가? | [I-01](02-research-evidence.md) | G3 · FR-003 · D-002 |
+| 왜 계산 근거 6개를 공개하는가? | [E-02·I-02](02-research-evidence.md) | G4 · FR-005 · D-004 |
+| 어떤 숫자를 아직 믿으면 안 되는가? | [충돌 기록](02-research-evidence.md) | OQ-001~OQ-006 |
+| 카드 계산에서 지켜야 할 규칙은? | [03 도메인·기술](03-domain-and-tech-notes.md) | FR-002~FR-005 |
+| 현재 확정된 선택은 무엇인가? | [04 Decision Log](04-decisions.md) | D-001~D-007 |
+| 아직 답할 수 없는 것은 무엇인가? | [06 Open Questions](06-open-questions.md) | 각 항목의 Linked Items |
 
 ## 바깥 문서
 
@@ -54,7 +68,9 @@
 ## AI에게 이 KB를 쓰게 하는 지시문
 
 ```
-docs/knowledge-base 경로의 문서만 근거로 다음을 수행하세요.
+docs/knowledge-base의 00~06 문서만 근거로 다음을 수행하세요.
+raw/는 원자료 보존 영역이므로, 02-research-evidence.md가 연결한 대목을 확인할 때만 사용하고
+raw/의 주장이나 상태를 독립적인 사실로 승격하지 마세요.
 1. 현재 제품 목표와 핵심 사용자 문제를 요약하세요.
 2. 답변마다 사용한 KB 문서와 근거 상태를 표시하세요.
 3. 근거가 없는 내용은 추정하지 말고 Open Question으로 남기세요.
