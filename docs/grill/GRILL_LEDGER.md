@@ -188,7 +188,7 @@ RESOLVED: 9 / TOTAL: 9  ✅ ALL_RESOLVED
 
 ## 세션 2 — 2026-08-31 · 프로토타입 화면·UI
 
-**추가 입력 자산** — `docs/knowledge-base/raw/User_Flow.png`(핵심 화면 4컷 보드) · `BankSalad_Home.jpeg`(홈) · `BankSalad_Home_1.jpeg`(카드 탐색)
+**추가 입력 자산** — `docs/knowledge-base/raw/User_Flow.png`(핵심 화면 4컷 보드) · `BankSalad_Home_0.jpeg`(홈) · `BankSalad_Home_1.jpeg`(카드 탐색)
 
 **B 관심 방향** — User_Flow 4화면 앞에 붙일 **앞단 2화면의 구성과 UI**, 그리고 새 자산이 세션 1 결정과 충돌하는 지점의 정합
 
