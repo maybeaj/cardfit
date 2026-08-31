@@ -1,0 +1,23 @@
+# 파일 소유 경계 — docs/TEAM_OPERATIONS.md 1절과 같은 내용입니다.
+# GitHub 핸들을 확정한 뒤 아래 주석을 해제하세요.
+# 소유자만 커밋한다는 원칙 자체는 CODEOWNERS 없이도 팀 규칙으로 적용됩니다.
+
+# Product & Decision
+# /README.md                         @maybeaj
+# /docs/SCOPE.md                     @maybeaj
+# /docs/PRD.md                       @maybeaj
+# /docs/knowledge-base/04-decisions.md @maybeaj
+
+# Knowledge & Specification
+# /docs/SRS.md                       @karkim1112-stack
+# /docs/knowledge-base/              @karkim1112-stack
+
+# Delivery & GitHub
+# /.github/                          @TODO
+# /docs/TRACEABILITY.md              @TODO
+# /docs/TEAM_OPERATIONS.md           @TODO
+
+# UX & Build
+# /src/                              @jennie-brain
+# /docs/ux/                          @jennie-brain
+# /docs/TECH_LEARNING_PLAN.md        @jennie-brain

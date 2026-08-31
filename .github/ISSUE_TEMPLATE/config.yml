@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 범위 잠금 문서
+    url: https://github.com/maybeaj/cardfit/blob/main/docs/SCOPE.md
+    about: "이것도 넣을까요?"의 답은 여기 있습니다. 범위 추가에는 교환 조건이 필요합니다.
+  - name: 팀 운영 규칙
+    url: https://github.com/maybeaj/cardfit/blob/main/docs/TEAM_OPERATIONS.md
+    about: 레인, 파일 소유 경계, 브랜치 규칙, 동기화 시점

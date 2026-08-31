@@ -1,0 +1,31 @@
+# 과정 가이드 원본 — 로컬 보관 (2차 프로젝트 관례 유지)
+AI_네이티브_실전기획_프로젝트_가이드.html
+
+# OS
+.DS_Store
+
+# 에이전트 런타임 상태
+.omc/
+.omx/
+.claude/settings.local.json
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+
+# 환경변수 — 절대 커밋 금지
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# 로그
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
