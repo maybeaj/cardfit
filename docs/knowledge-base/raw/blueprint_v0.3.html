@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CardFit UX Blueprint · iPhone 17 Prototype</title>
+<style>
+  :root{
+    --bg:#f4f6fa;
+    --panel:#ffffff;
+    --ink:#111827;
+    --muted:#697386;
+    --line:#e3e7ef;
+    --line-strong:#d4dae5;
+    --blue:#2557e5;
+    --blue-2:#1744c7;
+    --blue-soft:#edf3ff;
+    --mint:#10b995;
+    --mint-soft:#eafaf6;
+    --amber:#f59e0b;
+    --amber-soft:#fff7e8;
+    --red:#ef5350;
+    --red-soft:#fff0ef;
+    --navy:#172033;
+    --iphone-w:402px;
+    --iphone-h:874px;
+    --phone-scale:.78;
+    --radius-xl:28px;
+    --shadow:0 16px 45px rgba(20,31,55,.12);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Pretendard","Noto Sans KR",Arial,sans-serif;
+    word-break:keep-all;
+    overflow-wrap:anywhere;
+  }
+  button,input{font:inherit}
+  button{cursor:pointer}
+  .topbar{
+    position:sticky;top:0;z-index:100;
+    height:64px;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(18px);
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 28px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .brand-mark{
+    width:36px;height:36px;border-radius:12px;
+    display:grid;place-items:center;color:#fff;font-weight:850;
+    background:linear-gradient(145deg,#2b60ff,#13bfa0);
+    box-shadow:0 8px 20px rgba(37,87,229,.22);
+  }
+  .brand-copy{line-height:1.05}
+  .brand-copy strong{display:block;font-size:15px;letter-spacing:-.2px}
+  .brand-copy span{display:block;margin-top:4px;font-size:11px;color:var(--muted)}
+  .top-actions{display:flex;align-items:center;gap:8px}
+  .top-actions button,.pill-btn{
+    border:1px solid var(--line-strong);background:#fff;color:#344054;
+    padding:9px 12px;border-radius:12px;font-size:12px;font-weight:700;
+  }
+  .top-actions button.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+  .hero{padding:56px 34px 24px;max-width:1500px;margin:0 auto}
+  .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:34px;align-items:end}
+  .eyebrow{font-size:12px;font-weight:850;color:var(--blue);letter-spacing:.08em;text-transform:uppercase}
+  h1{font-size:48px;line-height:1.05;margin:12px 0 18px;letter-spacing:-1.6px}
+  .hero p{font-size:17px;line-height:1.7;color:#4e5968;margin:0;max-width:810px}
+  .hero-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+  .meta-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-size:12px;color:#525f72;font-weight:650}
+  .meta-chip b{color:var(--ink)}
+  .persona-card{
+    background:linear-gradient(145deg,#172033,#25314a);color:#fff;
+    border-radius:24px;padding:24px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+  }
+  .persona-card:after{content:"";position:absolute;right:-80px;top:-80px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(65,116,255,.45),transparent 68%)}
+  .persona-card .label{font-size:11px;color:#aeb8ca;font-weight:800;letter-spacing:.08em}
+  .persona-card h3{margin:10px 0 8px;font-size:22px;letter-spacing:-.6px;position:relative;z-index:1}
+  .persona-card p{font-size:13px;color:#dce3ee;line-height:1.55;position:relative;z-index:1}
+  .persona-thought{margin-top:16px;padding:14px;border-radius:14px;background:rgba(255,255,255,.08);font-size:14px;line-height:1.5;position:relative;z-index:1}
+
+  .section{max-width:1500px;margin:0 auto;padding:24px 34px}
+  .section-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:18px}
+  .section-head h2{font-size:26px;letter-spacing:-.7px;margin:0}
+  .section-head p{margin:5px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+
+  .journey-nav{
+    background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;
+    display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:8px;overflow:auto;
+  }
+  .journey-step{
+    border:0;background:#f7f8fb;padding:12px 12px;border-radius:14px;text-align:left;min-width:130px;
+    transition:.18s ease;color:#344054;
+  }
+  .journey-step:hover,.journey-step.active{background:var(--blue-soft);color:var(--blue)}
+  .journey-step b{display:block;font-size:11px;margin-bottom:5px;color:inherit}
+  .journey-step span{display:block;font-size:12px;font-weight:800;line-height:1.35}
+
+  .delta-grid{display:grid;grid-template-columns:1fr 68px 1fr;gap:18px;align-items:center}
+  .delta-panel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;min-height:210px}
+  .delta-panel.to{border-color:#cddcff;background:linear-gradient(180deg,#fff,#f8fbff)}
+  .delta-kicker{font-size:11px;font-weight:850;color:var(--muted);letter-spacing:.06em}
+  .delta-panel h3{margin:8px 0 14px;font-size:19px}
+  .micro-flow{display:flex;align-items:stretch;gap:8px;overflow:auto;padding-bottom:3px}
+  .micro-node{min-width:122px;flex:1;border-radius:13px;background:#f5f7fa;padding:12px;font-size:11px;line-height:1.45;color:#4e5968;border:1px solid #edf0f5}
+  .to .micro-node{background:#eef4ff;border-color:#dce7ff;color:#2f4a7c}
+  .micro-node b{display:block;font-size:12px;color:var(--ink);margin-bottom:4px}
+  .flow-arrow{display:grid;place-items:center;color:#a7b0bf;font-weight:900}
+  .delta-arrow{height:48px;width:48px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;margin:auto;font-size:20px}
+
+  .blueprint-wrap{padding:8px 0 20px}
+  .blueprint-scroll{
+    overflow-x:auto;overflow-y:hidden;
+    padding:12px 34px 36px;
+    scroll-snap-type:x proximity;
+    scrollbar-color:#b8c1cf transparent;
+  }
+  .blueprint-track{display:flex;align-items:flex-start;gap:26px;min-width:max-content}
+  .stage{
+    width:356px;scroll-snap-align:start;
+    background:#fff;border:1px solid var(--line);border-radius:24px;padding:16px;
+    box-shadow:0 8px 30px rgba(32,43,67,.06);
+    position:relative;
+    transition:.2s ease;
+  }
+  .stage.focus{outline:3px solid rgba(37,87,229,.15);border-color:#9bb7ff;transform:translateY(-4px)}
+  .stage-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .stage-no{font-size:11px;font-weight:850;color:var(--blue);letter-spacing:.06em}
+  .stage-title{font-size:16px;font-weight:850;margin-top:4px;letter-spacing:-.3px}
+  .stage-tag{font-size:10px;font-weight:800;padding:6px 8px;border-radius:999px;background:#f1f4f8;color:#697386;white-space:nowrap}
+  .stage-tag.blue{background:var(--blue-soft);color:var(--blue)}
+  .stage-tag.mint{background:var(--mint-soft);color:#078d72}
+  .stage-tag.amber{background:var(--amber-soft);color:#a96700}
+  .stage-tag.red{background:var(--red-soft);color:#c43c39}
+  .flow-connector{width:42px;height:2px;background:#cdd4df;margin-top:360px;position:relative;flex:0 0 42px}
+  .flow-connector:after{content:"";position:absolute;right:-1px;top:-4px;border-left:8px solid #cdd4df;border-top:5px solid transparent;border-bottom:5px solid transparent}
+  .decision-connector{width:78px;flex:0 0 78px;margin-top:320px;position:relative;text-align:center}
+  .diamond{width:58px;height:58px;background:#fff;border:2px solid #aab4c3;transform:rotate(45deg);margin:auto;display:grid;place-items:center;border-radius:12px}
+  .diamond span{transform:rotate(-45deg);font-size:10px;font-weight:850;line-height:1.25;color:#475467}
+  .decision-connector small{display:block;margin-top:16px;font-size:10px;color:#697386}
+
+  .phone-scale{width:calc(var(--iphone-w) * var(--phone-scale));height:calc(var(--iphone-h) * var(--phone-scale));margin:0 auto 14px;position:relative}
+  .phone{
+    width:var(--iphone-w);height:var(--iphone-h);transform:scale(var(--phone-scale));transform-origin:top left;
+    border-radius:48px;border:1px solid #cfd5df;background:#fff;overflow:hidden;position:relative;
+    box-shadow:0 22px 50px rgba(15,23,42,.14);
+  }
+  .screen{position:absolute;inset:0;background:#fff;overflow:hidden;color:#131722}
+  .statusbar{position:absolute;left:0;right:0;top:0;height:48px;padding:14px 22px 0;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:800;z-index:4}
+  .status-icons{display:flex;align-items:center;gap:7px;font-size:10px}
+  .battery{width:20px;height:10px;border:1.6px solid currentColor;border-radius:3px;position:relative}
+  .battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;border-radius:1px;background:currentColor}
+  .battery i{display:block;width:75%;height:100%;background:currentColor;border-radius:1px}
+  .dynamic-island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:112px;height:30px;background:#101216;border-radius:18px;z-index:5}
+  .app-body{position:absolute;inset:0;overflow-y:auto;padding:72px 18px 92px;scrollbar-width:none}
+  .app-body::-webkit-scrollbar{display:none}
+  .app-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px;min-height:38px}
+  .app-header .title-wrap{min-width:0}
+  .app-brand{font-size:12px;font-weight:900;color:var(--blue);margin-bottom:4px;letter-spacing:-.1px}
+  .app-title{font-size:24px;line-height:1.24;font-weight:860;letter-spacing:-.75px;margin:0;max-width:300px}
+  .app-sub{margin-top:7px;color:#7b8493;font-size:13px;line-height:1.45}
+  .icon-btn{width:36px;height:36px;border-radius:50%;border:0;background:#f3f5f8;color:#586174;display:grid;place-items:center;font-size:16px;flex:0 0 36px}
+  .back-btn{width:32px;height:32px;border:0;background:transparent;padding:0;text-align:left;font-size:25px;line-height:1;color:#202733}
+  .homebar{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:134px;height:5px;background:#111827;border-radius:999px;z-index:5;opacity:.92}
+  .bottom-cta{position:absolute;left:0;right:0;bottom:0;padding:14px 18px 28px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 22%);z-index:3}
+  .primary-cta{width:100%;height:52px;border:0;border-radius:16px;background:var(--blue);color:#fff;font-size:15px;font-weight:850;box-shadow:0 8px 18px rgba(37,87,229,.24)}
+  .primary-cta:active{transform:translateY(1px)}
+  .secondary-cta{width:100%;height:48px;border:1px solid #d7dfeb;border-radius:15px;background:#fff;color:#364152;font-size:14px;font-weight:800}
+  .tiny-link{border:0;background:transparent;color:var(--blue);font-size:12px;font-weight:800;padding:5px}
+
+  .summary-hero{border-radius:22px;padding:20px;background:linear-gradient(145deg,#1f56e6,#4b7eff);color:#fff;box-shadow:0 10px 26px rgba(37,87,229,.23);margin-bottom:15px}
+  .summary-hero .overline{font-size:11px;color:#dbe6ff;font-weight:800}
+  .summary-hero .big{font-size:28px;font-weight:900;letter-spacing:-1px;margin-top:7px}
+  .summary-hero .small{font-size:12px;color:#e9efff;margin-top:7px;line-height:1.45}
+  .benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+  .benefit-box{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.12);padding:11px;border-radius:14px}
+  .benefit-box span{display:block;font-size:10px;color:#dfe8ff;margin-bottom:4px}
+  .benefit-box b{font-size:15px}
+  .section-label{font-size:13px;font-weight:850;margin:20px 0 10px;color:#1f2937}
+  .card-list{display:grid;gap:9px}
+  .card-row{display:flex;align-items:center;gap:11px;padding:13px;border:1px solid #e5e9f0;border-radius:16px;background:#fff;min-width:0}
+  .card-art{width:48px;height:30px;border-radius:7px;background:linear-gradient(135deg,#202840,#5e6d92);box-shadow:0 4px 8px rgba(0,0,0,.12);flex:0 0 48px;position:relative}
+  .card-art.blue{background:linear-gradient(135deg,#1c55d8,#4ea6ff)}
+  .card-art.mint{background:linear-gradient(135deg,#0a947b,#4bd5b7)}
+  .card-art.pink{background:linear-gradient(135deg,#da4c88,#ff9fc8)}
+  .card-art:after{content:"";position:absolute;right:7px;bottom:6px;width:8px;height:8px;background:rgba(255,255,255,.75);border-radius:50%}
+  .card-copy{min-width:0;flex:1}
+  .card-copy b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card-copy span{display:block;margin-top:3px;font-size:11px;color:#8a93a3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row-value{font-size:12px;font-weight:850;color:#344054;flex:0 0 auto}
+  .loss-card{margin-top:12px;padding:14px;border-radius:16px;background:#fff7ef;border:1px solid #ffe0be}
+  .loss-card b{font-size:13px;color:#8a4c00}
+  .loss-card p{font-size:11px;color:#9a672a;line-height:1.45;margin:5px 0 0}
+
+  .input-card{border:1px solid #e4e8ef;border-radius:18px;padding:14px;margin-bottom:10px;background:#fff}
+  .input-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .input-name{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:830}
+  .cat-icon{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:#f1f5ff;font-size:15px}
+  .money-input{width:92px;border:0;background:transparent;padding:0;text-align:right;font-size:13px;font-weight:850;color:#1f2937;outline:none}
+  .money-box{display:flex;align-items:center;gap:4px;background:#f6f8fb;border-radius:10px;padding:9px 10px;flex:0 0 auto}
+  .money-box span{font-size:10px;font-weight:800;color:#7a8493}
+  .add-spend-btn{width:100%;height:42px;border:1px dashed #cbd5e4;background:#fbfcfe;color:#526174;border-radius:14px;font-size:11px;font-weight:850;margin:2px 0 8px}
+  .add-spend-menu{display:none;grid-template-columns:repeat(2,1fr);gap:7px;margin:2px 0 10px}
+  .add-spend-menu.open{display:grid}
+  .add-spend-menu button{border:1px solid #e4e8ef;background:#fff;border-radius:12px;padding:9px 8px;font-size:10px;color:#4e5968;font-weight:800}
+  .time-row{display:flex;gap:7px;margin-top:10px}
+  .time-chip{border:1px solid #e4e8ef;background:#fff;color:#7a8495;border-radius:999px;padding:6px 8px;font-size:10px;font-weight:750}
+  .time-chip.on{border-color:#b5c8ff;background:#edf3ff;color:var(--blue)}
+  .total-bar{display:flex;align-items:center;justify-content:space-between;background:#f6f8fc;border-radius:15px;padding:14px;margin-top:13px}
+  .total-bar span{font-size:12px;color:#667085}
+  .total-bar b{font-size:17px}
+  .info-note{font-size:11px;line-height:1.5;color:#798293;background:#f7f8fb;padding:11px 12px;border-radius:13px;margin-top:11px}
+  .info-note strong{color:#3b4658}
+
+  .setting-card{border:1px solid #e4e8ef;border-radius:18px;padding:16px;margin-bottom:11px}
+  .setting-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .setting-head b{font-size:13px}
+  .setting-head p{margin:4px 0 0;font-size:11px;color:#8a93a3;line-height:1.45}
+  .stepper{display:flex;align-items:center;gap:12px;background:#f6f8fb;padding:5px;border-radius:12px;flex:0 0 auto}
+  .stepper button{width:28px;height:28px;border:0;background:#fff;border-radius:9px;font-size:17px;color:#344054;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+  .stepper b{min-width:18px;text-align:center;font-size:14px}
+  .switch{width:46px;height:28px;border-radius:999px;background:#d7dce6;position:relative;flex:0 0 auto;transition:.2s}
+  .switch i{position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,.14);transition:.2s}
+  .switch.on{background:var(--blue)}
+  .switch.on i{left:21px}
+  .current-cards-mini{display:flex;gap:7px;margin-top:13px}
+  .current-cards-mini .mini{flex:1;border-radius:12px;background:#f7f9fc;padding:10px;text-align:center;font-size:10px;color:#697386}
+  .current-cards-mini .mini b{display:block;color:#344054;font-size:12px;margin-top:4px}
+
+  .calc-visual{margin:22px auto 18px;width:164px;height:164px;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(var(--blue) 0 78%,#edf0f5 78% 100%)}
+  .calc-visual:before{content:"";position:absolute;inset:12px;border-radius:50%;background:#fff}
+  .calc-visual .inside{position:relative;text-align:center;z-index:1}
+  .calc-visual .inside b{display:block;font-size:28px;letter-spacing:-1px}
+  .calc-visual .inside span{font-size:11px;color:#8a93a3}
+  .check-list{display:grid;gap:8px;margin-top:8px}
+  .check-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:14px;background:#f7f9fc;font-size:12px;color:#566173}
+  .check-dot{width:20px;height:20px;border-radius:50%;background:#e9f8f3;color:#078d72;display:grid;place-items:center;font-size:11px;font-weight:900;flex:0 0 20px}
+  .engine-note{margin-top:15px;border:1px solid #dce7ff;background:#f5f8ff;border-radius:14px;padding:12px;font-size:11px;line-height:1.5;color:#53698d}
+
+  .result-badge{display:inline-flex;align-items:center;gap:6px;background:#eaf8f4;color:#0a8e73;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:850}
+  .result-big{font-size:31px;line-height:1.15;font-weight:900;letter-spacing:-1.1px;margin:12px 0 5px}
+  .result-desc{font-size:12px;color:#7a8493;line-height:1.5}
+  .net-card{margin:17px 0;border-radius:18px;background:#14213a;color:#fff;padding:16px}
+  .net-card .net-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .net-card .net-top span{font-size:10px;color:#b9c4d7}
+  .net-card .net-top b{display:block;font-size:23px;color:#fff;margin-top:3px}
+  .net-breakdown{margin-top:11px;padding-top:10px;border-top:1px solid rgba(255,255,255,.12);display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:10px;color:#c4cde0}
+  .net-breakdown b{display:block;color:#fff;font-size:12px;margin-top:3px}
+  .scenario-tabs{display:flex;background:#f1f3f7;padding:4px;border-radius:14px;margin:2px 0 7px}
+  .scenario-tabs button{flex:1;border:0;background:transparent;border-radius:11px;padding:9px 5px;font-size:11px;color:#7a8493;font-weight:850}
+  .scenario-tabs button.on{background:#fff;color:#172033;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .scenario-caption{font-size:10px;color:#8a93a3;text-align:center;margin-bottom:11px}
+  .scenario-amount{display:flex;align-items:baseline;justify-content:center;gap:7px;margin:2px 0 13px}
+  .scenario-amount b{font-size:15px;letter-spacing:-.3px;color:#273244}
+  .scenario-amount span{font-size:10px;color:#8a93a3}
+  .benefit-hero{margin:12px 0 13px;border-radius:20px;padding:18px;background:linear-gradient(145deg,#14213a,#21365f);color:#fff}
+  .benefit-hero .label{font-size:10px;color:#b9c4d7;font-weight:750}
+  .benefit-hero .amount{font-size:32px;line-height:1.05;font-weight:920;letter-spacing:-1.2px;margin-top:7px}
+  .benefit-hero .copy{font-size:12px;color:#e8edf6;line-height:1.45;margin-top:6px}
+  .benefit-proof{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12)}
+  .benefit-proof span{display:block;font-size:9px;color:#aebbd0;margin-bottom:3px}
+  .benefit-proof b{font-size:12px;color:#fff}
+  .benefit-reason-line{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #e7ebf2;background:#fff;border-radius:14px;padding:11px 12px;margin:10px 0 2px}
+  .benefit-reason-line span{font-size:10px;color:#697386;line-height:1.4}
+  .benefit-reason-line button{border:0;background:transparent;color:var(--blue);font-size:10px;font-weight:850;white-space:nowrap}
+  .sequence-card{border:1px solid #e4e8ef;border-radius:18px;padding:14px;margin-bottom:10px;background:#fff}
+  .sequence-step{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:11px 0;border-top:1px solid #eef1f5}
+  .sequence-step:first-child{border-top:0;padding-top:0}
+  .sequence-step:last-child{padding-bottom:0}
+  .sequence-num{width:30px;height:30px;border-radius:10px;background:#edf3ff;color:var(--blue);display:grid;place-items:center;font-size:10px;font-weight:900}
+  .sequence-copy b{display:block;font-size:12px;color:#273244;line-height:1.35}
+  .sequence-copy span{display:block;margin-top:4px;font-size:10px;color:#7a8493;line-height:1.45}
+  .sequence-copy strong{color:#273244}
+  .exception-card{border-radius:16px;background:#f4f8ff;border:1px solid #dfe8fb;padding:13px;margin:10px 0}
+  .exception-card b{display:block;font-size:11px;color:#29497d}
+  .exception-card p{font-size:10px;color:#63708a;line-height:1.5;margin:5px 0 0}
+  .reason-summary{border-radius:18px;background:#f6f8fc;padding:16px;margin:4px 0 11px}
+  .reason-summary span{display:block;font-size:10px;color:#7a8493}
+  .reason-summary b{display:block;font-size:22px;line-height:1.18;letter-spacing:-.6px;margin-top:6px;word-break:keep-all}
+  .reason-breakdown{border:1px solid #e4e8ef;border-radius:18px;padding:13px;background:#fff}
+  .reason-item{display:grid;grid-template-columns:1fr auto;gap:10px;padding:11px 0;border-top:1px solid #eef1f5;align-items:center}
+  .reason-item:first-child{border-top:0;padding-top:0}
+  .reason-item:last-child{padding-bottom:0}
+  .reason-item b{font-size:11px;color:#273244}
+  .reason-item span{display:block;font-size:9px;color:#8a93a3;margin-top:3px;line-height:1.4}
+  .reason-item strong{font-size:11px;color:#0a8e73}
+  .reason-item.cost strong{color:#c3423f}
+  .reason-total{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:14px;background:#14213a;color:#fff;padding:13px;margin-top:10px}
+  .reason-total span{font-size:10px;color:#c3ccda}
+  .reason-total b{font-size:16px}
+  .compare-strip{display:grid;grid-template-columns:1fr 1fr 28px;gap:7px;align-items:center;background:#f7f9fc;border:1px solid #e9edf3;border-radius:15px;padding:11px;margin:12px 0}
+  .compare-metric span{display:block;font-size:9px;color:#8a93a3;margin-bottom:4px}
+  .compare-metric b{font-size:13px;color:#344054}
+  .compare-delta{width:28px;height:28px;border-radius:10px;background:#eaf8f4;color:#0a8e73;display:grid;place-items:center;font-size:11px;font-weight:900}
+  .compare-detail{display:none;border:1px solid #e4e8ef;border-radius:14px;padding:11px;margin:-3px 0 10px;background:#fff}
+  .compare-detail.open{display:block}
+  .compare-detail-row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid #f0f2f6;font-size:10px;color:#697386}
+  .compare-detail-row:first-child{border-top:0}
+  .compare-detail-row b{color:#344054}
+  .scenario-maintain{background:linear-gradient(145deg,#f3f7ff,#fff);border:1px solid #dfe8fb;border-radius:18px;padding:14px;margin:12px 0}
+  .scenario-maintain b{font-size:13px;color:#273244}
+  .scenario-maintain p{font-size:10px;color:#728096;line-height:1.5;margin:5px 0 0}
+  .plan-card{display:flex;align-items:center;gap:10px;border:1px solid #e4e8ef;border-radius:15px;padding:11px;margin-bottom:8px}
+  .status-pill{font-size:9px;font-weight:900;border-radius:999px;padding:5px 7px;margin-left:auto;white-space:nowrap}
+  .status-pill.keep{background:#eaf8f4;color:#0a8e73}
+  .status-pill.drop{background:#fff0ef;color:#c3423f}
+  .status-pill.add{background:#edf3ff;color:var(--blue)}
+  .branch-no{background:linear-gradient(180deg,#f7fbff,#fff)}
+  .maintain-hero{border-radius:22px;padding:20px;background:linear-gradient(145deg,#ecf3ff,#f7fbff);border:1px solid #dfe9ff;margin:7px 0 14px}
+  .maintain-hero .icon{width:42px;height:42px;border-radius:14px;background:#fff;display:grid;place-items:center;box-shadow:0 4px 12px rgba(36,87,229,.08);font-size:20px}
+  .maintain-hero h4{font-size:21px;margin:12px 0 6px;letter-spacing:-.5px}
+  .maintain-hero p{margin:0;font-size:12px;color:#63708a;line-height:1.5}
+
+  .alloc-card{border:1px solid #e4e8ef;border-radius:17px;padding:13px;margin-bottom:10px}
+  .alloc-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .alloc-head b{font-size:13px}
+  .alloc-head span{font-size:11px;color:#7a8493}
+  .alloc-lines{margin-top:10px;display:grid;gap:7px}
+  .alloc-line{display:grid;grid-template-columns:78px 1fr 64px;gap:8px;align-items:center;font-size:10px;color:#697386}
+  .bar{height:8px;border-radius:999px;background:#eef1f5;overflow:hidden;display:flex}
+  .bar i{height:100%;background:var(--blue)}
+  .bar i.alt{background:var(--mint)}
+  .alloc-line strong{text-align:right;font-size:10px;color:#344054}
+
+  .accordion{border:1px solid #e4e8ef;border-radius:16px;overflow:hidden;margin-bottom:9px}
+  .accordion button{width:100%;border:0;background:#fff;padding:14px;display:flex;align-items:center;justify-content:space-between;text-align:left;font-size:12px;font-weight:830;color:#273244}
+  .accordion .acc-body{display:none;padding:0 14px 14px;font-size:10px;line-height:1.55;color:#667085}
+  .accordion.open .acc-body{display:block}
+  .accordion.open button .chev{transform:rotate(180deg)}
+  .rule-row{display:flex;justify-content:space-between;gap:10px;border-top:1px solid #eef1f5;padding:8px 0}
+  .rule-row:first-child{border-top:0;padding-top:0}
+  .rule-row span:last-child{text-align:right;color:#344054;font-weight:700}
+  .excluded{border-radius:14px;background:#fff7ef;border:1px solid #ffe3c4;padding:12px;font-size:10px;color:#875222;line-height:1.5}
+
+  .apply-hero{padding:16px;border-radius:18px;background:#f5f8ff;border:1px solid #dce7ff;margin-bottom:12px}
+  .apply-hero b{font-size:15px}
+  .apply-hero p{font-size:11px;color:#63708a;line-height:1.5;margin:5px 0 0}
+  .action-card{display:flex;align-items:flex-start;gap:10px;padding:13px;border:1px solid #e4e8ef;border-radius:16px;margin-bottom:9px}
+  .action-num{width:26px;height:26px;border-radius:9px;background:#edf3ff;color:var(--blue);display:grid;place-items:center;font-size:11px;font-weight:900;flex:0 0 26px}
+  .action-copy{min-width:0;flex:1}
+  .action-copy b{display:block;font-size:12px;line-height:1.4}
+  .action-copy span{display:block;margin-top:4px;font-size:10px;color:#8a93a3;line-height:1.45}
+  .action-btn{border:0;background:#edf3ff;color:var(--blue);border-radius:10px;padding:8px 9px;font-size:9px;font-weight:850;white-space:nowrap}
+  .scope-note{border-radius:13px;background:#f8f9fb;padding:11px;font-size:10px;line-height:1.5;color:#7a8493}
+
+  .annotation{border-top:1px solid var(--line);padding-top:13px;margin-top:2px}
+  .annotation-row{display:grid;grid-template-columns:78px 1fr;gap:9px;padding:6px 0;font-size:11px;line-height:1.45}
+  .annotation-row b{color:#697386;font-size:10px;letter-spacing:.01em}
+  .annotation-row span{color:#344054}
+  .annotation-row.risk span{color:#a15c1a}
+  .source-mini{margin-top:8px;font-size:9px;color:#99a2b1;line-height:1.45}
+  .expand-btn{position:absolute;right:16px;top:64px;border:0;background:#101828;color:#fff;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:13px;z-index:10;opacity:.9}
+
+  .scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .scope-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px}
+  .scope-card h4{font-size:14px;margin:0 0 8px}
+  .scope-card p{font-size:12px;color:#697386;line-height:1.55;margin:0}
+  .scope-card .scope-type{display:inline-block;font-size:9px;font-weight:900;border-radius:999px;padding:5px 7px;margin-bottom:10px}
+  .scope-type.open{background:var(--amber-soft);color:#a96800}
+  .scope-type.bound{background:var(--red-soft);color:#c3423f}
+  .scope-type.next{background:var(--blue-soft);color:var(--blue)}
+
+  .source-panel{background:#172033;color:#fff;border-radius:22px;padding:22px}
+  .source-panel h3{margin:0 0 12px;font-size:18px}
+  .source-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+  .source-list div{font-size:11px;color:#cbd4e2;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08);overflow-wrap:anywhere}
+  .source-note{margin-top:12px;font-size:10px;line-height:1.55;color:#96a3b7}
+  .footer{max-width:1500px;margin:0 auto;padding:18px 34px 50px;color:#8993a3;font-size:10px;display:flex;justify-content:space-between;gap:18px}
+
+  .modal{position:fixed;inset:0;background:rgba(14,20,32,.58);backdrop-filter:blur(8px);z-index:300;display:none;align-items:center;justify-content:center;padding:28px}
+  .modal.open{display:flex}
+  .modal-card{max-height:calc(100vh - 56px);max-width:calc(100vw - 56px);overflow:auto;background:#eef1f6;border-radius:30px;padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.35);position:relative}
+  .modal-card .phone{transform:none;position:relative}
+  .modal-close{position:sticky;top:0;float:right;margin-bottom:-42px;z-index:20;border:0;background:#101828;color:#fff;width:36px;height:36px;border-radius:12px;font-size:16px}
+  .notice-modal .modal-card{background:#fff;width:min(420px,calc(100vw - 40px));padding:24px}
+  .notice-modal h3{font-size:18px;margin:0 0 8px}
+  .notice-modal p{font-size:13px;color:#697386;line-height:1.55;margin:0 0 18px}
+  .notice-modal button{width:100%;height:46px;border:0;border-radius:14px;background:var(--blue);color:#fff;font-weight:850}
+
+  @media(max-width:900px){
+    .hero-grid{grid-template-columns:1fr}
+    h1{font-size:38px}
+    .delta-grid{grid-template-columns:1fr}
+    .delta-arrow{transform:rotate(90deg)}
+    .scope-grid{grid-template-columns:1fr}
+    .source-list{grid-template-columns:1fr}
+    .top-actions button:not(.primary){display:none}
+    .hero,.section{padding-left:18px;padding-right:18px}
+    .blueprint-scroll{padding-left:18px;padding-right:18px}
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">C</div>
+    <div class="brand-copy"><strong>CardFit UX Blueprint</strong><span>User-facing prototype · iPhone 17</span></div>
+  </div>
+  <div class="top-actions">
+    <button onclick="document.querySelector('#delta').scrollIntoView()">AS-IS / TO-BE</button>
+    <button onclick="document.querySelector('#sources').scrollIntoView()">근거 문서</button>
+    <button class="primary" id="playFlow">▶ 플로우 재생</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow">Future-spend card portfolio redesign</div>
+      <h1>앞으로 쓸 돈까지 반영해<br>카드 조합을 다시 계산합니다.</h1>
+      <p>마이데이터로 현재 소비와 보유카드를 읽고, 사용자가 직접 입력한 미래 지출을 결합해 카드별 실적·혜택한도·연회비를 계산합니다. 변경 가치가 충분할 때만 하나의 재배치안을 제시하고, 왜 그런 결론이 나왔는지 사용자가 직접 검증할 수 있게 근거를 공개합니다.</p>
+      <div class="hero-meta">
+        <div class="meta-chip"><b>Service</b> CardFit</div>
+        <div class="meta-chip"><b>Prototype</b> User Screen Only</div>
+        <div class="meta-chip"><b>Device</b> iPhone 17 · 402×874 CSS px</div>
+        <div class="meta-chip"><b>Assumption</b> MyData already connected</div>
+      </div>
+    </div>
+    <div class="persona-card">
+      <div class="label">CORE PERSONA · BEACHHEAD</div>
+      <h3>이서연 · 32세 · 혼인 예정</h3>
+      <p>3개월 안에 혼수·신혼여행 등 고액 지출이 몰리지만 카드별 전월실적과 혜택한도를 직접 계산하기 어렵습니다.</p>
+      <div class="persona-thought">“신규카드를 만드는 게 맞나?”<br>“이 혜택이 정말 이만큼 나오는 게 맞나?”</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="journey">
+  <div class="section-head">
+    <div><h2>7-Step User Journey</h2><p>확정본 고객여정의 단계 구조를 그대로 사용하고, MVP가 실제로 제공하지 않는 구간은 별도 표시합니다.</p></div>
+  </div>
+  <div class="journey-nav">
+    <button class="journey-step active" data-target="stage1"><b>01</b><span>트리거 · 현재 진단</span></button>
+    <button class="journey-step" data-target="stage1"><b>02</b><span>서비스 인지</span></button>
+    <button class="journey-step" data-target="stage2"><b>03</b><span>온보딩 · 입력</span></button>
+    <button class="journey-step" data-target="stage5"><b>04</b><span>계산 결과 확인</span></button>
+    <button class="journey-step" data-target="stage5"><b>05</b><span>시나리오 · 카드조합</span></button>
+    <button class="journey-step" data-target="stage8"><b>06</b><span>실행</span></button>
+    <button class="journey-step" data-target="scope"><b>07</b><span>구매 후 · 후속과제</span></button>
+  </div>
+</section>
+
+<section class="section" id="delta">
+  <div class="section-head">
+    <div><h2>BankSalad Reference → CardFit Transfer</h2><p>첫 화면은 ‘나의 카드 찾기’의 현재 상태 진단 관점을 참고하고, CardFit은 시간축을 미래로 확장합니다.</p></div>
+  </div>
+  <div class="delta-grid">
+    <div class="delta-panel">
+      <div class="delta-kicker">AS-IS · CURRENT-STATE OPTIMIZATION</div>
+      <h3>뱅크샐러드 카드 추천 흐름</h3>
+      <div class="micro-flow">
+        <div class="micro-node"><b>과거 소비 축적</b>마이데이터·가계부</div><div class="flow-arrow">→</div>
+        <div class="micro-node"><b>현재 혜택 분석</b>보유카드 기준</div><div class="flow-arrow">→</div>
+        <div class="micro-node"><b>카드 시뮬레이션</b>현재 소비패턴</div><div class="flow-arrow">→</div>
+        <div class="micro-node"><b>차이 확인</b>유지 또는 다른 카드 고려</div>
+      </div>
+    </div>
+    <div class="delta-arrow">→</div>
+    <div class="delta-panel to">
+      <div class="delta-kicker">TO-BE · FUTURE-STATE OPTIMIZATION</div>
+      <h3>CardFit 핵심 전환 메커니즘</h3>
+      <div class="micro-flow">
+        <div class="micro-node"><b>현재 상태 진단</b>보유카드·과거소비</div><div class="flow-arrow">→</div>
+        <div class="micro-node"><b>미래 지출 입력</b>카테고리·금액·시점</div><div class="flow-arrow">→</div>
+        <div class="micro-node"><b>변경 가치 Gate</b>바꿀 가치 판단</div><div class="flow-arrow">→</div>
+        <div class="micro-node"><b>결론 1안 + 근거</b>유지 또는 재배치</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="blueprint-wrap" id="blueprint">
+  <div class="section" style="padding-bottom:0">
+    <div class="section-head">
+      <div><h2>End-to-End UX Blueprint</h2><p>각 프로토타입은 iPhone 17 논리 화면 402×874px로 설계했습니다. 화면 우측 상단의 ⤢ 버튼을 누르면 1:1 크기로 확인할 수 있습니다.</p></div>
+      <div class="meta-chip">UI 예시 금액은 <b>prototype demo data</b></div>
+    </div>
+  </div>
+  <div class="blueprint-scroll">
+    <div class="blueprint-track">
+
+      <!-- Stage 1 -->
+      <article class="stage" id="stage1" data-play="1">
+        <div class="stage-header"><div><div class="stage-no">STAGE 01</div><div class="stage-title">현재 카드 진단 · 진입</div></div><span class="stage-tag blue">BankSalad IA Ref.</span></div>
+        <button class="expand-btn" aria-label="확대" onclick="expandPhone(this)">⤢</button>
+        <div class="phone-scale">
+          <div class="phone">
+            <div class="screen">
+              <div class="statusbar"><span>9:41</span><div class="status-icons"><span>5G</span><span>▮▮▮</span><div class="battery"><i></i></div></div></div><div class="dynamic-island"></div>
+              <div class="app-body">
+                <div class="app-header"><div class="title-wrap"><div class="app-brand">CardFit</div><h3 class="app-title">나의 카드 찾기</h3><div class="app-sub">최근 소비와 보유카드를 기준으로<br>지금 카드 구성을 먼저 확인했어요.</div></div><button class="icon-btn">⋯</button></div>
+                <div class="summary-hero">
+                  <div class="overline">최근 12개월 소비 기준</div>
+                  <div class="big">보유카드 3장</div>
+                  <div class="small">지금 패턴에서 받는 혜택과 놓치는 혜택을 계산했어요.</div>
+                  <div class="benefit-grid"><div class="benefit-box"><span>예상 연 혜택</span><b>₩486,000</b></div><div class="benefit-box"><span>놓칠 수 있는 혜택</span><b>₩92,000</b></div></div>
+                </div>
+                <div class="section-label">내 카드</div>
+                <div class="card-list">
+                  <div class="card-row"><div class="card-art blue"></div><div class="card-copy"><b>A카드 · 생활비</b><span>주 사용 · 실적 충족 중</span></div><div class="row-value">주 사용</div></div>
+                  <div class="card-row"><div class="card-art mint"></div><div class="card-copy"><b>B카드 · 쇼핑</b><span>최근 혜택 사용 낮음</span></div><div class="row-value">혜택 낮음</div></div>
+                  <div class="card-row"><div class="card-art pink"></div><div class="card-copy"><b>D카드 · 교통</b><span>월 한도 근접</span></div><div class="row-value">한도 근접</div></div>
+                </div>
+                <div class="loss-card"><b>앞으로 큰 지출이 있다면 결과가 달라질 수 있어요.</b><p>현재 추천은 이미 발생한 소비를 기준으로 계산돼요.</p></div>
+              </div>
+              <div class="bottom-cta"><button class="primary-cta" onclick="goStage('stage2')">앞으로 쓸 돈 반영하기</button></div><div class="homebar"></div>
+            </div>
+          </div>
+        </div>
+        <div class="annotation">
+          <div class="annotation-row"><b>USER THOUGHT</b><span>“돈 나갈 데가 한꺼번에 몰리는데 어떻게 대비하지?”</span></div>
+          <div class="annotation-row"><b>USER ACTION</b><span>현재 카드 혜택을 확인한 뒤 미래지출 계산으로 진입</span></div>
+          <div class="annotation-row"><b>PRODUCT</b><span>마이데이터 기반 현재 상태 진단을 진입점으로 사용</span></div>
+          <div class="source-mini">Source basis · Benchmark 11 / Persona Journey 05</div>
+        </div>
+      </article>
+
+      <div class="flow-connector"></div>
+
+      <!-- Stage 2 -->
+      <article class="stage" id="stage2" data-play="2">
+        <div class="stage-header"><div><div class="stage-no">STAGE 02</div><div class="stage-title">미래 지출 입력</div></div><span class="stage-tag mint">F-01</span></div>
+        <button class="expand-btn" aria-label="확대" onclick="expandPhone(this)">⤢</button>
+        <div class="phone-scale"><div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><div class="status-icons"><span>5G</span><span>▮▮▮</span><div class="battery"><i></i></div></div></div><div class="dynamic-island"></div>
+          <div class="app-body">
+            <div class="app-header"><button class="back-btn" onclick="goStage('stage1')">‹</button><div class="title-wrap" style="flex:1"><h3 class="app-title">앞으로 쓸 돈을<br>알려주세요</h3><div class="app-sub">이벤트 이름은 묻지 않아요.<br>카테고리·금액·시점만 입력하면 돼요.</div></div></div>
+            <div class="input-card"><div class="input-top"><div class="input-name"><div class="cat-icon">🛋️</div>가전·가구</div><div class="money-box"><input class="money-input future-money" data-key="home" value="840" inputmode="numeric" aria-label="가전가구 금액" /><span>만원</span></div></div><div class="time-row" data-key="home"><button class="time-chip">1개월 내</button><button class="time-chip on">3개월 내</button><button class="time-chip">6개월 내</button></div></div>
+            <div class="input-card"><div class="input-top"><div class="input-name"><div class="cat-icon">✈️</div>여행</div><div class="money-box"><input class="money-input future-money" data-key="travel" value="320" inputmode="numeric" aria-label="여행 금액" /><span>만원</span></div></div><div class="time-row" data-key="travel"><button class="time-chip on">1개월 내</button><button class="time-chip">3개월 내</button><button class="time-chip">6개월 내</button></div></div>
+            <div class="input-card"><div class="input-top"><div class="input-name"><div class="cat-icon">💍</div>예식·기타</div><div class="money-box"><input class="money-input future-money" data-key="event" value="480" inputmode="numeric" aria-label="예식기타 금액" /><span>만원</span></div></div><div class="time-row" data-key="event"><button class="time-chip">1개월 내</button><button class="time-chip on">3개월 내</button><button class="time-chip">6개월 내</button></div></div>
+            <button class="add-spend-btn" type="button" onclick="toggleSpendMenu()">＋ 지출 항목 추가</button>
+            <div class="add-spend-menu" id="addSpendMenu">
+              <button type="button" onclick="addSpendItem('move','📦','이사·입주')">📦 이사·입주</button>
+              <button type="button" onclick="addSpendItem('car','🚗','자동차')">🚗 자동차</button>
+              <button type="button" onclick="addSpendItem('education','📚','교육·학습')">📚 교육·학습</button>
+              <button type="button" onclick="addSpendItem('other','＋','직접 입력')">＋ 직접 입력</button>
+            </div>
+            <div class="total-bar"><span>입력한 미래 지출</span><b class="js-total">₩16,400,000</b></div>
+            <div class="info-note"><strong>과거 소비는 다시 입력하지 않아요.</strong><br>연결된 마이데이터에서 자동으로 불러옵니다.</div>
+          </div>
+          <div class="bottom-cta"><button class="primary-cta" onclick="goStage('stage3')">다음</button></div><div class="homebar"></div>
+        </div></div></div>
+        <div class="annotation">
+          <div class="annotation-row"><b>USER THOUGHT</b><span>“이걸 다 입력해야 하나, 정확하면 낫겠지.”</span></div>
+          <div class="annotation-row"><b>USER ACTION</b><span>카테고리·금액·시점을 입력. 특정 이벤트 선택은 요구하지 않음.</span></div>
+          <div class="annotation-row risk"><b>FRICTION</b><span>입력 노동이 혜택 최적화 가치보다 커 보이면 이탈</span></div>
+          <div class="source-mini">Source basis · Value Proposition 08 / JTBD 07 / Persona Journey 05</div>
+        </div>
+      </article>
+
+      <div class="flow-connector"></div>
+
+      <!-- Stage 3 -->
+      <article class="stage" id="stage3" data-play="3">
+        <div class="stage-header"><div><div class="stage-no">STAGE 03</div><div class="stage-title">제약조건 설정</div></div><span class="stage-tag mint">F-02</span></div>
+        <button class="expand-btn" aria-label="확대" onclick="expandPhone(this)">⤢</button>
+        <div class="phone-scale"><div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><div class="status-icons"><span>5G</span><span>▮▮▮</span><div class="battery"><i></i></div></div></div><div class="dynamic-island"></div>
+          <div class="app-body">
+            <div class="app-header"><button class="back-btn" onclick="goStage('stage2')">‹</button><div class="title-wrap" style="flex:1"><h3 class="app-title">어느 정도까지<br>바꿔도 괜찮나요?</h3><div class="app-sub">불필요하게 카드를 늘리지 않도록<br>변경 범위를 먼저 정해요.</div></div></div>
+            <div class="setting-card"><div class="setting-head"><div><b>최대 보유 카드 수</b><p>현재 3장을 보유하고 있어요.</p></div><div class="stepper"><button onclick="changeMax(-1)">−</button><b id="maxCards">3</b><button onclick="changeMax(1)">+</button></div></div><div class="current-cards-mini"><div class="mini">A카드<b>생활비</b></div><div class="mini">B카드<b>쇼핑</b></div><div class="mini">D카드<b>교통</b></div></div></div>
+            <div class="setting-card"><div class="setting-head"><div><b>신규카드도 함께 비교</b><p>새 카드가 실제로 더 유리한 경우에만 후보에 포함해요.</p></div><button id="newCardSwitch" class="switch on" aria-label="신규카드 비교" onclick="toggleNewCard(this)"><i></i></button></div></div>
+            <div class="info-note"><strong>변경이 항상 정답은 아니에요.</strong><br>추가 혜택보다 연회비·전환비용이 크면 지금 조합 유지를 권합니다.</div>
+          </div>
+          <div class="bottom-cta"><button class="primary-cta" onclick="startCalculation()">이 조건으로 계산하기</button></div><div class="homebar"></div>
+        </div></div></div>
+        <div class="annotation">
+          <div class="annotation-row"><b>USER THOUGHT</b><span>“신규카드까지 만들 필요는 있나?”</span></div>
+          <div class="annotation-row"><b>PRODUCT</b><span>최대 카드 수와 신규카드 포함 여부를 제약조건으로 계산</span></div>
+          <div class="annotation-row"><b>GUARDRAIL</b><span>‘더 좋은 카드 찾기’가 아니라 ‘바꿀 가치가 있는가’를 먼저 판단</span></div>
+          <div class="source-mini">Source basis · Value Chain 02 / Benchmark 11</div>
+        </div>
+      </article>
+
+      <div class="flow-connector"></div>
+
+      <!-- Stage 4 -->
+      <article class="stage" id="stage4" data-play="4">
+        <div class="stage-header"><div><div class="stage-no">STAGE 04</div><div class="stage-title">시나리오 계산</div></div><span class="stage-tag blue">F-03 · Engine</span></div>
+        <button class="expand-btn" aria-label="확대" onclick="expandPhone(this)">⤢</button>
+        <div class="phone-scale"><div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><div class="status-icons"><span>5G</span><span>▮▮▮</span><div class="battery"><i></i></div></div></div><div class="dynamic-island"></div>
+          <div class="app-body">
+            <div class="app-header"><div class="title-wrap"><h3 class="app-title">가장 이득인 조합을<br>계산하고 있어요</h3><div class="app-sub">현재 카드와 신규 후보를 같은 조건으로 비교합니다.</div></div></div>
+            <div class="calc-visual"><div class="inside"><b id="calcPct">78%</b><span>시나리오 계산</span></div></div>
+            <div class="check-list"><div class="check-item"><div class="check-dot">✓</div>마이데이터 소비·보유카드 확인</div><div class="check-item"><div class="check-dot">✓</div>미래 지출 시점·카테고리 반영</div><div class="check-item"><div class="check-dot">✓</div>전월실적·혜택한도·연회비 비교</div><div class="check-item"><div class="check-dot">✓</div>유지·정리·신규 조합의 실질 혜택 비교</div></div>
+            <div class="info-note"><strong>결과는 한 가지 결론부터 보여드려요.</strong><br>필요하면 이후 화면에서 카드별 조건과 계산 근거를 직접 확인할 수 있어요.</div>
+          </div>
+          <div class="homebar"></div>
+        </div></div></div>
+        <div class="annotation">
+          <div class="annotation-row"><b>SYSTEM</b><span>현재 조합과 후보 조합의 순혜택을 동일한 규칙으로 계산</span></div>
+          <div class="annotation-row"><b>TRUST</b><span>결정론적 계산과 AI 설명을 분리해 혜택 보장 오해를 방지</span></div>
+          <div class="annotation-row risk"><b>FAIL SAFE</b><span>필수 데이터 누락·오래된 Rule이면 추천을 중단하거나 경고</span></div>
+          <div class="source-mini">Source basis · Value Chain 02 / KSF 03</div>
+        </div>
+      </article>
+
+      <div class="decision-connector"><div class="diamond"><span>Net<br>Benefit?</span></div><small>No ↘ &nbsp; Yes ↗</small></div>
+
+      <!-- Stage 5 No -->
+      <article class="stage" id="stage5no" data-play="5">
+        <div class="stage-header"><div><div class="stage-no">BRANCH A</div><div class="stage-title">변경 가치가 낮음</div></div><span class="stage-tag amber">NO · 유지</span></div>
+        <button class="expand-btn" aria-label="확대" onclick="expandPhone(this)">⤢</button>
+        <div class="phone-scale"><div class="phone"><div class="screen branch-no">
+          <div class="statusbar"><span>9:41</span><div class="status-icons"><span>5G</span><span>▮▮▮</span><div class="battery"><i></i></div></div></div><div class="dynamic-island"></div>
+          <div class="app-body">
+            <div class="app-header"><button class="back-btn" onclick="goStage('stage3')">‹</button><div class="title-wrap" style="flex:1"><div class="app-brand">CardFit 결과</div></div></div>
+            <div class="maintain-hero"><div class="icon">✓</div><h4>지금은 바꾸지 않아도 돼요.</h4><p>신규카드로 얻는 추가 혜택보다 연회비와 전환비용이 더 커요.</p></div>
+            <div class="section-label">왜 유지가 유리한가요?</div>
+            <div class="setting-card"><div class="setting-head"><div><b>추가 예상 혜택</b><p>미래 지출을 반영한 후보 카드</p></div><b>+₩31,000</b></div></div>
+            <div class="setting-card"><div class="setting-head"><div><b>추가 연회비·비용</b><p>신규카드 발급 시</p></div><b>−₩38,000</b></div></div>
+            <div class="total-bar"><span>바꿨을 때 실질 차이</span><b style="color:#c3423f">−₩7,000</b></div>
+            <div class="info-note">CardFit은 신규카드를 무조건 추천하지 않습니다. 변경 효익이 충분하지 않으면 <strong>‘유지’도 정상 결과</strong>로 제시합니다.</div>
+          </div>
+          <div class="bottom-cta"><button class="secondary-cta" onclick="showNotice('유지 결과','현재 조합의 상세 계산 근거를 확인하는 예시 화면입니다.')">계산 근거 보기</button></div><div class="homebar"></div>
+        </div></div></div>
+        <div class="annotation">
+          <div class="annotation-row"><b>DECISION</b><span>추가혜택 − 전환비용이 기준을 넘지 못하면 ‘유지’ 권고</span></div>
+          <div class="annotation-row"><b>VALUE</b><span>불필요한 신규카드 추천 우려를 줄여 신뢰 형성</span></div>
+          <div class="source-mini">Source basis · Benchmark 11 / Value Proposition 08</div>
+        </div>
+      </article>
+
+      <div class="flow-connector" style="background:linear-gradient(90deg,#cdd4df,#9fb9ff)"></div>
+
+      <!-- Stage 5 Yes -->
+      <article class="stage" id="stage5" data-play="6">
+        <div class="stage-header"><div><div class="stage-no">BRANCH B · MAIN</div><div class="stage-title">변경 가치가 충분함</div></div><span class="stage-tag mint">YES · F-04</span></div>
+        <button class="expand-btn" aria-label="확대" onclick="expandPhone(this)">⤢</button>
+        <div class="phone-scale"><div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><div class="status-icons"><span>5G</span><span>▮▮▮</span><div class="battery"><i></i></div></div></div><div class="dynamic-island"></div>
+          <div class="app-body">
+            <div class="app-header"><button class="back-btn" onclick="goStage('stage3')">‹</button><div class="title-wrap" style="flex:1"><div class="app-brand">CardFit 결과</div><h3 class="app-title" style="font-size:20px">앞으로의 지출이 달라지면<br>추천도 달라질 수 있어요</h3></div></div>
+            <div class="scenario-tabs" id="scenarioTabs">
+              <button onclick="setScenario('low',this)">적게</button>
+              <button class="on" onclick="setScenario('expected',this)">예상대로</button>
+              <button onclick="setScenario('high',this)">많이</button>
+            </div>
+            <div class="scenario-amount"><b id="scenarioSpendAmount">총 ₩16,400,000 지출 가정</b><span id="scenarioDeltaCaption">입력한 금액</span></div>
+            <span class="result-badge" id="resultBadge">✓ 바꿀 가치가 충분해요</span>
+            <div class="benefit-hero" id="resultBenefitCard">
+              <div class="label">이 지출 계획이라면 월 예상 추가 혜택</div>
+              <div class="amount" id="resultDelta">+₩186,000</div>
+              <div class="copy" id="resultDesc">카드를 바꾸고 결제 순서를 조정했을 때의 예상값이에요.</div>
+              <div class="benefit-proof"><div><span>현재 조합 월 예상 혜택</span><b id="currentBenefit">₩486,000</b></div><div><span>CardFit 적용 시 월 예상 혜택</span><b id="proposedBenefit">₩672,000</b></div></div>
+            </div>
+            <div class="benefit-reason-line"><span id="quickReason">실적 충족 · 혜택한도 · 여행 혜택 · 연회비를 반영했어요.</span><button type="button" onclick="goStage('stage7')" id="whyBenefitBtn">왜 이 금액인가요? ›</button></div>
+            <button class="tiny-link" type="button" onclick="toggleCurrentCompare()">현재 조합과 비교하기 ›</button>
+            <div class="compare-detail" id="currentCompareDetail"><div class="compare-detail-row"><span>현재 카드 그대로 사용</span><b id="currentDetailValue">₩486,000</b></div><div class="compare-detail-row"><span>CardFit 결제 계획 적용</span><b id="proposalDetailValue">₩672,000</b></div><div class="compare-detail-row"><span>예상 추가 혜택</span><b id="differenceDetailValue">+₩186,000</b></div></div>
+            <div id="scenarioMaintainNote" class="scenario-maintain" style="display:none"><b>이 지출 규모에서는 현재 조합을 유지하는 게 좋아요.</b><p>새 카드를 만들거나 역할을 바꿔도 예상 추가 혜택이 충분하지 않아요.</p></div>
+          </div>
+          <div class="bottom-cta"><button class="primary-cta" id="resultPrimaryBtn" onclick="handleResultNext()">이 혜택 받는 결제 순서 보기</button></div><div class="homebar"></div>
+        </div></div></div>
+        <div class="annotation">
+          <div class="annotation-row"><b>USER THOUGHT</b><span>“신규카드를 만드는 게 맞나?”</span></div>
+          <div class="annotation-row"><b>ANSWER</b><span>‘예상대로’를 기본으로 정확한 지출 가정과 예상 추가 혜택을 먼저 제시. ‘적게/많이’는 보조 탐색</span></div>
+          <div class="annotation-row"><b>KSF</b><span>카드 처분안보다 사용자 효익을 먼저 보여주고, 근거는 다음 단계에서 검증 가능하게 공개</span></div>
+          <div class="source-mini">Source basis · Benchmark 11 / KSF 03 / Value Proposition 08</div>
+        </div>
+      </article>
+
+      <div class="flow-connector"></div>
+
+      <!-- Stage 6 -->
+      <article class="stage" id="stage6" data-play="7">
+        <div class="stage-header"><div><div class="stage-no">STAGE 06</div><div class="stage-title">결제 순서 설계</div></div><span class="stage-tag blue">F-05</span></div>
+        <button class="expand-btn" aria-label="확대" onclick="expandPhone(this)">⤢</button>
+        <div class="phone-scale"><div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><div class="status-icons"><span>5G</span><span>▮▮▮</span><div class="battery"><i></i></div></div></div><div class="dynamic-island"></div>
+          <div class="app-body">
+            <div class="app-header"><button class="back-btn" onclick="goStage('stage5')">‹</button><div class="title-wrap" style="flex:1"><h3 class="app-title">이 순서대로 결제하면<br>혜택을 가장 많이 받을 수 있어요</h3><div class="app-sub">기본은 실적·혜택한도 순서로, 특정 업종만 예외로 안내해요.</div></div></div>
+            <div class="sequence-card" id="paymentSequenceList"></div>
+            <div class="exception-card" id="paymentException"><b>✈️ 여행·해외 결제는 C카드를 먼저 쓰세요</b><p>해외 결제 수수료와 여행 관련 혜택이 더 유리해 기본 결제 순서와 관계없이 우선 사용해요.</p></div>
+            <div class="total-bar"><span>이 순서를 적용했을 때 월 예상 추가 혜택</span><b id="allocationBenefit">+₩186,000</b></div>
+            <div class="info-note">정확한 결제 순서는 <strong>전월실적·월 혜택한도·업종별 혜택·연회비</strong>를 함께 반영한 시뮬레이션 결과예요.</div>
+          </div>
+          <div class="bottom-cta"><button class="primary-cta" onclick="goStage('stage7')">왜 이렇게 나왔는지 보기</button></div><div class="homebar"></div>
+        </div></div></div>
+        <div class="annotation">
+          <div class="annotation-row"><b>USER VALUE</b><span>카테고리별 카드 나열보다 ‘실적을 어디까지 채우고 다음 카드로 언제 넘길지’를 실행 순서로 제시</span></div>
+          <div class="annotation-row"><b>PRODUCT</b><span>실적·혜택한도를 기본 순서로 만들고, 해외·특정 업종처럼 혜택 Rule이 강한 경우만 예외 처리</span></div>
+          <div class="source-mini">Source basis · Value Chain 02 / Value Proposition 08</div>
+        </div>
+      </article>
+
+      <div class="flow-connector"></div>
+
+      <!-- Stage 7 -->
+      <article class="stage" id="stage7" data-play="8">
+        <div class="stage-header"><div><div class="stage-no">STAGE 07</div><div class="stage-title">계산 근거 공개</div></div><span class="stage-tag blue">F-06 · Trust</span></div>
+        <button class="expand-btn" aria-label="확대" onclick="expandPhone(this)">⤢</button>
+        <div class="phone-scale"><div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><div class="status-icons"><span>5G</span><span>▮▮▮</span><div class="battery"><i></i></div></div></div><div class="dynamic-island"></div>
+          <div class="app-body">
+            <div class="app-header"><button class="back-btn" onclick="goStage('stage6')">‹</button><div class="title-wrap" style="flex:1"><h3 class="app-title" id="reasonTitle">왜 +₩186,000원을<br>더 받을 수 있나요?</h3><div class="app-sub">추가 혜택이 만들어지는 항목부터 보여드리고, 카드별 세부 조건은 펼쳐볼 수 있어요.</div></div></div>
+            <div class="reason-summary"><span>월 예상 실질 추가 혜택</span><b id="reasonTotalBenefit">+₩186,000</b></div>
+            <div class="reason-breakdown" id="benefitBreakdown"></div>
+            <div class="section-label">카드별 조건 더 보기</div>
+            <div id="reasonAccordions"></div>
+            <div class="section-label">계산에 포함되지 않은 항목</div>
+            <div class="excluded">포인트 소멸, 자동납부 승계 등 카드사별 부수 비용은 이 계산에 포함되지 않았습니다. 실제 변경 전 카드사에서 확인해주세요.</div>
+          </div>
+          <div class="bottom-cta"><button class="primary-cta" onclick="goStage('stage8')">이 조합 적용하기</button></div><div class="homebar"></div>
+        </div></div></div>
+        <div class="annotation">
+          <div class="annotation-row"><b>USER THOUGHT</b><span>“혜택이 정말 이만큼 주는 게 맞나?”</span></div>
+          <div class="annotation-row"><b>ANSWER</b><span>추가 혜택의 구성 금액 → 카드별 실적·한도 → 제외조건 순으로 단계적 공개</span></div>
+          <div class="annotation-row"><b>KSF</b><span>손실 가시화와 근거 투명성을 동시에 제공</span></div>
+          <div class="source-mini">Source basis · KSF 03 / Value Chain 02 / Benchmark 11</div>
+        </div>
+      </article>
+
+      <div class="flow-connector"></div>
+
+      <!-- Stage 8 -->
+      <article class="stage" id="stage8" data-play="9">
+        <div class="stage-header"><div><div class="stage-no">STAGE 08</div><div class="stage-title">적용 · 카드사 연결</div></div><span class="stage-tag red">Scope Boundary</span></div>
+        <button class="expand-btn" aria-label="확대" onclick="expandPhone(this)">⤢</button>
+        <div class="phone-scale"><div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><div class="status-icons"><span>5G</span><span>▮▮▮</span><div class="battery"><i></i></div></div></div><div class="dynamic-island"></div>
+          <div class="app-body">
+            <div class="app-header"><button class="back-btn" onclick="goStage('stage7')">‹</button><div class="title-wrap" style="flex:1"><h3 class="app-title">이 조합을 적용하려면</h3><div class="app-sub">CardFit이 할 수 있는 단계와 카드사에서 직접 해야 하는 단계를 구분해 보여드려요.</div></div></div>
+            <div class="apply-hero"><b id="applySummary">추천 조합 · A 유지 / B 정리 / C 신규</b><p id="applySub">필요한 행동만 순서대로 정리했어요.</p></div>
+            <div id="applyActions"></div>
+            <div class="scope-note"><b>CardFit의 실행 경계</b><br>해지 상담·신청 대행은 제공하지 않습니다. 계산 결과와 배분 근거를 제시하고, 신규카드일 때만 카드사 공식 신청 페이지로 연결합니다.</div>
+          </div>
+          <div class="bottom-cta"><button class="secondary-cta" onclick="showNotice('프로토타입 완료','현재 확정 MVP 흐름은 카드 조합 재배치안과 계산 근거, 신규카드 공식 신청 페이지 연결까지입니다.')">완료</button></div><div class="homebar"></div>
+        </div></div></div>
+        <div class="annotation">
+          <div class="annotation-row"><b>USER ACTION</b><span>추천 조합을 실제 결제수단 변경 판단으로 옮김</span></div>
+          <div class="annotation-row risk"><b>KNOWN GAP</b><span>계산 결과를 받아도 해지 상담 마찰로 실행이 끊길 수 있음</span></div>
+          <div class="annotation-row"><b>BOUNDARY</b><span>해지 대행 없음 · 신규카드만 카드사 공식 신청 페이지 연결</span></div>
+          <div class="source-mini">Source basis · Value Chain 02 / Value Proposition 08 / Persona Journey 05</div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="section" id="scope">
+  <div class="section-head"><div><h2>Current MVP Boundary & Open Gaps</h2><p>확정본에서 아직 ‘미해결’로 남아 있는 항목을 프로토타입 기능으로 임의 구현하지 않았습니다.</p></div></div>
+  <div class="scope-grid">
+    <div class="scope-card"><span class="scope-type bound">SCOPE BOUNDARY</span><h4>해지·전환 실행 대행</h4><p>상담사 만류와 복잡한 절차는 실제 핵심 Pain이지만, CardFit은 해지 상담·신청을 대행하지 않습니다. 사용자 여정의 가장 큰 단절 위험으로 남습니다.</p></div>
+    <div class="scope-card"><span class="scope-type open">OPEN DECISION</span><h4>실행 완주율 · 상태 추적</h4><p>Value Proposition 확정본은 실행 완주율 지표, 만류 대응 안내, 실행 체크리스트·상태 추적 등을 후보로 남겨두고 있으며 채택 여부는 미확정입니다.</p></div>
+    <div class="scope-card"><span class="scope-type next">POST-MVP</span><h4>구매 후 혜택 확인 · 리텐션</h4><p>고객여정에는 구매 후 실제 혜택 확인 단계가 있지만, 지속 사용 동기(E)는 현재 대응 기능이 없는 영역입니다. 후속 MVP에서 별도 설계가 필요합니다.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sources">
+  <div class="source-panel">
+    <h3>Source Basis · repository scope locked</h3>
+    <div class="source-list">
+      <div>윤정/확정본/02_Value_Chain.md</div>
+      <div>윤정/확정본/03_KSF.md</div>
+      <div>윤정/확정본/04_TAM_SAM_SOM_Segment_Map.md</div>
+      <div>윤정/확정본/11_Benchmark_Transfer.md</div>
+      <div>가람/확정본/05_Persona_Spectrum_Journey.md</div>
+      <div>가람/확정본/06_Opportunity_Score.md</div>
+      <div>가람/확정본/07_JTBD.md</div>
+      <div>효진/확정본/08_Value_Proposition.md</div>
+      <div>윤정/0818/경쟁사_유저플로우_뱅크샐러드.pdf · user-specified reference</div>
+    </div>
+    <div class="source-note">Repository의 다른 작업본·쟁점정리·브리프는 본 HTML의 제품 정의 근거로 사용하지 않았습니다. 윤정 확정본 05~10은 빈 파일이므로 각각 가람 확정본 05~07과 효진 확정본 08의 실제 내용을 기준으로 연결했습니다. 프로토타입 내 카드명과 금액은 제품 구조를 보여주기 위한 UI 예시값이며 실제 혜택을 의미하지 않습니다.</div>
+  </div>
+</section>
+
+<div class="footer"><span>CardFit · UX Blueprint Prototype</span><span>Standalone HTML · no external assets</span></div>
+
+<!-- Full-size phone modal -->
+<div class="modal" id="phoneModal" onclick="if(event.target===this) closeModal('phoneModal')"><div class="modal-card"><button class="modal-close" onclick="closeModal('phoneModal')">×</button><div id="modalPhoneMount"></div></div></div>
+<div class="modal notice-modal" id="noticeModal" onclick="if(event.target===this) closeModal('noticeModal')"><div class="modal-card"><h3 id="noticeTitle">안내</h3><p id="noticeText"></p><button onclick="closeModal('noticeModal')">확인</button></div></div>
+
+<script>
+  const state = {
+    spends:{
+      home:{label:'가전·가구',icon:'🛋️',amount:840,months:3},
+      travel:{label:'여행',icon:'✈️',amount:320,months:1},
+      event:{label:'예식·기타',icon:'💍',amount:480,months:3}
+    },
+    maxCards:3,
+    includeNew:true,
+    scenario:'expected'
+  }; // amount unit: 만원. 아래 계산식은 UX 상태 연결을 보여주기 위한 프로토타입 데모 로직입니다.
+
+  const scenarioMultiplier={low:.72, expected:1, high:1.28};
+  const horizonWeight={1:1,3:.96,6:.90};
+  const demoGate=150000; // 제품 정책값이 아니라 branch 동작을 보여주기 위한 prototype-only threshold.
+
+  function won(n){ return '₩' + Math.max(0,Math.round(n)).toLocaleString('ko-KR'); }
+  function signedWon(n){ return (n>=0?'+':'−') + won(Math.abs(n)); }
+  function compactWon(n){
+    if(n>=1000000) return '₩'+(n/1000000).toFixed(n%1000000===0?0:1)+'M';
+    return won(n);
+  }
+  function spendEntries(){ return Object.entries(state.spends).filter(([,v])=>Number(v.amount)>0); }
+  function rawTotalWon(){ return spendEntries().reduce((s,[,v])=>s+Number(v.amount||0)*10000,0); }
+  function scenarioSpendWon(scenario=state.scenario){ return Math.round(rawTotalWon()*(scenarioMultiplier[scenario]||1)); }
+  function scenarioDeltaWon(scenario=state.scenario){ return scenarioSpendWon(scenario)-rawTotalWon(); }
+  function effectiveTotalWon(scenario=state.scenario){
+    const m=scenarioMultiplier[scenario]||1;
+    return spendEntries().reduce((s,[,v])=>s+Number(v.amount||0)*10000*(horizonWeight[v.months]||.96)*m,0);
+  }
+  function constraintFactor(){
+    if(state.maxCards<=1) return .55;
+    if(state.maxCards===2) return .82;
+    return 1;
+  }
+  function resultFor(scenario=state.scenario){
+    const total=effectiveTotalWon(scenario);
+    const currentBenefit=Math.round(total*.02963/1000)*1000;
+    const baseRate=state.includeNew?.01365:.0062;
+    const gross=Math.max(0,Math.round(total*baseRate*constraintFactor()/1000)*1000);
+    const annual=state.includeNew && state.maxCards>=2 ? 38000 : 0;
+    const delta=gross-annual;
+    const recommend=delta>=demoGate;
+    const proposed=currentBenefit+Math.max(0,delta);
+    return {total,currentBenefit,gross,annual,delta,recommend,proposed};
+  }
+  function planFor(result){
+    if(!result.recommend) return [
+      {card:'A카드 · 생활비',desc:'현재 역할 그대로 유지',status:'유지',cls:'keep',art:'blue'},
+      {card:'B카드 · 쇼핑',desc:'현재 역할 그대로 유지',status:'유지',cls:'keep',art:'mint'},
+      {card:'D카드 · 교통',desc:'현재 역할 그대로 유지',status:'유지',cls:'keep',art:'pink'}
+    ];
+    if(state.includeNew && state.maxCards>=3) return [
+      {card:'A카드 · 생활비',desc:'일상·예식 결제 유지',status:'유지',cls:'keep',art:'blue'},
+      {card:'B카드 · 쇼핑',desc:'미래 지출 기준 효율 낮음',status:'정리',cls:'drop',art:'mint'},
+      {card:'C카드 · 여행/가전',desc:'고액 지출 구간에서 혜택 우위',status:'신규',cls:'add',art:'pink'}
+    ];
+    if(state.includeNew && state.maxCards===2) return [
+      {card:'A카드 · 생활비',desc:'핵심 생활·예식 역할 유지',status:'유지',cls:'keep',art:'blue'},
+      {card:'C카드 · 여행/가전',desc:'고액 지출 역할 집중',status:'신규',cls:'add',art:'pink'},
+      {card:'B · D카드',desc:'최대 2장 조건에 맞춰 정리',status:'정리',cls:'drop',art:'mint'}
+    ];
+    return [
+      {card:'A카드 · 생활비',desc:'핵심 지출 역할 유지',status:'유지',cls:'keep',art:'blue'},
+      {card:'D카드 · 교통',desc:'현재 혜택 구간 유지',status:'유지',cls:'keep',art:'pink'},
+      {card:'B카드 · 쇼핑',desc:'보유카드 안에서 역할 축소',status:'정리',cls:'drop',art:'mint'}
+    ];
+  }
+  function benefitParts(r){
+    const perf=Math.round(r.gross*.40/1000)*1000;
+    const cap=Math.round(r.gross*.25/1000)*1000;
+    const travel=Math.max(0,r.gross-perf-cap);
+    return {perf,cap,travel,fee:r.annual};
+  }
+  function scenarioLabel(key){return key==='low'?'적게 쓸 때':key==='high'?'많이 쓸 때':'예상대로';}
+  function planningMonths(){
+    const entries=spendEntries();
+    if(!entries.length) return 1;
+    return Math.max(...entries.map(([,v])=>Number(v.months)||1),1);
+  }
+  function monthlyAverageWon(total){
+    return Math.round((total/planningMonths())/1000)*1000;
+  }
+
+  function updateDemoValues(){
+    document.querySelectorAll('.js-total').forEach(el=>el.textContent=won(rawTotalWon()));
+    renderResult();
+  }
+
+  function bindMoneyInput(input){
+    input.addEventListener('input',e=>{
+      let v=Number(String(e.target.value).replace(/[^0-9]/g,''));
+      if(!Number.isFinite(v)) v=0;
+      const key=e.target.dataset.key;
+      if(state.spends[key]) state.spends[key].amount=v;
+      updateDemoValues();
+    });
+  }
+  document.querySelectorAll('.future-money').forEach(bindMoneyInput);
+
+  function bindTimeRow(row){
+    row.querySelectorAll('.time-chip').forEach(btn=>btn.addEventListener('click',()=>{
+      row.querySelectorAll('.time-chip').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+      const months=Number((btn.textContent.match(/\d+/)||['3'])[0]);
+      const key=row.dataset.key;
+      if(state.spends[key]) state.spends[key].months=months;
+      updateDemoValues();
+    }));
+  }
+  document.querySelectorAll('.time-row[data-key]').forEach(bindTimeRow);
+
+  function toggleSpendMenu(){ document.getElementById('addSpendMenu').classList.toggle('open'); }
+  function addSpendItem(key,icon,label){
+    if(state.spends[key]){ document.getElementById('addSpendMenu').classList.remove('open'); return; }
+    state.spends[key]={label,icon,amount:0,months:3};
+    const menu=document.getElementById('addSpendMenu');
+    const card=document.createElement('div');
+    card.className='input-card';
+    card.innerHTML=`<div class="input-top"><div class="input-name"><div class="cat-icon">${icon}</div>${label}</div><div class="money-box"><input class="money-input future-money" data-key="${key}" value="0" inputmode="numeric" aria-label="${label} 금액" /><span>만원</span></div></div><div class="time-row" data-key="${key}"><button class="time-chip">1개월 내</button><button class="time-chip on">3개월 내</button><button class="time-chip">6개월 내</button></div>`;
+    menu.parentElement.insertBefore(card,menu.previousElementSibling);
+    bindMoneyInput(card.querySelector('.future-money'));
+    bindTimeRow(card.querySelector('.time-row'));
+    menu.classList.remove('open');
+    card.querySelector('input').focus();
+    updateDemoValues();
+  }
+
+  function changeMax(delta){
+    state.maxCards=Math.max(1,Math.min(6,state.maxCards+delta));
+    document.getElementById('maxCards').textContent=state.maxCards;
+    renderResult();
+  }
+  function toggleNewCard(btn){
+    state.includeNew=!state.includeNew;
+    btn.classList.toggle('on',state.includeNew);
+    renderResult();
+  }
+  function startCalculation(){
+    goStage('stage4');
+    const pct=document.getElementById('calcPct');
+    pct.textContent='78%';
+    setTimeout(()=>{pct.textContent='100%';},500);
+    setTimeout(()=>{state.scenario='expected'; renderResult(); goStage('stage5');},900);
+  }
+
+  function setScenario(key,btn){
+    state.scenario=key;
+    document.querySelectorAll('#scenarioTabs button').forEach(b=>b.classList.remove('on'));
+    if(btn) btn.classList.add('on');
+    renderResult();
+  }
+  function toggleCurrentCompare(){ document.getElementById('currentCompareDetail').classList.toggle('open'); }
+
+  function renderResult(){
+    const r=resultFor(state.scenario);
+    const spend=scenarioSpendWon(state.scenario);
+    const deltaSpend=scenarioDeltaWon(state.scenario);
+    const planMonths=planningMonths();
+    const monthlySpend=monthlyAverageWon(spend);
+    const monthlyCurrent=monthlyAverageWon(r.currentBenefit);
+    const monthlyProposed=monthlyAverageWon(r.recommend?r.proposed:r.currentBenefit);
+    const monthlyDelta=r.recommend?monthlyAverageWon(r.delta):0;
+    const spendEl=document.getElementById('scenarioSpendAmount'); if(!spendEl) return;
+    spendEl.textContent='월 평균 '+won(monthlySpend)+' 지출 가정';
+    const deltaCap=document.getElementById('scenarioDeltaCaption');
+    if(state.scenario==='expected') deltaCap.textContent='총 '+won(spend)+' · '+planMonths+'개월 계획';
+    else deltaCap.textContent='총 '+won(spend)+' · 입력 예상 대비 '+(deltaSpend>0?'+':'−')+won(Math.abs(deltaSpend))+' ('+(deltaSpend>0?'+':'−')+'28%) · '+planMonths+'개월 계획';
+    const badge=document.getElementById('resultBadge');
+    badge.textContent=r.recommend?'✓ 바꿀 가치가 충분해요':'✓ 지금 조합 유지가 더 나아요';
+    badge.style.background=r.recommend?'#eaf8f4':'#edf3ff';
+    badge.style.color=r.recommend?'#0a8e73':'#2557e5';
+    document.getElementById('resultDelta').textContent=r.recommend?signedWon(monthlyDelta):'변경하지 않는 게 유리해요';
+    document.getElementById('resultDelta').style.fontSize=r.recommend?'32px':'20px';
+    document.getElementById('resultDesc').textContent=r.recommend?'카드를 바꾸고 결제 순서를 조정했을 때의 예상값이에요.':'추가 혜택이 변경 비용과 관리 부담을 충분히 넘지 못했어요.';
+    document.getElementById('currentBenefit').textContent=won(monthlyCurrent);
+    document.getElementById('proposedBenefit').textContent=won(monthlyProposed);
+    document.getElementById('currentDetailValue').textContent=won(monthlyCurrent);
+    document.getElementById('proposalDetailValue').textContent=won(monthlyProposed);
+    document.getElementById('differenceDetailValue').textContent=r.recommend?signedWon(monthlyDelta):'변경 없음';
+    document.getElementById('scenarioMaintainNote').style.display=r.recommend?'none':'block';
+    document.getElementById('resultBenefitCard').style.opacity=r.recommend?'1':'.78';
+    const btn=document.getElementById('resultPrimaryBtn');
+    btn.textContent=r.recommend?'이 혜택 받는 결제 순서 보기':'왜 유지가 나은지 보기';
+    const parts=benefitParts(r);
+    const mPerf=monthlyAverageWon(parts.perf), mCap=monthlyAverageWon(parts.cap), mTravel=monthlyAverageWon(parts.travel), mFee=monthlyAverageWon(parts.fee);
+    document.getElementById('quickReason').textContent=r.recommend?(state.includeNew&&state.maxCards>=2?`실적 충족 +${won(mPerf)} · 혜택한도 +${won(mCap)} · 여행/해외 +${won(mTravel)} · 연회비 −${won(mFee)} (월평균)`:`실적 충족 +${won(mPerf)} · 혜택한도 +${won(mCap)} · 보유카드 재배치 +${won(mTravel)} (월평균)`):'추가 혜택보다 연회비와 관리 부담이 더 커요.';
+    renderAllocation(r);
+    renderReasons(r);
+    renderApply(r);
+  }
+
+  function handleResultNext(){
+    const r=resultFor(state.scenario);
+    goStage(r.recommend?'stage6':'stage7');
+  }
+
+  function renderAllocation(r){
+    const list=document.getElementById('paymentSequenceList'); if(!list) return;
+    const exception=document.getElementById('paymentException');
+    const newCard=r.recommend && state.includeNew && state.maxCards>=2;
+    if(!r.recommend){
+      list.innerHTML=`<div class="sequence-step"><div class="sequence-num">1</div><div class="sequence-copy"><b>현재 카드 순서를 그대로 유지하세요</b><span>이번 지출 규모에서는 카드 역할을 바꿔도 실질 혜택이 거의 늘지 않아요.</span></div></div>`;
+      if(exception) exception.style.display='none';
+      document.getElementById('allocationBenefit').textContent='변경 없음';
+      return;
+    }
+    const steps=newCard?[
+      ['A카드','먼저 50만원까지 사용','전월실적 50만원을 채워 이번 달 주요 혜택 구간을 열어요.'],
+      ['A카드','혜택한도까지 계속 사용','실적 충족 뒤 할인·적립 한도 안에서 적용 가능한 결제를 우선 배치해요.'],
+      ['C카드','그 이후 남은 결제 사용','A카드 혜택한도를 다 쓴 뒤 남은 금액을 보조 카드로 넘겨요.']
+    ]:[
+      ['A카드','먼저 50만원까지 사용','전월실적 구간을 먼저 채워요.'],
+      ['A카드','혜택한도까지 계속 사용','적용 가능한 일반 결제를 우선 배치해요.'],
+      ['D카드','이후 남은 결제 사용','추가 카드 발급 없이 보유카드 안에서 역할을 나눠요.']
+    ];
+    list.innerHTML=steps.map((s,i)=>`<div class="sequence-step"><div class="sequence-num">${i+1}</div><div class="sequence-copy"><b>${s[0]} · ${s[1]}</b><span>${s[2]}</span></div></div>`).join('');
+    if(exception){
+      exception.style.display=newCard?'block':'none';
+      exception.innerHTML=`<b>✈️ 여행·해외 결제는 C카드를 먼저 쓰세요</b><p>해외 결제 수수료와 여행 관련 혜택이 더 유리해 기본 결제 순서와 관계없이 우선 사용해요.</p>`;
+    }
+    document.getElementById('allocationBenefit').textContent=signedWon(monthlyAverageWon(r.delta));
+  }
+
+  function renderReasons(r){
+    const mount=document.getElementById('reasonAccordions'); if(!mount) return;
+    const parts=benefitParts(r);
+    const mPerf=monthlyAverageWon(parts.perf), mCap=monthlyAverageWon(parts.cap), mTravel=monthlyAverageWon(parts.travel), mFee=monthlyAverageWon(parts.fee), mDelta=monthlyAverageWon(r.delta), mGross=monthlyAverageWon(r.gross);
+    const reasonTotal=document.getElementById('reasonTotalBenefit');
+    const reasonTitle=document.getElementById('reasonTitle');
+    const breakdown=document.getElementById('benefitBreakdown');
+    if(reasonTotal) reasonTotal.textContent=r.recommend?signedWon(mDelta):'변경 없음';
+    if(reasonTitle) reasonTitle.innerHTML=r.recommend?`왜 월 ${signedWon(mDelta)}을<br>더 받을 수 있나요?`:'왜 지금 조합을<br>유지하는 게 나은가요?';
+    if(breakdown){
+      const newCard=r.recommend && state.includeNew && state.maxCards>=2;
+      if(r.recommend && newCard){
+        breakdown.innerHTML=`
+          <div class="reason-item"><div><b>A카드 실적 충족 효과</b><span>전월실적 구간을 먼저 채워 열리는 월평균 혜택</span></div><strong>+${won(mPerf)}</strong></div>
+          <div class="reason-item"><div><b>A카드 혜택한도 활용</b><span>혜택이 적용되는 구간까지 우선 배치한 월평균 효과</span></div><strong>+${won(mCap)}</strong></div>
+          <div class="reason-item"><div><b>C카드 여행·해외 혜택</b><span>해외 결제·여행 지출을 우선 배치한 월평균 효과</span></div><strong>+${won(mTravel)}</strong></div>
+          <div class="reason-item cost"><div><b>C카드 추가 연회비</b><span>신규 카드 유지 비용을 월평균으로 반영했어요</span></div><strong>−${won(mFee)}</strong></div>
+          <div class="reason-total"><span>월 예상 실질 추가 혜택</span><b>${signedWon(mDelta)}</b></div>`;
+      }else if(r.recommend){
+        breakdown.innerHTML=`
+          <div class="reason-item"><div><b>A카드 실적 충족 효과</b><span>전월실적 구간을 먼저 채워 열리는 월평균 혜택</span></div><strong>+${won(mPerf)}</strong></div>
+          <div class="reason-item"><div><b>A카드 혜택한도 활용</b><span>혜택이 적용되는 구간까지 우선 배치한 월평균 효과</span></div><strong>+${won(mCap)}</strong></div>
+          <div class="reason-item"><div><b>보유카드 역할 재배치 효과</b><span>신규 발급 없이 남은 결제를 더 유리한 카드로 넘긴 월평균 효과</span></div><strong>+${won(mTravel)}</strong></div>
+          <div class="reason-total"><span>월 예상 실질 추가 혜택</span><b>${signedWon(mDelta)}</b></div>`;
+      }else{
+        breakdown.innerHTML=`<div class="reason-item"><div><b>후보 조합 추가 혜택</b><span>미래지출을 반영해도 월평균 변화 폭이 작아요.</span></div><strong>+${won(mGross)}</strong></div><div class="reason-item cost"><div><b>추가 연회비·관리비용</b><span>변경으로 생기는 비용과 관리 부담을 월평균으로 반영해요.</span></div><strong>−${won(mFee)}</strong></div><div class="reason-total"><span>최종 판단</span><b>현재 조합 유지</b></div>`;
+      }
+    }
+    const newCard=r.recommend && state.includeNew && state.maxCards>=2;
+    let blocks=[];
+    if(newCard) blocks.push(`<div class="accordion open"><button onclick="toggleAccordion(this)"><span>C카드 · 왜 추가하나요?</span><span class="chev">⌃</span></button><div class="acc-body"><div class="rule-row"><span>전월실적</span><span>충족 가능한 범위</span></div><div class="rule-row"><span>혜택한도</span><span>한도 안에서 배분</span></div><div class="rule-row"><span>추가 연회비</span><span>${won(r.annual)}</span></div><div class="rule-row"><span>적용 기준일</span><span>2026.08.21</span></div></div></div>`);
+    blocks.push(`<div class="accordion ${newCard?'':'open'}"><button onclick="toggleAccordion(this)"><span>A카드 · 왜 유지하나요?</span><span class="chev">⌄</span></button><div class="acc-body"><div class="rule-row"><span>역할</span><span>생활·예식 핵심 결제</span></div><div class="rule-row"><span>실적 충돌</span><span>없음</span></div><div class="rule-row"><span>혜택한도</span><span>초과 구간 제외</span></div></div></div>`);
+    if(r.recommend) blocks.push(`<div class="accordion"><button onclick="toggleAccordion(this)"><span>B카드 · 왜 정리하나요?</span><span class="chev">⌄</span></button><div class="acc-body"><div class="rule-row"><span>미래 지출 적합도</span><span>낮음</span></div><div class="rule-row"><span>연회비 대비 혜택</span><span>현재 조합보다 낮음</span></div></div></div>`);
+    else blocks.unshift(`<div class="accordion open"><button onclick="toggleAccordion(this)"><span>왜 지금 조합을 유지하나요?</span><span class="chev">⌃</span></button><div class="acc-body"><div class="rule-row"><span>추가로 받을 혜택</span><span>${won(r.gross)}</span></div><div class="rule-row"><span>추가 연회비</span><span>${r.annual?won(r.annual):'없음'}</span></div><div class="rule-row"><span>판단</span><span>변경 가치 부족</span></div></div></div>`);
+    mount.innerHTML=blocks.join('');
+  }
+
+  function renderApply(r){
+    const summary=document.getElementById('applySummary'), actions=document.getElementById('applyActions');
+    if(!summary||!actions) return;
+    if(!r.recommend){
+      summary.textContent='현재 카드 조합 유지';
+      document.getElementById('applySub').textContent='이번 시나리오에서는 별도 변경이 필요하지 않아요.';
+      actions.innerHTML='<div class="action-card"><div class="action-num">✓</div><div class="action-copy"><b>현재 카드 그대로 사용</b><span>미래 지출이 달라지면 다시 계산할 수 있어요.</span></div><span class="status-pill keep">유지</span></div>';
+      return;
+    }
+    const newCard=state.includeNew && state.maxCards>=2;
+    summary.textContent=newCard?(state.maxCards===2?'추천 조합 · A 유지 / C 신규 · 2장 구성':'추천 조합 · A 유지 / B 정리 / C 신규'):'추천 조합 · 신규 발급 없이 보유카드 재배치';
+    document.getElementById('applySub').textContent='필요한 행동만 순서대로 정리했어요.';
+    let arr=[];
+    if(newCard) arr.push(`<div class="action-card"><div class="action-num">1</div><div class="action-copy"><b>C카드 신규 신청</b><span>카드사 공식 신청 페이지에서 직접 신청</span></div><button class="action-btn" onclick="showNotice('카드사 공식 페이지 연결','실제 서비스에서는 해당 카드사의 공식 신청 페이지로 이동합니다. 신청서 작성·제출은 CardFit이 대행하지 않습니다.')">이동</button></div>`);
+    arr.push(`<div class="action-card"><div class="action-num">${arr.length+1}</div><div class="action-copy"><b>A카드 실적·혜택한도 먼저 채우기</b><span>50만원 실적 충족 후 혜택한도까지 우선 사용</span></div><span class="status-pill keep">1순위</span></div>`);
+    arr.push(`<div class="action-card"><div class="action-num">${arr.length+1}</div><div class="action-copy"><b>B카드 정리 필요</b><span>해지·전환은 카드사에서 직접 진행</span></div><span class="status-pill drop">직접 처리</span></div>`);
+    actions.innerHTML=arr.join('');
+  }
+  function goStage(id){
+    const el=document.getElementById(id); if(!el) return; el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});
+    document.querySelectorAll('.stage').forEach(s=>s.classList.remove('focus')); el.classList.add('focus');
+    setTimeout(()=>el.classList.remove('focus'),1200);
+  }
+  document.querySelectorAll('.journey-step').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('.journey-step').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+    const target=document.getElementById(btn.dataset.target); if(target) target.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});
+  }));
+
+  function toggleAccordion(btn){ btn.parentElement.classList.toggle('open'); }
+
+  function expandPhone(btn){
+    const phone=btn.closest('.stage').querySelector('.phone');
+    const clone=phone.cloneNode(true); clone.style.transform='none'; clone.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));
+    document.getElementById('modalPhoneMount').replaceChildren(clone); document.getElementById('phoneModal').classList.add('open');
+  }
+  function showNotice(title,text){ document.getElementById('noticeTitle').textContent=title; document.getElementById('noticeText').textContent=text; document.getElementById('noticeModal').classList.add('open'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal('phoneModal');closeModal('noticeModal');}});
+
+  const playButton=document.getElementById('playFlow');
+  let playing=false;
+  playButton.addEventListener('click',async()=>{
+    if(playing) return; playing=true; playButton.textContent='재생 중…';
+    const stages=[...document.querySelectorAll('.stage[data-play]')].sort((a,b)=>Number(a.dataset.play)-Number(b.dataset.play));
+    for(const s of stages){ s.scrollIntoView({behavior:'smooth',block:'center',inline:'center'}); s.classList.add('focus'); await new Promise(r=>setTimeout(r,900)); s.classList.remove('focus'); }
+    playButton.textContent='▶ 플로우 재생'; playing=false;
+  });
+
+  updateDemoValues();
+</script>
+</body>
+</html>
