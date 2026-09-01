@@ -4,17 +4,16 @@ import { useRouter } from 'next/navigation'
 import { PLAN_NOTICE } from '@/content/copy'
 import { manwon } from '@/domain/format'
 import { planTotal } from '@/domain/plan'
-import { CtaBar, Notice, Panel, PrimaryButton, ScreenHeader } from '@/components/ui'
+import { CtaBar, Notice, Panel, PrimaryButton, ScreenHeader } from '@/components/shell'
 import { logEvent } from '@/state/events'
 import { useDemo } from '@/state/store'
 
 /** UI-003 변경 조건 — 쓸 카드 수 기본 2장(상한 2) · 신규 발급 기본 허용(최대 1장) (T6 · P04-R1). */
 export default function ConstraintScreen() {
   const router = useRouter()
-  const { plan, constraint, updateConstraint, confirmPlan } = useDemo()
+  const { plan, constraint, updateConstraint } = useDemo()
 
   const confirm = () => {
-    confirmPlan()
     logEvent('계산요청', {
       items: plan.length,
       max_cards: constraint.max_cards,

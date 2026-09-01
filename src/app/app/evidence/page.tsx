@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { DATA_NOTICE, EVIDENCE_COPY } from '@/content/copy'
 import { percent, won } from '@/domain/format'
-import { CtaBar, KeyValue, Notice, Panel, PrimaryButton, ScreenHeader } from '@/components/ui'
+import { CtaBar, KeyValue, Notice, Panel, PrimaryButton, ScreenHeader } from '@/components/shell'
 import { logEvent } from '@/state/events'
 import { useDemo } from '@/state/store'
 
@@ -14,33 +14,26 @@ import { useDemo } from '@/state/store'
  */
 export default function EvidenceScreen() {
   const router = useRouter()
-  const { result, planConfirmed, confirmCombination } = useDemo()
+  const { calculation, error, confirmCombination, pending } = useDemo()
 
   useEffect(() => {
-    if (!planConfirmed) {
-      router.replace('/app/plan')
+    if (error) {
+      router.replace('/app/result')
       return
     }
-    if (result && !result.ok) router.replace('/app/result')
-  }, [planConfirmed, result, router])
+    if (!calculation) router.replace('/app/plan')
+  }, [calculation, error, router])
 
   useEffect(() => {
-    if (result?.ok) logEvent('근거열람', { cards: result.calculation.evidence.length })
-  }, [result])
+    if (calculation) logEvent('근거열람', { cards: calculation.evidence.length })
+  }, [calculation])
 
-  if (!result?.ok) return null
+  if (!calculation) return null
 
-  const calculation = result.calculation
   const shown = calculation.decision === '변경' ? calculation.chosen : calculation.current
 
   const apply = () => {
-    confirmCombination({
-      candidate_id: shown.candidate_id,
-      rule_versions: calculation.rule_versions,
-      as_of_date: calculation.as_of_date,
-      net_benefit: shown.net_benefit,
-      confirmed_at: new Date().toISOString(),
-    })
+    confirmCombination()
     logEvent('조합확정', { candidate_id: shown.candidate_id, decision: calculation.decision })
     router.push('/app/confirm')
   }
@@ -121,7 +114,9 @@ export default function EvidenceScreen() {
         <Notice>{EVIDENCE_COPY.disclaimer}</Notice>
       </div>
       <CtaBar>
-        <PrimaryButton onClick={apply}>{EVIDENCE_COPY.applyCta}</PrimaryButton>
+        <PrimaryButton onClick={apply} disabled={pending}>
+          {EVIDENCE_COPY.applyCta}
+        </PrimaryButton>
       </CtaBar>
     </>
   )

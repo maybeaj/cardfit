@@ -3,7 +3,7 @@
 import { CURRENT_STATE_NOTICE, DATA_NOTICE } from '@/content/copy'
 import { diagnose } from '@/domain/diagnose'
 import { manwon, won } from '@/domain/format'
-import { CtaBar, Notice, Panel, PrimaryLink, ScreenHeader } from '@/components/ui'
+import { CtaBar, Notice, Panel, PrimaryLink, ScreenHeader } from '@/components/shell'
 import { useDemo } from '@/state/store'
 
 /**

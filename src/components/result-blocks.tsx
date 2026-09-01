@@ -1,7 +1,15 @@
 import { CONCLUSION_COPY, DATA_NOTICE, STATUS_COPY } from '@/content/copy'
 import { manwon, won } from '@/domain/format'
 import type { Calculation, CardProduct, PlanCandidate } from '@/domain/types'
-import { Panel, SampleBadge, StatusChip } from './ui'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Panel, SampleBadge, StatusChip } from './shell'
 
 /** UI-005 결론 배너 — 좁게. 다크 영역은 이 배너 하나뿐이다 (T2 · T13). */
 export function ConclusionBanner({ calculation }: { calculation: Calculation }) {
@@ -100,46 +108,44 @@ export function AllocationTable({
       <p className="mt-1 mb-0 text-[11.5px] text-muted">
         앞으로 12개월 합계 기준 · 총 {manwon(total)}
       </p>
-      <table className="mt-3 w-full border-collapse text-left">
-        <thead>
-          <tr className="border-b border-line">
-            <th scope="col" className="pb-2 text-[11.5px] font-semibold text-muted">
-              카드
-            </th>
-            <th scope="col" className="pb-2 text-right text-[11.5px] font-semibold text-muted">
+      <Table className="mt-3">
+        <TableHeader>
+          <TableRow className="border-line">
+            <TableHead className="h-auto pb-2 text-[11.5px] font-semibold text-muted">카드</TableHead>
+            <TableHead className="h-auto pb-2 text-right text-[11.5px] font-semibold text-muted">
               결제 금액
-            </th>
-            <th scope="col" className="pb-2 text-right text-[11.5px] font-semibold text-muted">
+            </TableHead>
+            <TableHead className="h-auto pb-2 text-right text-[11.5px] font-semibold text-muted">
               혜택
-            </th>
-          </tr>
-        </thead>
-        <tbody>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {[...byCard.entries()]
             .sort((a, b) => b[1].amount - a[1].amount)
             .map(([cardId, entry]) => {
               const card = cards.find((item) => item.card_id === cardId)
               return (
-                <tr key={cardId} className="border-b border-line last:border-0 align-top">
-                  <td className="py-2.5">
+                <TableRow key={cardId} className="border-line align-top">
+                  <TableCell className="py-2.5 whitespace-normal">
                     <span className="block text-[13.5px] font-bold text-ink">
                       {card?.name ?? cardId}
                     </span>
                     <span className="block text-[11px] text-muted">
                       {entry.categories.join(' · ')}
                     </span>
-                  </td>
-                  <td className="py-2.5 text-right text-[13.5px] font-bold text-ink tabular-nums">
+                  </TableCell>
+                  <TableCell className="py-2.5 text-right text-[13.5px] font-bold text-ink tabular-nums">
                     {manwon(entry.amount)}
-                  </td>
-                  <td className="py-2.5 text-right text-[13.5px] font-bold text-positive tabular-nums">
+                  </TableCell>
+                  <TableCell className="py-2.5 text-right text-[13.5px] font-bold text-positive tabular-nums">
                     {won(entry.benefit)}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )
             })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </Panel>
   )
 }

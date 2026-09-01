@@ -1,10 +1,12 @@
 import type { Constraint, FutureSpendPlan } from '@/domain/types'
 
 /**
- * 세션 상태 — 아웃링크로 나갔다 돌아왔을 때 입력값과 확정 조합을 보존한다 (T28 · ADR-003).
- * 서버·DB에 저장하지 않는다. 새로고침으로 홈에 돌아가는 것은 정상 동작이다.
+ * 외부 링크 복귀용 임시 화면 상태 (T28 · ADR-003).
+ * **정본 데이터는 Server Actions를 통해 DB에 저장한다** — sessionStorage가 정본을 대체하지 않는다.
  */
 export interface SessionState {
+  /** 로그인이 없어 클라이언트가 만든 세션 키. 정본 데이터를 DB에서 묶는 데 쓴다 (ADR-003) */
+  sessionId: string
   connected: boolean
   plan: FutureSpendPlan[]
   constraint: Constraint

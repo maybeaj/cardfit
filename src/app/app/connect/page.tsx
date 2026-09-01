@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { DATA_NOTICE } from '@/content/copy'
-import { CtaBar, Notice, Panel, PrimaryButton, ScreenHeader } from '@/components/ui'
+import { CtaBar, Notice, Panel, PrimaryButton, ScreenHeader } from '@/components/shell'
 import { useDemo } from '@/state/store'
 
 /** UI-012 마이데이터 안내 — 실제 인증·동의·연결 성공 표현 0건 (AC-011). */

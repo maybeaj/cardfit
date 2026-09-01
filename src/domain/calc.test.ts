@@ -113,6 +113,9 @@ describe('결정론성 (NFR-001)', () => {
     if (!a.ok || !b.ok) return
     expect(b.calculation.chosen.candidate_id).toBe(a.calculation.chosen.candidate_id)
     expect(b.calculation.chosen.net_benefit).toBe(a.calculation.chosen.net_benefit)
+    // 근거 배열 순서까지 같아야 한다 — DB 왕복에서 발견한 구멍이다
+    expect(b.calculation.evidence).toEqual(a.calculation.evidence)
+    expect(b.calculation).toEqual(a.calculation)
   })
 })
 

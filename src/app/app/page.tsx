@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { DATA_NOTICE } from '@/content/copy'
-import { CtaBar, PrimaryLink } from '@/components/ui'
+import { CtaBar, PrimaryLink } from '@/components/shell'
 
 /** UI-011 온보딩 — 브랜드 진입 + 예시 데이터 고지. 약관·개인정보 동의 체크박스를 만들지 않는다 (T8 · P04-R2). */
 export default function OnboardingScreen() {

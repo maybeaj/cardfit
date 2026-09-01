@@ -34,3 +34,10 @@ yarn-error.log*
 test-results/
 playwright-report/
 playwright/.cache/
+
+# 로컬 Supabase 런타임 산출물
+supabase/.temp/
+supabase/.branches/
+
+# Prisma 생성물 (node_modules로 생성됨)
+src/generated/

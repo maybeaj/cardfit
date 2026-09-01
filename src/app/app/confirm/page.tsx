@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { BOUNDARY_COPY, EVIDENCE_COPY, STATUS_COPY } from '@/content/copy'
 import { won } from '@/domain/format'
 import type { CardStatus } from '@/domain/types'
-import { CtaBar, Notice, Panel, SecondaryLink, StatusChip, ScreenHeader } from '@/components/ui'
+import { CtaBar, Notice, Panel, SecondaryLink, StatusChip, ScreenHeader } from '@/components/shell'
 import { logEvent } from '@/state/events'
 import { useDemo } from '@/state/store'
 
@@ -16,15 +16,14 @@ import { useDemo } from '@/state/store'
  */
 export default function ConfirmScreen() {
   const router = useRouter()
-  const { result, confirmed, profile } = useDemo()
+  const { calculation, confirmed, profile } = useDemo()
 
   useEffect(() => {
-    if (!result?.ok || !confirmed) router.replace('/app/result')
-  }, [result, confirmed, router])
+    if (!calculation) router.replace('/app/result')
+  }, [calculation, router])
 
-  if (!result?.ok || !confirmed) return null
+  if (!calculation) return null
 
-  const calculation = result.calculation
   const statuses =
     calculation.decision === '변경' ? calculation.chosen.statuses : calculation.current.statuses
   const entries = Object.entries(statuses).sort(([a], [b]) => a.localeCompare(b)) as [
@@ -32,6 +31,7 @@ export default function ConfirmScreen() {
     CardStatus,
   ][]
   const newCards = entries.filter(([, status]) => status === '신규')
+  const shownCandidate = calculation.decision === '변경' ? calculation.chosen : calculation.current
 
   return (
     <>
@@ -40,19 +40,20 @@ export default function ConfirmScreen() {
         title={
           calculation.decision === '변경' ? '이 조합을 적용하려면' : '현재 조합을 그대로 확정했어요'
         }
-        lead={`확정 시각 ${new Date(confirmed.confirmed_at).toLocaleString('ko-KR')}`}
+        lead={confirmed ? `확정 시각 ${new Date(confirmed.confirmed_at).toLocaleString('ko-KR')}` : '확정 중…'}
         backHref="/app/evidence"
       />
       <div className="scroll-area flex flex-col gap-3">
         <Panel>
           <p className="m-0 text-[12.5px] font-bold text-muted">확정한 조합</p>
           <p className="mt-1 mb-0 text-[15px] font-extrabold text-ink">
-            {(calculation.decision === '변경' ? calculation.chosen : calculation.current).card_ids
-              .map((id) => profile.cards.find((card) => card.card_id === id)?.name ?? id)
+            {shownCandidate.card_ids
+              .map((id: string) => profile.cards.find((card) => card.card_id === id)?.name ?? id)
               .join(' + ')}
           </p>
           <p className="mt-2 mb-0 text-[12px] text-muted tabular-nums">
-            순혜택 {won(confirmed.net_benefit)} · 기준일 {confirmed.as_of_date}
+            순혜택 {won(confirmed?.net_benefit ?? shownCandidate.net_benefit)} · 기준일{' '}
+            {confirmed?.as_of_date ?? calculation.as_of_date}
           </p>
           <p className="mt-2 mb-0 text-[11.5px] leading-relaxed text-muted">{BOUNDARY_COPY.frozen}</p>
         </Panel>

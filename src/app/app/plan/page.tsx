@@ -5,7 +5,18 @@ import { PLAN_NOTICE } from '@/content/copy'
 import { manwon, monthLabel } from '@/domain/format'
 import { isPlanEmpty } from '@/domain/plan'
 import type { FutureSpendPlan } from '@/domain/types'
-import { CtaBar, Notice, Panel, PrimaryLink, ScreenHeader } from '@/components/ui'
+import { CtaBar, Notice, Panel, PrimaryLink, ScreenHeader } from '@/components/shell'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { logEvent } from '@/state/events'
 import { useDemo } from '@/state/store'
 
@@ -26,11 +37,9 @@ export default function PlanScreen() {
     )
   }
 
-  const removeItem = (planId: string) => {
-    updatePlan(plan.filter((item) => item.plan_id !== planId))
-  }
+  const removeItem = (planId: string) => updatePlan(plan.filter((item) => item.plan_id !== planId))
 
-  const addItem = () => {
+  const addItem = () =>
     updatePlan([
       ...plan,
       {
@@ -42,7 +51,6 @@ export default function PlanScreen() {
         source: 'user',
       },
     ])
-  }
 
   return (
     <>
@@ -58,71 +66,80 @@ export default function PlanScreen() {
         {plan.map((item) => (
           <Panel key={item.plan_id}>
             <div className="flex items-center gap-2">
-              <label className="sr-only" htmlFor={`cat-${item.plan_id}`}>
+              <Label className="sr-only" htmlFor={`cat-${item.plan_id}`}>
                 카테고리
-              </label>
-              <select
-                id={`cat-${item.plan_id}`}
+              </Label>
+              <Select
                 value={item.category}
-                onChange={(event) => patchItem(item.plan_id, { category: event.target.value })}
-                className="flex-1 rounded-xl border border-line bg-surface px-3 py-2 text-[15px] font-semibold text-ink"
+                onValueChange={(category) => patchItem(item.plan_id, { category })}
               >
-                {[...new Set([item.category, ...CATEGORY_OPTIONS])].map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              <button
+                <SelectTrigger id={`cat-${item.plan_id}`} className="flex-1 text-[15px] font-semibold">
+                  <SelectValue placeholder="카테고리" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[...new Set([item.category, ...CATEGORY_OPTIONS])].map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => removeItem(item.plan_id)}
                 aria-label={`${item.category} 항목 삭제`}
-                className="rounded-xl border border-line px-3 py-2 text-[13px] text-muted"
+                className="text-[13px] text-muted"
               >
                 삭제
-              </button>
+              </Button>
             </div>
 
             <div className="mt-3 flex items-center gap-2">
-              <div className="flex rounded-xl border border-line p-0.5" role="group" aria-label="지출 방향">
-                {(['increase', 'decrease'] as const).map((direction) => (
-                  <button
-                    key={direction}
-                    type="button"
-                    aria-pressed={item.direction === direction}
-                    onClick={() => patchItem(item.plan_id, { direction })}
-                    className={`rounded-lg px-3 py-1.5 text-[13px] font-bold ${
-                      item.direction === direction ? 'bg-primary text-white' : 'text-muted'
-                    }`}
-                  >
-                    {direction === 'increase' ? '+ 늘어요' : '− 줄어요'}
-                  </button>
-                ))}
-              </div>
-              <label className="sr-only" htmlFor={`month-${item.plan_id}`}>
-                시점
-              </label>
-              <select
-                id={`month-${item.plan_id}`}
-                value={item.month_offset}
-                onChange={(event) =>
-                  patchItem(item.plan_id, { month_offset: Number(event.target.value) })
-                }
-                className="flex-1 rounded-xl border border-line bg-surface px-3 py-2 text-[14px] text-ink"
+              <ToggleGroup
+                type="single"
+                value={item.direction}
+                onValueChange={(next) => {
+                  if (next === 'increase' || next === 'decrease') {
+                    patchItem(item.plan_id, { direction: next })
+                  }
+                }}
+                aria-label="지출 방향"
+                className="shrink-0"
               >
-                {Array.from({ length: 12 }, (_, index) => index + 1).map((offset) => (
-                  <option key={offset} value={offset}>
-                    {monthLabel(profile.as_of_date, offset)} ({offset}개월 뒤)
-                  </option>
-                ))}
-              </select>
+                <ToggleGroupItem value="increase" className="px-3 text-[13px] font-bold">
+                  + 늘어요
+                </ToggleGroupItem>
+                <ToggleGroupItem value="decrease" className="px-3 text-[13px] font-bold">
+                  − 줄어요
+                </ToggleGroupItem>
+              </ToggleGroup>
+
+              <Label className="sr-only" htmlFor={`month-${item.plan_id}`}>
+                시점
+              </Label>
+              <Select
+                value={String(item.month_offset)}
+                onValueChange={(next) => patchItem(item.plan_id, { month_offset: Number(next) })}
+              >
+                <SelectTrigger id={`month-${item.plan_id}`} className="flex-1 text-[14px]">
+                  <SelectValue placeholder="시점" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 12 }, (_, index) => index + 1).map((offset) => (
+                    <SelectItem key={offset} value={String(offset)}>
+                      {monthLabel(profile.as_of_date, offset)} ({offset}개월 뒤)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="mt-3 flex items-center gap-2">
-              <label className="sr-only" htmlFor={`amount-${item.plan_id}`}>
+              <Label className="sr-only" htmlFor={`amount-${item.plan_id}`}>
                 금액
-              </label>
-              <input
+              </Label>
+              <Input
                 id={`amount-${item.plan_id}`}
                 type="number"
                 min={0}
@@ -132,7 +149,7 @@ export default function PlanScreen() {
                 onChange={(event) =>
                   patchItem(item.plan_id, { amount: Math.max(0, Number(event.target.value) || 0) })
                 }
-                className="flex-1 rounded-xl border border-line bg-surface px-3 py-2 text-right text-[17px] font-extrabold text-ink tabular-nums"
+                className="flex-1 text-right text-[17px] font-extrabold text-ink tabular-nums"
               />
               <span className="text-[14px] font-semibold text-muted">원</span>
             </div>
@@ -143,36 +160,29 @@ export default function PlanScreen() {
           </Panel>
         ))}
 
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={addItem}
-          className="rounded-[var(--radius-button)] border border-dashed border-line py-3 text-[14px] font-semibold text-primary"
+          className="border-dashed py-3 text-[14px] font-semibold text-primary"
         >
           + 지출 추가
-        </button>
+        </Button>
 
         {empty ? (
           <>
             <Notice tone="warning">{PLAN_NOTICE.emptyBlocked}</Notice>
-            <button
-              type="button"
-              onClick={refillPlan}
-              className="rounded-[var(--radius-button)] border border-line py-3 text-[14px] font-semibold text-ink"
-            >
+            <Button type="button" variant="outline" onClick={refillPlan} className="text-[14px]">
               {PLAN_NOTICE.refill}
-            </button>
+            </Button>
           </>
         ) : null}
       </div>
       <CtaBar>
         {empty ? (
-          <button
-            type="button"
-            disabled
-            className="block w-full min-h-[52px] cursor-not-allowed rounded-[var(--radius-button)] bg-[#D8DEEA] px-4 py-[15px] text-center text-[16px] font-bold text-[#98A1B0]"
-          >
+          <Button type="button" size="lg" disabled className="w-full min-h-[52px] rounded-[var(--radius-button)] text-[16px] font-bold">
             다음
-          </button>
+          </Button>
         ) : (
           <PrimaryLink href="/app/constraint" onClick={() => logEvent('입력완료', { items: plan.length })}>
             다음

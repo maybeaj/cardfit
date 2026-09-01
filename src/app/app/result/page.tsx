@@ -11,57 +11,64 @@ import {
   ConclusionBanner,
   ReviewedAlternatives,
 } from '@/components/result-blocks'
-import { CtaBar, Notice, Panel, PrimaryLink, ScreenHeader } from '@/components/ui'
+import { CtaBar, Notice, Panel, PrimaryLink, ScreenHeader } from '@/components/shell'
 import { logEvent } from '@/state/events'
 import { useDemo } from '@/state/store'
 
 /** UI-005 + UI-006 — 결론 배너는 좁게, 결제 배분표가 본문 (T2). */
 export default function ResultScreen() {
   const router = useRouter()
-  const { result, planConfirmed, profile } = useDemo()
+  const { calculation, error, profile, clearError } = useDemo()
 
   useEffect(() => {
-    if (!planConfirmed) router.replace('/app/plan')
-  }, [planConfirmed, router])
+    if (!calculation && !error) router.replace('/app/plan')
+  }, [calculation, error, router])
 
   useEffect(() => {
-    if (result?.ok) {
+    if (calculation) {
       logEvent('결과열람', {
-        decision: result.calculation.decision,
-        net_benefit: result.calculation.chosen.net_benefit,
+        decision: calculation.decision,
+        net_benefit: calculation.chosen.net_benefit,
       })
     }
-  }, [result])
+  }, [calculation])
 
-  if (!result) return null
-
-  if (!result.ok) {
+  if (error) {
     // AC-001 · AC-002 — 결과를 반환하지 않는 두 경우를 화면에서도 결과처럼 보여주지 않는다
     return (
       <>
         <ScreenHeader
-          step="결과 없음"
+          step={error.code}
           title={
-            result.code === 'EMPTY_PLAN'
+            error.code === 'INVALID_PLAN'
               ? '아직 계산할 수 없어요'
-              : '근거가 부족해 결과를 보여주지 않았어요'
+              : error.code === 'EVIDENCE_INCOMPLETE'
+                ? '근거가 부족해 결과를 보여주지 않았어요'
+                : '결과를 만들지 못했어요'
           }
-          lead={result.reason}
+          lead={error.message}
           backHref="/app/plan"
         />
-        <div className="scroll-area">
-          <Notice tone="warning">
-            {result.code === 'EMPTY_PLAN' ? PLAN_NOTICE.emptyBlocked : '근거 6항목이 모두 갖춰진 카드만 결론에 넣습니다.'}
+        <div className="scroll-area flex flex-col gap-3">
+          {error.missing.length > 0 ? (
+            <Notice tone="warning">부족한 항목 — {error.missing.join(' · ')}</Notice>
+          ) : null}
+          <Notice>
+            {error.code === 'INVALID_PLAN'
+              ? PLAN_NOTICE.emptyBlocked
+              : '근거 6항목이 모두 갖춰진 카드만 결론에 넣습니다.'}
           </Notice>
         </div>
         <CtaBar>
-          <PrimaryLink href="/app/plan">입력으로 돌아가기</PrimaryLink>
+          <PrimaryLink href="/app/plan" onClick={clearError}>
+            {error.retryable ? '입력으로 돌아가 다시 확인하기' : '입력으로 돌아가기'}
+          </PrimaryLink>
         </CtaBar>
       </>
     )
   }
 
-  const calculation = result.calculation
+  if (!calculation) return null
   const shown = calculation.decision === '변경' ? calculation.chosen : calculation.current
 
   return (

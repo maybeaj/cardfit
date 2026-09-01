@@ -360,7 +360,8 @@ export function calculatePlan(input: CalculateInput): CalculationResult {
     hold_reason = relaxedSet.some((item) => item.passes_threshold) ? '제약과다' : '임계미달'
   }
 
-  const evidenceTargets = decision === '변경' ? chosen.card_ids : ownedIds
+  // 근거 순서를 card_id로 고정한다 — 카드 선언 순서에 결과가 흔들리면 NFR-001이 깨진다
+  const evidenceTargets = [...(decision === '변경' ? chosen.card_ids : ownedIds)].sort()
   const evidenceSim = decision === '변경' ? simulate(chosen.card_ids, cards, rules, months) : currentSim
   const evidence: CardEvidence[] = evidenceTargets.map((id) => {
     const card = cards.get(id) as CardProduct

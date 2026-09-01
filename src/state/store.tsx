@@ -7,31 +7,45 @@ import {
   useEffect,
   useMemo,
   useState,
+  useTransition,
   type ReactNode,
 } from 'react'
-import { calculatePlan } from '@/domain/calc'
-import type { CalculationResult, Constraint, FutureSpendPlan, Profile } from '@/domain/types'
-import { DEFAULT_PROFILE } from '@/fixtures'
+import type { Calculation, Constraint, FutureSpendPlan, Profile } from '@/domain/types'
+import type { ActionError } from '@/server/errors'
+import { calculateAction, confirmPlanAction, savePlanAction, startSessionAction } from '@/server/actions'
 import { loadSession, saveSession, type SessionState } from './session'
 
+/**
+ * 화면 상태. 계산은 Server Action이 수행하고 여기서는 결과만 들고 있는다 (TEC-05).
+ * `src/fixtures`를 직접 import하지 않는다 — Mock의 정본은 DB다 (TECH_SPEC 4절).
+ */
 interface DemoContextValue extends SessionState {
   profile: Profile
-  result: CalculationResult | null
+  calculation: Calculation | null
+  calculationId: string | null
+  error: ActionError | null
+  pending: boolean
   connect: () => void
   updatePlan: (plan: FutureSpendPlan[]) => void
   refillPlan: () => void
   updateConstraint: (patch: Partial<Constraint>) => void
-  confirmPlan: () => void
-  confirmCombination: (snapshot: NonNullable<SessionState['confirmed']>) => void
-  reset: () => void
+  requestCalculation: () => void
+  confirmCombination: () => void
+  clearError: () => void
 }
 
 const DemoContext = createContext<DemoContextValue | null>(null)
 
+function newSessionId() {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()
+  return `s-${Date.now()}-${Math.floor(Math.random() * 1e6)}`
+}
+
 function initialState(profile: Profile): SessionState {
   return {
+    sessionId: '',
     connected: false,
-    // 입력 화면은 빈 폼으로 열리지 않는다 — 과거 패턴 기반 제안값이 이미 채워져 있다 (T3 · FR-006)
+    // 입력 화면은 빈 폼으로 열리지 않는다 — 제안값이 이미 채워져 있다 (T3 · FR-006)
     plan: profile.suggested_plan.map((item) => ({ ...item })),
     constraint: { ...profile.constraint },
     planConfirmed: false,
@@ -39,19 +53,17 @@ function initialState(profile: Profile): SessionState {
   }
 }
 
-export function DemoProvider({
-  children,
-  profile = DEFAULT_PROFILE,
-}: {
-  children: ReactNode
-  profile?: Profile
-}) {
+export function DemoProvider({ children, profile }: { children: ReactNode; profile: Profile }) {
   const [state, setState] = useState<SessionState>(() => initialState(profile))
+  const [calculation, setCalculation] = useState<Calculation | null>(null)
+  const [calculationId, setCalculationId] = useState<string | null>(null)
+  const [error, setError] = useState<ActionError | null>(null)
   const [hydrated, setHydrated] = useState(false)
+  const [pending, startTransition] = useTransition()
 
   useEffect(() => {
     const restored = loadSession()
-    if (restored) setState(restored)
+    setState((prev) => ({ ...(restored ?? prev), sessionId: restored?.sessionId || newSessionId() }))
     setHydrated(true)
   }, [])
 
@@ -63,30 +75,97 @@ export function DemoProvider({
     setState((prev) => ({ ...prev, ...next }))
   }, [])
 
-  const value = useMemo<DemoContextValue>(() => {
-    const result = state.planConfirmed
-      ? calculatePlan({ profile, plan: state.plan, constraint: state.constraint })
-      : null
+  const invalidate = useCallback(() => {
+    setCalculation(null)
+    setCalculationId(null)
+    setError(null)
+  }, [])
 
+  const value = useMemo<DemoContextValue>(() => {
     return {
       ...state,
       profile,
-      result,
-      connect: () => patch({ connected: true }),
-      updatePlan: (plan) => patch({ plan, planConfirmed: false, confirmed: null }),
-      refillPlan: () =>
-        patch({
-          plan: profile.suggested_plan.map((item) => ({ ...item })),
-          planConfirmed: false,
-          confirmed: null,
-        }),
-      updateConstraint: (next) =>
-        patch({ constraint: { ...state.constraint, ...next }, planConfirmed: false, confirmed: null }),
-      confirmPlan: () => patch({ planConfirmed: true }),
-      confirmCombination: (snapshot) => patch({ confirmed: snapshot }),
-      reset: () => setState(initialState(profile)),
+      calculation,
+      calculationId,
+      error,
+      pending,
+      clearError: () => setError(null),
+
+      connect: () => {
+        const sessionId = state.sessionId || newSessionId()
+        patch({ connected: true, sessionId })
+        startTransition(async () => {
+          const result = await startSessionAction(profile.fixture_id, sessionId)
+          if (!result.ok) setError(result.error)
+        })
+      },
+
+      updatePlan: (plan) => {
+        patch({ plan, planConfirmed: false, confirmed: null })
+        invalidate()
+        {
+          const sessionId = state.sessionId || newSessionId()
+          if (!state.sessionId) patch({ sessionId })
+          startTransition(async () => {
+            const result = await savePlanAction(profile.fixture_id, sessionId, plan)
+            if (!result.ok) setError(result.error)
+          })
+        }
+      },
+
+      refillPlan: () => {
+        const plan = profile.suggested_plan.map((item) => ({ ...item }))
+        patch({ plan, planConfirmed: false, confirmed: null })
+        invalidate()
+      },
+
+      updateConstraint: (next) => {
+        patch({ constraint: { ...state.constraint, ...next }, planConfirmed: false, confirmed: null })
+        invalidate()
+      },
+
+      requestCalculation: () => {
+        setError(null)
+        startTransition(async () => {
+          const result = await calculateAction(
+            profile.fixture_id,
+            state.sessionId || newSessionId(),
+            state.plan,
+            state.constraint,
+          )
+          if (!result.ok) {
+            setError(result.error)
+            patch({ planConfirmed: false })
+            return
+          }
+          setCalculation(result.data.calculation)
+          setCalculationId(result.data.calculationId)
+          patch({ planConfirmed: true })
+        })
+      },
+
+      confirmCombination: () => {
+        if (!calculationId || !calculation) return
+        const shown = calculation.decision === '변경' ? calculation.chosen : calculation.current
+        startTransition(async () => {
+          const result = await confirmPlanAction(calculationId, shown.candidate_id)
+          if (!result.ok) {
+            setError(result.error)
+            return
+          }
+          patch({
+            confirmed: {
+              candidate_id: shown.candidate_id,
+              rule_versions: calculation.rule_versions,
+              as_of_date: calculation.as_of_date,
+              net_benefit: result.data.netBenefit,
+              confirmed_at: result.data.confirmedAt,
+            },
+          })
+        })
+      },
     }
-  }, [state, profile, patch])
+  }, [state, profile, calculation, calculationId, error, pending, patch, invalidate])
 
   return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>
 }

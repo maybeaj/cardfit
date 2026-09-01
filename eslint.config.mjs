@@ -8,6 +8,8 @@ const config = [
       '.next/**',
       'node_modules/**',
       'next-env.d.ts',
+      'src/generated/**',
+      'supabase/**',
       'playwright-report/**',
       'test-results/**',
     ],
