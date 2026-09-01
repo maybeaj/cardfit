@@ -7,9 +7,10 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | E-01 · D-001 | G1 · G2 | UI-011·012, NFR-002 | TECH · FIXTURE | [#1](https://github.com/maybeaj/cardfit/issues/1), [#3](https://github.com/maybeaj/cardfit/issues/3), [#5](https://github.com/maybeaj/cardfit/issues/5) | 대기 | AC-011 · 비밀키 스캔 |
 | E-04 · A-01 | G2 | FR-001·006·007, UI-002·003 | TECH · FIXTURE | [#3](https://github.com/maybeaj/cardfit/issues/3), [#6](https://github.com/maybeaj/cardfit/issues/6) | 대기 | AC-001·007·010 |
-| E-05 · A-03 | G6 | FR-002, UI-004 | CALC | [#4](https://github.com/maybeaj/cardfit/issues/4), [#7](https://github.com/maybeaj/cardfit/issues/7) | 대기 | AC-005 |
+| D-008 | G2 | FR-002, UI-004 | CALC | [#4](https://github.com/maybeaj/cardfit/issues/4), [#7](https://github.com/maybeaj/cardfit/issues/7) | 대기 | AC-001·010 |
+| 제품 결정 | G6 | FR-003, UI-005 | CALC | [#4](https://github.com/maybeaj/cardfit/issues/4), [#7](https://github.com/maybeaj/cardfit/issues/7) | 대기 | AC-005 |
 | I-01 · A-02 | G3 | FR-003, UI-005 | CALC · FIXTURE | [#3](https://github.com/maybeaj/cardfit/issues/3), [#4](https://github.com/maybeaj/cardfit/issues/4), [#7](https://github.com/maybeaj/cardfit/issues/7) | 대기 | AC-004·006 |
-| E-06 | G1 | FR-004, UI-006 | CALC | [#4](https://github.com/maybeaj/cardfit/issues/4), [#7](https://github.com/maybeaj/cardfit/issues/7) | 대기 | 배분 합 오차 ≤ 1원 |
+| 2차 F-05 | G1 | FR-004, UI-006 | CALC | [#4](https://github.com/maybeaj/cardfit/issues/4), [#7](https://github.com/maybeaj/cardfit/issues/7) | 대기 | 배분 합 오차 ≤ 1원 |
 | E-02 · I-02 | G4 | FR-005, UI-007 | CALC · TEST | [#4](https://github.com/maybeaj/cardfit/issues/4), [#7](https://github.com/maybeaj/cardfit/issues/7), [#8](https://github.com/maybeaj/cardfit/issues/8) | 대기 | AC-002 |
 | E-03 | G5 | FR-008, UI-008 | TECH · TEST | [#7](https://github.com/maybeaj/cardfit/issues/7), [#9](https://github.com/maybeaj/cardfit/issues/9) | 대기 | AC-003·008 |
 | E-05 | G2 | UI-001 | TECH · TEST | [#5](https://github.com/maybeaj/cardfit/issues/5), [#9](https://github.com/maybeaj/cardfit/issues/9) | 대기 | AC-012 |

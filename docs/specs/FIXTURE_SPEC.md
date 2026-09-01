@@ -8,10 +8,10 @@ Fixture는 페르소나를 선택하게 하는 기능이 아니라 동일한 사
 
 ## 2. 데이터 세트
 
-| Fixture ID | 기본 탭 기대 결과 | 필수 경계값 |
+| Fixture ID | 기대 결과 | 필수 경계값 |
 | --- | --- | --- |
-| `change_case` | 조합 변경, Net Benefit `186,000원` | `LOW`는 Net `42,000원`으로 유지 반환 |
-| `maintain_case` | 현재 조합 유지, Net Benefit `31,000원` | 미통과 대안을 결과에 함께 표시 |
+| `change_case` | 조합 변경, Net Benefit `186,000원` | 카드별 신규·유지·정리 상태 포함 |
+| `maintain_case` | 현재 조합 유지, Net Benefit `31,000원` | 모든 보유 카드 유지, 신규·정리 0건 |
 
 각 Fixture는 `User`, `OwnedCard`, `PastSpend`, `FutureSpendPlan`, `Constraint`, `CardProduct`, `BenefitRule`을 포함한다. 화면 카피에는 사람 이름 대신 “예시 데이터”를 사용한다.
 
@@ -24,4 +24,4 @@ Fixture는 페르소나를 선택하게 하는 기능이 아니라 동일한 사
 
 ## 4. 정답셋
 
-각 세트는 세 시나리오의 결론, Gross Benefit, 전환비용 3항목, Net Benefit, 임계 통과 여부, 카드별 배분 합, 근거 6항목을 기대값으로 가진다. 구현 중 기대 숫자를 바꿀 때는 이 문서와 `SRS.md`의 판정 케이스를 같은 커밋에서 바꾼다.
+각 세트는 단일 조합 결론, 카드별 신규·유지·정리 상태, Gross Benefit, 전환비용 3항목, Net Benefit, 임계 통과 여부, 카드별 배분 합, 근거 6항목을 기대값으로 가진다. 구현 중 기대 숫자를 바꿀 때는 이 문서와 `SRS.md`의 판정 케이스를 같은 커밋에서 바꾼다.
