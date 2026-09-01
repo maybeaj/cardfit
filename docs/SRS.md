@@ -14,7 +14,9 @@
 | 계열 | 대상 | 개수 |
 | --- | --- | --- |
 | `FR-0xx` | 기능 요구사항 | **8개** |
-| `UI-0xx` | 화면·상호작용 요구사항 | 활성 11개 (`UI-001~008·011~013`, `UI-009·010` 철회) |
+
+| `UI-0xx` | 화면·상호작용 요구사항 | 활성 10개 (`UI-001~008·011·012`, `UI-009·010` 철회) |
+
 | `NFR-0xx` | 비기능 요구사항 | **4개** |
 
 ### 2차 F-xx ↔ 이번 FR 매핑
@@ -228,7 +230,7 @@
 | --- | --- |
 | **Requirement** | **구현하지 않는다.** 진단 직후 `앞으로 쓸 돈 반영하기` CTA로 미래지출 입력에 바로 진입한다 |
 | **Rationale** | 차별점 ②(*"과거가 못 보는 소비"*)를 **화면으로 증명**하는 장치. `01_Porters` 5절이 뱅크샐러드를 *"미래 소비 반영 ✗ — 최근 1년 소비 내역 기준"*으로 판정해 뒀으나, 그 판정을 보여줄 화면이 없어 프로토타입이 차별점을 **말로만** 주장하고 있었다 (`T35`) |
-| **Input** | `PastSpend`(최근 6개월) · `HeldCard[]` — **`FutureSpendPlan`을 읽지 않는다** |
+| **Input** | `PastSpend`(최근 12개월) · `HeldCard[]` — **`FutureSpendPlan`을 읽지 않는다** |
 | **Rule** | 기준 선택 화면·과거 순위 대조군·`BankSalad_Home_2` 기반 화면을 생성하지 않는다 |
 | **AC** | **AC-009 철회** |
 | **Source** | `T35` · KB `01_Porters` 5절 · `08_Value_Proposition` 4절 차별점 ② |
@@ -293,11 +295,27 @@ v0.3의 화면·인터랙션과 v0.4의 UX 원칙을 기준으로 활성 UI 10�
 | --- | --- | --- | --- |
 | **NFR-001** | **정확성 — 동일 입력 재계산 시 불일치 0건 (결정론성).** 배분 합계와 입력 총액 오차 ≤ 1원 | 같은 입력으로 3회 실행해 결과 비교 | 2차 정본 4절 정확성 |
 | **NFR-002** | **보안 — 저장소·번들에 비밀키·개인정보 미포함** | 커밋 전 스캔 · 제출 체크리스트 | 2차 정본 4절 보안·규제 |
-| **NFR-003** | **반응형 — 모바일(402×874) · 데스크톱(1440×900) 핵심 레이아웃 유지** | 두 폭에서 Happy Path 완주 (Playwright 프로젝트 2개) | 블루프린트 기준 해상도 |
-| **NFR-004** ✚ | **배포 — Vercel 프로덕션 URL에서 랜딩과 앱 데모 Happy Path가 완주된다.** 서버 런타임·DB·외부 API 없이 정적 프리렌더 + 클라이언트 계산으로 동작한다 | `npm run build` 통과 후 배포 URL에서 `/`와 `/app` 흐름 수동 완주 · 콘솔 오류 0건 | 제출물 3번 (Deployed Product) |
+| **NFR-003** | **반응형 — 모바일(402×874) · 데스크톱 핵심 레이아웃 유지** | 두 폭에서 Happy Path 완주 | 블루프린트 기준 해상도 |
+| **NFR-004** | **제품 결과·가드레일 측정 — 결론 도달까지 5분 이내를 목표로 기준선을 수집하고, 임계 미달 변경 제안·근거 미공개 결과·실행 대행 오인 문구는 각각 0건이어야 한다. 결론 수용률은 결과 도달자 중 확정한 비율로 측정하되 초기 목표는 사용자 데이터 확보 후 설정한다.** | E2E 소요시간 기록, AC/Guardrail 자동 검증, `ClientEvent` 집계 | PRD 목표·성공 지표 G1~G6 |
 
-> **NFR-001이 이번 프로젝트에서 특별한 이유** — AI가 만든 계산 코드를 검증하는 데 정확히 맞는 기준입니다.
+
+> **NFR-001이 이번 프로젝트에서 특별한 이유** — AI가 만든 계산 코드를 검증하는 데 정확히 맞는 기준입니다.s
 > 성능(p95)·신뢰성(99.5%)·감사 증적·rule_version 운영·모니터링은 **운영 단계 요구사항**이라 폐기했습니다.
+
+### 5-1. PRD KPI·성능 목표 매핑
+
+| PRD 지표·목표 | SRS 반영 |
+|---|---|
+| 결론 도달 목표 5분 | NFR-004의 결론 도달시간 기준선·5분 목표 |
+| 결론 수용률 | NFR-004의 `결론 수용률` 정의. 초기 목표 미설정 |
+| 임계 미달인데 변경 제안 0건 | NFR-004 및 AC-004 |
+| 근거 미공개 결과 0건 | NFR-004 및 AC-002 |
+| 실행 대행 오인 문구 0건 | NFR-004 및 AC-003·008 |
+| 동일 입력 결과 불일치 0건, 배분 오차 ≤1원 | NFR-001 |
+| G2 미래 계획 100% 반영 | FR-002, AC-001·010 |
+| G3 유지 반환률 100% | FR-003, AC-004 |
+| G4 근거 6항목 이상 | FR-005, AC-002 |
+| G6 신규·유지·정리 상태 표시 | FR-003, AC-005 |
 
 ---
 
@@ -311,7 +329,7 @@ v0.3의 화면·인터랙션과 v0.4의 UX 원칙을 기준으로 활성 UI 10�
 | --- | --- | --- |
 | User | user_id, 동의 상태·범위·일시 | **축소** — Mock 단일 사용자, **동의 필드 미사용**. 시작 화면(`T8`)은 동의를 획득하지 않고 *"예시 데이터로 동작합니다"*를 고지하는 진입 화면이다 |
 | HeldCard | 카드사, 카드명, 연회비, 발급일, 실적 기준월 | **Mock** — **실제 카드사·카드명을 쓰되 `예시 수치` 배지와 기준일 고지를 함께 노출한다** (`T18`) |
-| PastSpend | 가맹점, 업종코드, 금액, 결제일 | **Mock** — 최근 6개월. 금액 현실성은 `E-11`(혼인 1인당 1,473만~2,203만원) 범위 안에서 구성. **프로필 2개**(이서연 변경형 · 강민재 유지형)로 준비한다 (`T17`) |
+| PastSpend | 가맹점, 업종코드, 금액, 결제일 | **Mock** — 최근 12개월. 금액 현실성은 `E-11`(혼인 1인당 1,473만~2,203만원) 범위 안에서 구성. **프로필 2개**(이서연 변경형 · 강민재 유지형)로 준비한다 (`T17`) |
 | **FutureSpendPlan** | 카테고리(자유 입력), 금액, **시점(기준일 +1~12개월)**, 확실도 | **사용자 입력 (FR-001)** — 시점은 12개월 horizon 안에서만 받는다 (`T15`) |
 | Constraint | 최대 카드 수, 연회비 상한, 신규 발급 허용 여부 | **기본값 + 사용자 수정** — 쓸 카드 수 기본 2장(상한 2) · 신규 발급 기본 허용(최대 1장) (`T6`). 진단 화면 인라인 블록에서 수정한다 (`T9`). 연회비 상한은 이번 범위에서 쓰지 않는다 |
 | BenefitRule | 전월실적 구간, 통합할인한도, 제외 항목, 적용 시작·종료일, `rule_version`, **`unmodeled_bound`**(미반영 항목별 금액 상한 — `T7`), **`unmodeled_bound_source`**(상한의 출처 문구·기준일 — `T42`) | **Mock** — `rule_version` 필드는 유지(E-08: 공식 통합 API 없음, 8개사 파편화) |
@@ -323,13 +341,51 @@ v0.3의 화면·인터랙션과 v0.4의 UX 원칙을 기준으로 활성 UI 10�
 
 ### 6-2. 인터페이스
 
-프로토타입은 백엔드를 만들지 않습니다. 아래는 **계산 함수의 계약**으로 옮깁니다.
+프로토타입은 백엔드를 만들지 않지만, 구현 시 사용할 API와 동일한 함수 계약을 먼저 고정한다.
 
-| 2차 API | 프로토타입 대응 | 유지되는 계약 |
+| 인터페이스 | 입력 | 출력·제약 |
 | --- | --- | --- |
-| `POST /calculate` | 계산 함수 | **미래 입력 0건이면 결과를 반환하지 않는다.** 확인된 계획의 단일 계산 결과를 반환한다 |
-| `GET /calculations/{id}/evidence` | 근거 화면 | **6항목 미달 시 응답 거부** |
-| ~~`POST /outcomes/{id}/completion`~~ | — | 폐기 (F-13) |
+| `calculatePlan()` | 확인된 `FutureSpendPlan`, `PastSpend`, `HeldCard`, `BenefitRule`, `Constraint` | `Calculation` 1건과 단일 `PlanCandidate`; 미래 입력 0건·미확정 계획·필수 근거 누락이면 결과를 반환하지 않는다 |
+| `buildEvidence()` | `Calculation`, `BenefitRule` | 실적구간·혜택한도·연회비·제외조건·기준일·미반영 항목 6개; 출처 없는 미반영 상한은 제외 |
+| `sessionStorage` 어댑터 | 입력 스냅샷, 결과, 확정 조합 | 세션 내 복원; 영구 저장·서버 전송 없음 |
+| 카드사 공식 링크 | 확정 `PlanCandidate`의 신규 카드 목록 | 신규 카드 최대 1개를 새 탭으로 이동; 신청·심사·해지 제출은 하지 않음 |
+
+기존 2차 API와의 대응은 다음과 같다.
+
+| 2차 API | v0.1 함수·UI 대응 | 상태 |
+| --- | --- | --- |
+| `POST /calculate` | `calculatePlan()` | 유지 |
+| `GET /calculations/{id}/evidence` | `buildEvidence()` 및 근거 UI | 유지 |
+| ~~`POST /outcomes/{id}/completion`~~ | `ClientEvent`의 `조합확정` | F-13 완주 집계는 폐기 |
+
+### 6-3. Appendix — 엔터티 스키마
+
+| 엔터티 | 필드 | 타입 | 필수 | 키·제약 |
+|---|---|---|---|---|
+| `User` | `user_id` | string | Y | PK. MVP는 단일 Mock 사용자 |
+| `User` | `consent_status`, `consent_scope`, `consented_at` | enum, string, datetime | N | Mock에서는 미사용. 실연동 확장 필드 |
+| `HeldCard` | `held_card_id`, `user_id` | string, string | Y | PK, FK(`User.user_id`) |
+| `HeldCard` | `issuer`, `card_name` | string | Y | 예시 수치 배지와 기준일을 함께 표시 |
+| `HeldCard` | `annual_fee`, `issued_at`, `performance_basis_month` | integer, date, string | Y | `annual_fee >= 0` |
+| `PastSpend` | `past_spend_id`, `user_id` | string, string | Y | PK, FK(`User.user_id`) |
+| `PastSpend` | `merchant`, `category`, `amount`, `paid_at` | string, string, integer, date | Y | `amount >= 0`; 최근 12개월 Mock |
+| `FutureSpendPlan` | `plan_id`, `user_id` | string, string | Y | PK, FK(`User.user_id`) |
+| `FutureSpendPlan` | `category`, `amount`, `month_offset`, `direction`, `confidence`, `confirmed` | string, integer, integer, enum, number, boolean | Y | `amount >= 0`; `month_offset` 1~12; `direction`은 `INCREASE`/`DECREASE`; 계산에는 `confirmed=true`만 사용 |
+| `Constraint` | `constraint_id`, `user_id` | string, string | Y | PK, FK(`User.user_id`) |
+| `Constraint` | `max_held_cards`, `allow_new_card`, `max_new_cards` | integer, boolean, integer | Y | 보유 카드 최대 2장, 신규 최대 1장 |
+| `BenefitRule` | `rule_id`, `card_name`, `rule_version`, `as_of_date` | string, string, string, date | Y | PK; 기준일과 버전 필수 |
+| `BenefitRule` | `performance_band`, `benefit_cap`, `exclusions` | object, integer, string[] | Y | 혜택 적용 구간·한도·제외조건 필수 |
+| `BenefitRule` | `unmodeled_bound`, `unmodeled_bound_source` | integer, string | N | 출처가 있을 때만 `최대 ±n원`으로 표시; 결론 차액에 합산하지 않음 |
+| `Calculation` | `calculation_id`, `user_id` | string, string | Y | PK, FK(`User.user_id`) |
+| `Calculation` | `input_snapshot`, `basis_period`, `rule_version`, `as_of_date` | object, string, string, date | Y | `basis_period = 12개월`; 계산 당시 입력·규칙 동결 |
+| `Calculation` | `status`, `hold_reason`, `gross_benefit`, `net_benefit` | enum, enum, integer, integer | Y | `status`: `SUCCESS`/`HOLD`/`INCOMPLETE`; `hold_reason`: `THRESHOLD_NOT_MET`/`CONSTRAINT_TOO_STRICT`/`EVIDENCE_INCOMPLETE` |
+| `PlanCandidate` | `candidate_id`, `calculation_id` | string, string | Y | PK, FK(`Calculation.calculation_id`) |
+| `PlanCandidate` | `composition`, `decision`, `gross_benefit`, `switching_cost`, `net_benefit`, `threshold_passed` | object, enum, integer, object, integer, boolean | Y | `decision`: `NEW`/`KEEP`/`ORGANIZE`; 순이익은 연 단위 |
+| `Allocation` | `allocation_id`, `candidate_id` | string, string | Y | PK, FK(`PlanCandidate.candidate_id`) |
+| `Allocation` | `category`, `held_card_id`, `amount` | string, string, integer | Y | 배분 합계와 계획 총액 오차 ≤1원 |
+| `ClientEvent` | `event_id`, `event_type`, `timestamp`, `payload` | string, enum, datetime, object | Y | PK; 입력완료·계산요청·결과열람·근거열람·조합확정·아웃링크클릭 |
+
+**관계 요약:** `User 1:N HeldCard/PastSpend/FutureSpendPlan/Constraint/Calculation`, `Calculation 1:N PlanCandidate`, `PlanCandidate 1:N Allocation` 및 `BenefitRule` 근거 참조. `ClientEvent`는 세션 내 측정용이며 서버 영구 저장 대상이 아니다.
 
 ---
 
@@ -414,3 +470,28 @@ v0.3의 화면·인터랙션과 v0.4의 UX 원칙을 기준으로 활성 UI 10�
 > **SRS를 완벽하게 만들고 개발을 시작하려고 기다리지 않습니다.**
 > 핵심 흐름의 요구사항이 Issue-ready가 되면 구현을 시작하고, 발견된 모호성은 이 문서에 되돌려 반영합니다.
 > 단, **구현이 명세를 조용히 대체해서는 안 됩니다.**
+
+---
+
+## 11. 기술 설계 문서 및 다이어그램 배치
+
+SRS의 요구사항을 구현 구조로 연결하기 위한 전체 기술 설계는 [`diagrams/TECHNICAL_DESIGN.md`](diagrams/TECHNICAL_DESIGN.md)에 정리한다. 이 문서는 SRS의 요구사항을 변경하지 않고, 각 챕터에서 다음 다이어그램을 참조하도록 연결한다.
+
+| SRS 관련 챕터 | 배치할 설계 문서 | 확인할 내용 |
+| --- | --- | --- |
+| 2. 사용자 역할과 핵심 사용자 흐름 | [정상 비즈니스 Sequence](diagrams/BUSINESS_SEQUENCE.md), [Use Case 개요](diagrams/TECHNICAL_DESIGN.md#22-use-case-다이어그램), [Flow Chart](diagrams/TECHNICAL_DESIGN.md#7-화면-및-상태-flow-chart) | 사용자·UI·계산 도메인의 책임과 정상·실패·복구 흐름 |
+| 3. 기능 요구사항(FR) | [Use Case 명세](diagrams/TECHNICAL_DESIGN.md#23-주요-use-case-명세), [SRS 추적성](diagrams/TECHNICAL_DESIGN.md#9-srs-추적성-및-배치-위치) | FR-001~008과 UC-01~06의 대응 관계 |
+| 4. 데이터 및 계산 규칙 | [ERD](diagrams/TECHNICAL_DESIGN.md#3-논리-데이터-모델erd), [CLD](diagrams/TECHNICAL_DESIGN.md#4-클래스도메인-구조cld) | `FutureSpendPlan`, `CalculationRun`, `PlanCandidate`, `EvidenceItem`, `Allocation` |
+| 5. 수용 기준(AC) | [입력 오류 Sequence](diagrams/TECHNICAL_DESIGN.md#63-미래-지출-입력-오류), [임계값 미달 Sequence](diagrams/TECHNICAL_DESIGN.md#64-net-benefit-기준-미달), [근거 누락·복구 Sequence](diagrams/TECHNICAL_DESIGN.md#62-근거-누락복구) | 입력 검증, Net Benefit 게이트, 근거 6개 완전성, 결과 공개 차단 |
+| 6. UI·화면 경계 | [Component Diagram](diagrams/TECHNICAL_DESIGN.md#5-컴포넌트-다이어그램) | `/` 랜딩, `/app` 데모, 결과·보류 상태, 카드사 실행 경계 |
+| 7. 제약·가정·Open Questions | [Fixture 오류 Sequence](diagrams/TECHNICAL_DESIGN.md#65-mock-fixture-또는-규칙-데이터-오류), [세션·외부 실행 경계 규칙](diagrams/TECHNICAL_DESIGN.md#66-세션외부-실행-경계-규칙), [API·오류 계약](diagrams/TECHNICAL_DESIGN.md#8-api인터페이스-개요) | Mock 범위, 결정론적 계산, `EVIDENCE_INCOMPLETE`, 외부 실행 경계 |
+
+### 11.1 화면에서 확인할 수 있는 상태
+
+독자가 구현 배경지식 없이도 정책을 확인할 수 있도록 정상 흐름은 [`BUSINESS_SEQUENCE.md`](diagrams/BUSINESS_SEQUENCE.md), 예외 흐름은 [`TECHNICAL_DESIGN.md`](diagrams/TECHNICAL_DESIGN.md)의 6장을 참조한다.
+
+- 정상 상태: 근거 6개가 모두 확인되면 추천 결과와 적용 CTA를 표시한다.
+- 차단 상태: 근거 하나라도 누락되면 추천 결과와 적용 CTA를 숨기고 누락 항목·사유를 표시한다.
+- 복구 상태: 누락 근거를 보완한 뒤 동일 입력으로 재검증하고, 검증 완료 시 정상 결과로 전환한다.
+
+SRS Light에서는 위 다이어그램을 본문에 복사하지 않고 참조 링크로 유지한다. 정상 흐름은 [`BUSINESS_SEQUENCE.md`](diagrams/BUSINESS_SEQUENCE.md), 예외·오류·복구 흐름은 [`TECHNICAL_DESIGN.md`](diagrams/TECHNICAL_DESIGN.md)의 6장, 데이터 구조는 같은 문서의 3~5장을 기준으로 한다. 이 링크들은 SRS의 요구사항·우선순위·수용 기준을 대체하지 않는다.
