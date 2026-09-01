@@ -1,6 +1,6 @@
 # 기술 학습 계획
 
-> **상태: 🟢 채택 확정 · 적용 완료 — 2026-09-01**
+> **상태: 🟠 후보 선정 — Day 1 / 학습·적용 — Day 2 10:40~12:00**
 > 목표는 4일 안에 개발자가 되는 것이 아니라, **선택한 기술이 제품 요구사항에 어떤 가능성과 제약을 만드는지 이해하고 AI 산출물을 검토할 수 있게 되는 것**입니다.
 > **주제 최대 3개. 주제당 30~60분.**
 
@@ -10,9 +10,8 @@
 
 | 항목 | 선택 | 어떤 Requirement 때문에 골랐나 |
 | --- | --- | --- |
-| 프레임워크 | **Next.js 15 App Router + TypeScript (React 19)** | UI-011~UI-008 9화면과 `UI-013` 랜딩을 라우트로 나누면서, 계산(`src/domain`)을 화면과 분리해 `NFR-001` 결정론성을 단위 테스트로 검증하려면 한 저장소에 화면·도메인·배포가 함께 있어야 했다 |
-| UI | **Tailwind CSS v4 + `@theme` 토큰** | `docs/ux/README.md` 3절 토큰을 한 곳에서 선언하고 402×874 / 1440×900 두 폭을 같은 토큰으로 만들기 위해 (`NFR-003`). 새 UI 라이브러리는 도입하지 않았다 |
-| 테스트 | **Vitest + Playwright** | `AC-001~014` 판정을 사람 눈이 아니라 명령으로 재현하기 위해 |
+| 프레임워크 | Next.js App Router + TypeScript | C-TEC-001 단일 풀스택과 UI-001~011의 화면 흐름을 한 앱에서 구성하고, C-TEC-002에 따라 Server Actions로 서버 경계를 두기 위해 |
+| UI | Tailwind CSS + shadcn/ui | C-TEC-004와 NFR-003의 402×874 모바일·데스크톱 반응형, UI-001~011의 공통 상태·배지·CTA를 일관된 토큰과 재사용 컴포넌트로 구현하기 위해 |
 | 데이터 | Mock (D-001) | FR-002 미래지출 기준 혜택 계산을 실연동 없이 검증하기 위해 |
 | 배포 | Vercel | 제출물 3번 |
 
@@ -20,17 +19,17 @@
 
 | # | 학습 질문 | 제품 결정과의 연결 | 작은 실습 | 완료 증거 | 담당 |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Server / Client Component 차이는 무엇인가? | 상호작용 UI와 계산 처리 위치 결정 | 한 컴포넌트의 경계 변경 | `src/app/page.tsx`(서버)와 `src/app/app/**`(`'use client'`)의 분리 | UX·Build |
-| 2 | Mock Data와 실제 API 연동 경계는 어떻게 나누는가? | 프로토타입과 이후 실제 개발의 연결 지점 | Repository/Adapter 인터페이스 만들기 | `src/fixtures/index.ts`의 `DEFAULT_PROFILE` 한 곳만 교체하면 실데이터로 바뀌는 구조 | UX·Build |
-| 3 | Vercel 환경변수와 공개 변수의 차이는 무엇인가? | 비밀키 노출 방지 (저장소가 Public) | 샘플 환경변수 연결 | **환경변수 0개로 배포** — 노출할 비밀이 없는 것이 가장 안전한 상태 (`NFR-002`) | UX·Build |
+| 1 | 결정론적 Rule Engine과 상태·테스트는 어떻게 검증하는가? | FR-003의 Net Benefit 게이팅과 NFR-001의 정확성·재현성 보장 | `Net Benefit ≥ 50,000원 AND Gross Benefit × 15%` 경계값과 `현재 조합 유지` 케이스를 Given–When–Then으로 작성 | 정상·경계·빈 상태·근거 부족·유지 결론을 설명하는 테스트 케이스 | PM/개발자 |
+| 2 | Mock Data와 실제 API 연동 경계는 어떻게 나누는가? | 프로토타입과 이후 실제 개발의 연결 지점 | Repository/Adapter 인터페이스 만들기 | 교체 지점 설명 | PM/개발자 |
+| 3 | Next.js의 서버/클라이언트 경계와 Server Actions는 어떻게 나누는가? | 계산·DB 접근의 서버 보호와 입력·탭·CTA의 상호작용 처리 | 계산 요청과 근거 조회를 Server Action 계약으로 작성하고 입력 컴포넌트 경계 그리기 | 서버에서만 처리해야 할 책임과 클라이언트 상태를 각각 3개 설명 | PM/개발자 |
 
 ## 학습 → 적용
 
 | 주제 | 어떤 코드·설정·Issue에 실제로 적용했는가 |
 | --- | --- |
-| 1 | 랜딩(`/`)은 서버 컴포넌트로 정적 프리렌더하고, 상태가 필요한 `/app/*`만 `'use client'` + `DemoProvider`로 묶었다. 계산은 서버가 아니라 브라우저에서 실행된다 |
-| 2 | 계산 함수 `calculatePlan(profile, plan, constraint)`이 `Profile` 타입만 받는다. 실연동 시 `src/fixtures`를 어댑터로 바꾸면 `src/domain`은 그대로 쓴다 |
-| 3 | `.env` 파일과 `NEXT_PUBLIC_*` 변수를 만들지 않았다. `vercel.json`에는 프레임워크·빌드 명령만 두었다 |
+| 1 | `docs/SRS.md`의 FR-003·NFR-001과 `docs/specs/TEST_SPEC.md`의 계산 단위 테스트를 기준으로 Net Benefit 이중 임계값, 1원 오차, `현재 조합 유지`, 근거 부족·Empty 상태를 테스트 대상으로 삼는다. 계산·설명은 AI가 아닌 결정론적 규칙 엔진으로 처리한다. |
+| 2 | `docs/SRS.md`의 `HeldCard`·`PastSpend`·`BenefitRule`은 Prisma Seed Mock으로 공급하고, 화면·계산 로직이 외부 API에 직접 의존하지 않도록 Repository/Adapter 경계를 둔다. `D-001`, `docs/adr/ADR-001-mock-first.md`, `docs/diagrams/TECHNICAL_DESIGN.md`의 Fixture Repository에 적용한다. |
+| 3 | `docs/SRS.md`와 `docs/diagrams/TECHNICAL_DESIGN.md`의 서버 경계를 기준으로 계산 요청·근거 조회·DB 자격증명은 Server Actions/서버에 두고, UI-001~011의 입력·탭·CTA만 Client Component에서 처리한다. 공개 REST API는 만들지 않는다. |
 
 ## 이해 확인
 
@@ -38,16 +37,15 @@
 
 | 주제 | 설명 가능 | 확인자 |
 | --- | --- | --- |
-| 1 | ☐ | |
-| 2 | ☐ | |
-| 3 | ☐ | |
-
-> 스캐폴드와 적용은 끝났지만 **각 담당자의 구두 설명 확인은 아직 남았습니다.** 체크박스를 대신 채우지 않습니다.
+| 1 | ☐ | PM/개발자 자기 점검 |
+| 2 | ☐ | PM/개발자 자기 점검 |
+| 3 | ☐ | PM/개발자 자기 점검 |
 
 ## 남은 한계
 
 이번 시간에 배우지 못해 Backlog로 남긴 것:
 
-- 실제 마이데이터 API 연동과 동의 흐름 — `D-001`이 Mock으로 잠근 범위
-- 서버 사이드 계산과 캐싱 — 프로토타입은 브라우저 계산이라 필요하지 않았다
-- Vercel Preview 환경별 설정 분리 — 환경변수가 0개라 이번에는 배울 대상이 없었다
+- Prisma 스키마·migration·seed를 직접 작성하고 로컬 Supabase PostgreSQL에서 실행하는 실습
+- Server Actions의 상세 입력·출력·오류 계약과 실제 구현 실습
+- 모바일·데스크톱 E2E, 배포 Smoke Test, Vercel 환경변수·비밀값 누출 정적 스캔 자동화
+- 실제 마이데이터·카드사 API 연동 전 필요한 동의·규제·데이터 최신성·비용 검증

@@ -1,7 +1,8 @@
 # Issue Map — CardFit
 
 > GitHub: [`maybeaj/cardfit`](https://github.com/maybeaj/cardfit) · 생성일 2026-09-01  
-> 구성: Epic 9건(`#1~#9`) + 원자 Task 54건(`#10~#63`)
+> 구성: Epic 9건(`#1~#9`) + 압축 후 원자 Task 49건 + 기술 제약 보완 Task 7건 = 총 56건. 기존 GitHub Issue 번호는 이력 보존을 위해 삭제하지 않고 통합 매핑으로 관리한다.
+> Project: [CardFit - 56 Task 실행 보드](https://github.com/users/jennie-brain/projects/2) · canonical Issue 56건 등록 완료
 
 | Task | GitHub Issue | 선행 Issue | 시작 조건 |
 | --- | --- | --- | --- |
@@ -19,14 +20,38 @@
 
 | Epic | Task 수 | GitHub Issue |
 | --- | ---: | --- |
-| IN-01 | 5 | [#10](https://github.com/maybeaj/cardfit/issues/10)~[#14](https://github.com/maybeaj/cardfit/issues/14) |
-| DS-01 | 7 | [#15](https://github.com/maybeaj/cardfit/issues/15)~[#21](https://github.com/maybeaj/cardfit/issues/21) |
-| FX-01 | 6 | [#22](https://github.com/maybeaj/cardfit/issues/22)~[#27](https://github.com/maybeaj/cardfit/issues/27) |
+| IN-01 | 4 | canonical #10~#12, #14 · #13은 #11로 통합 |
+| DS-01 | 6 | canonical #15~#18, #20~#21 · #19는 #18로 통합 |
+| FX-01 | 5 | canonical #22~#25, #27 · #26은 #25로 통합 |
 | CE-01 | 10 | [#28](https://github.com/maybeaj/cardfit/issues/28)~[#37](https://github.com/maybeaj/cardfit/issues/37) |
-| FE-01 | 5 | [#38](https://github.com/maybeaj/cardfit/issues/38)~[#42](https://github.com/maybeaj/cardfit/issues/42) |
-| FE-02 | 6 | [#43](https://github.com/maybeaj/cardfit/issues/43)~[#48](https://github.com/maybeaj/cardfit/issues/48) |
+| FE-01 | 4 | canonical #38, #40~#42 · #39는 #38로 통합 |
+| FE-02 | 5 | canonical #43~#45, #47~#48 · #46은 #45로 통합 |
 | FE-03 | 7 | [#49](https://github.com/maybeaj/cardfit/issues/49)~[#55](https://github.com/maybeaj/cardfit/issues/55) |
 | QA-01 | 4 | [#56](https://github.com/maybeaj/cardfit/issues/56)~[#59](https://github.com/maybeaj/cardfit/issues/59) |
 | QA-02 | 4 | [#60](https://github.com/maybeaj/cardfit/issues/60)~[#63](https://github.com/maybeaj/cardfit/issues/63) |
+
+### 압축 이력
+
+| 통합 후 Task | 흡수된 Task | 판단 |
+| --- | --- | --- |
+| `IN-01-02` | `IN-01-04` | 개발 기반 설정의 동일 경계 |
+| `DS-01-04` | `DS-01-05` | 공통 UI 컴포넌트 묶음 |
+| `FX-01-04` | `FX-01-05` | 두 시나리오 정답 Fixture |
+| `FE-01-01` | `FE-01-02` | 온보딩·예시 데이터 안내 흐름 |
+| `FE-02-03` | `FE-02-04` | 지출 입력의 감소·Empty 상태 |
+
+## 기술 제약 보완 Task 범위
+
+압축된 49개 canonical Task Issue는 유지한다. 아래 7개는 기술 제약 반영을 위해 추가 생성한 보완 Issue다.
+
+| Epic | Task 수 | GitHub Issue | 비고 |
+| --- | ---: | --- | --- |
+| TEC | 7 | [#64](https://github.com/maybeaj/cardfit/issues/64)~[#70](https://github.com/maybeaj/cardfit/issues/70) | Prisma·Supabase·Seed·Server Actions·Vercel |
+
+AI/Gemini 및 마이데이터·카드사 데이터 API Issue는 생성하지 않는다.
+
+## UI/UX 상위 그룹
+
+UI/UX 11개 그룹은 기존 원자 Task의 상위 분류이며, 별도 중복 Issue를 만들지 않는다. 상세 매핑은 [`TASK_LIST.md`](TASK_LIST.md)의 `UI/UX 상위 그룹` 표를 따른다.
 
 원자 Task의 제목·요구사항·선행 관계 정본은 [`TASK_LIST.md`](TASK_LIST.md)다. GitHub Project는 아직 만들지 않는다. 32시간 범위에서는 Issue의 open/closed 상태와 위 선행 관계만으로 충분하며, 별도 보드 운영이 필요해질 때 `.github/labels.md`의 필드 정의를 사용한다.

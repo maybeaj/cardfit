@@ -6,7 +6,7 @@ import { CALC_NOTICE } from '@/content/copy'
 import { Notice, Panel, ScreenHeader } from '@/components/ui'
 import { useDemo } from '@/state/store'
 
-/** UI-004 Loading — 금액 산출은 규칙 엔진, AI는 근거 설명에 한정임을 화면에 명시한다. */
+/** UI-004 Loading — 금액 산출과 설명 모두 결정론적 규칙·고정 템플릿임을 화면에 명시한다 (C-TEC-005·006 기각). */
 export default function CalculatingScreen() {
   const router = useRouter()
   const { planConfirmed } = useDemo()

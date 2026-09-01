@@ -87,7 +87,7 @@ export const STATUS_COPY = {
 } as const
 
 export const CALC_NOTICE = {
-  engine: '금액은 규칙 엔진이 계산하고, AI는 근거를 설명하기만 합니다',
+  engine: '금액과 설명 모두 카드 혜택 규칙과 고정 문구로 처리합니다. 생성형 AI를 쓰지 않습니다',
   steps: [
     '확인한 12개월 계획 펼치기',
     '카드별 실적·한도·제외조건 적용',
