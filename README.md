@@ -18,7 +18,7 @@
 | --- | --- | --- | --- |
 | 1 | Master Deck (12~16p) | `TODO — Day 1 오전 생성 후 여기에` | Product |
 | 2 | GitHub Workspace | 이 저장소 · [GitHub Project](TODO) | Delivery |
-| 3 | Deployed Product | `TODO — Day 3 Preview / Day 4 Production` | UX·Build |
+| 3 | Deployed Product | `TODO — vercel --prod 실행 후 URL 기입` · 로컬 실행은 아래 "프로토타입 실행 방법" | UX·Build |
 
 ---
 
@@ -61,7 +61,14 @@ cardfit/
 │   ├── ux/                       # 화면 흐름·상태·디자인 토큰
 │   ├── ai-usage/                 # /grill-it · /goal 대표 기록
 │   └── archive/2nd-project/      # 2차 발표본 — 입력 자산 (읽기 전용)
-├── src/                          # 프로토타입 소스
+├── src/                          # 프로토타입 소스 (Next.js App Router)
+│   ├── app/page.tsx              #   / 랜딩페이지
+│   ├── app/app/**                #   /app/* 앱 데모 9화면
+│   ├── domain/                   #   순수 계산·타입
+│   ├── fixtures/                 #   Mock 데이터·정답셋
+│   ├── content/                  #   경계 고지·금지어 사전
+│   └── state/                    #   세션 상태·이벤트 로깅
+├── e2e/                          # Playwright Happy Path
 └── .github/                      # Issue 템플릿 · PR 템플릿 · CODEOWNERS
 ```
 
@@ -69,10 +76,49 @@ cardfit/
 
 ## 프로토타입 실행 방법
 
+Node 20 이상이 필요합니다. 환경변수는 없습니다 — 모든 데이터가 저장소 안의 Mock Fixture입니다.
+
+```bash
+npm install
+npm run dev            # http://localhost:3000
 ```
-TODO — Day 2에 UX·Build Lead가 채웁니다.
-다른 팀원이 이 명령만 보고 로컬 실행할 수 있어야 Definition of Done을 통과합니다.
+
+| 경로 | 무엇 |
+| --- | --- |
+| `/` | 랜딩페이지 — 문제·해결·가치·흐름·경계 |
+| `/app` | 앱 데모 시연 시작 (온보딩 → 확정까지 9화면) |
+
+### 검증 명령
+
+```bash
+npm run lint           # ESLint
+npm run typecheck      # tsc --noEmit
+npm test               # Vitest — 계산 정답셋·결정론성·금지어
+npm run test:e2e       # Playwright — 402×874 / 1440×900 Happy Path
+npm run build          # 배포 전 프로덕션 빌드
 ```
+
+### Vercel 배포
+
+```bash
+npx vercel login
+npx vercel link        # 저장소를 Vercel 프로젝트에 연결
+npx vercel --prod      # 프로덕션 배포
+```
+
+GitHub 연동으로 배포하면 `main` 푸시가 프로덕션, PR이 Preview가 됩니다. 프레임워크 설정은 `vercel.json`에 있고 빌드 명령은 `npm run build`입니다. **환경변수·비밀키를 추가하지 않습니다** (`NFR-002`).
+
+### 구조
+
+| 경계 | 책임 |
+| --- | --- |
+| `src/app/page.tsx` | 랜딩페이지 |
+| `src/app/app/**` | 앱 데모 라우트 9개 |
+| `src/components` | 공통 UI · 결과 블록 |
+| `src/domain` | 순수 계산 (`calculatePlan`·`diagnose`)과 타입 |
+| `src/fixtures` | 예시 카드·소비·규칙과 정답셋 |
+| `src/content` | 경계 고지·면책·금지어 사전 |
+| `src/state` | 세션 상태 · `ClientEvent` 로깅 |
 
 ---
 
