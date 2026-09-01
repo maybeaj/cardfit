@@ -29,18 +29,54 @@ CardFit은 먼저 사용자의 앞으로 12개월 지출 계획을 확정하고,
 
 ### 2.2 Use Case 다이어그램
 
-Use Case의 상세 관계는 이 문서의 Use Case 명세와 아래 시스템 경계를 기준으로 관리한다. 별도 이미지 파일은 사용하지 않는다.
+Use Case는 Mermaid Flowchart로 표현한다. Mermaid에는 표준 UML Actor 기호가 없으므로, 외부 Actor는 별도 노드로 두고 CardFit 시스템 경계 안의 기능은 타원형 노드로 구분한다.
 
-```text
-사용자
- ├─ 데이터 연결 / 현재 카드 진단 확인
- ├─ 미래 지출 제안 조회 / 지출 계획 입력·확정
- ├─ 카드 조합 계산 / 결과·근거 확인
- ├─ 근거 누락 복구·재검증
- └─ 조합 확정 / 다음 행동 확인
+```mermaid
+flowchart LR
+  User[사용자]
+  Data[(Mock Fixture<br/>실서비스: 마이데이터)]
+  Official[카드사 공식 채널]
 
-카드사 공식 채널
- └─ 신규 카드 신청이 필요한 경우 CardFit 외부에서 실행
+  subgraph CardFit[CardFit 시스템]
+    subgraph Input[입력·진단]
+      UC1([데이터 연결])
+      UC2([현재 카드 진단 확인])
+      UC3([미래 지출 제안 조회])
+      UC4([지출 계획 입력·수정])
+      UC5([지출 계획 확정])
+    end
+    subgraph Calculation[계산·검증]
+      UC6([후보 조합 생성])
+      UC7([혜택·비용 계산])
+      UC8([Net Benefit 게이트])
+      UC9([배분액 계산])
+      UC10([근거 6개 검증])
+    end
+    subgraph Result[결과·확정·실행]
+      UC11([결과 상태 확인])
+      UC12([계산 근거 확인])
+      UC13([근거 누락 복구])
+      UC14([재검증])
+      UC15([조합 확정])
+      UC16([다음 행동 확인])
+      UC17([신규 카드 신청 안내])
+      UC18([입력 복원·재수정])
+    end
+  end
+
+  User --> UC1 & UC2 & UC3 & UC4 & UC5 & UC11 & UC12 & UC13 & UC15 & UC16 & UC18
+  Data --> UC1 & UC3 & UC7 & UC10
+  Official --> UC17
+  UC5 -->|include| UC6
+  UC6 -->|include| UC7
+  UC7 -->|include| UC8
+  UC8 -->|include| UC9
+  UC9 -->|include| UC10
+  UC10 -->|include| UC11
+  UC13 -.->|extend: 근거 누락| UC12
+  UC13 --> UC14
+  UC14 --> UC10
+  UC11 --> UC12 --> UC15 --> UC16 --> UC17
 ```
 
 ### 2.3 주요 Use Case 명세
@@ -347,58 +383,16 @@ sequenceDiagram
   UI->>Fixture: Fixture 재조회
 ```
 
-### 6.6 세션 복구 및 계획 재수정
+### 6.6 세션·외부 실행 경계 규칙
 
-사용자가 결과를 본 뒤 계획을 수정하거나 화면을 다시 열면, 마지막 입력 스냅샷을 복구한다. 복구된 값은 재확정 전까지 계산에 사용하지 않는다.
+세션 복구와 카드사 공식 채널 이동은 별도 Sequence로 분리하지 않고 다음 규칙으로 관리한다.
 
-```mermaid
-sequenceDiagram
-  actor User as 사용자
-  participant UI as CardFit UI
-  participant State as Session State
-  participant Calc as CalculationService
+- 계획 수정 또는 앱 재진입 시 마지막 입력 스냅샷을 복원하되, `confirmed=true`로 재확정하기 전에는 계산에 사용하지 않는다.
+- 확정 조합은 `ruleVersion`, 기준일, 금액을 함께 동결한다. 버전 변경 또는 기준일 +30일 경과 시 자동 재계산하지 않고 재검증을 요청한다.
+- 신규 카드가 포함된 경우 공식 카드사 채널로 최대 1개 아웃링크만 제공한다. CardFit은 신청·심사·해지를 직접 실행하지 않는다.
+- `유지`·`정리` 카드에는 실행 버튼을 제공하지 않고 다음 행동 안내만 표시한다.
 
-  User->>UI: 입력으로 돌아가기 또는 앱 재진입
-  UI->>State: 마지막 세션 스냅샷 요청
-  State-->>UI: FutureSpendPlan + 입력 상태
-  UI-->>User: 직전 계획과 수정 상태 표시
-  User->>UI: 계획 수정
-  UI->>State: draft 계획 저장
-  User->>UI: 계획 확정
-  UI->>State: confirmed=true 저장
-  State-->>UI: 확정 완료
-  User->>UI: 다시 계산하기
-  UI->>Calc: 새 계획으로 재계산
-  Calc-->>UI: 이전 결과가 아닌 새 runId 결과 반환
-```
-
-### 6.7 카드사 공식 채널 실행 경계
-
-CardFit은 추천과 확정 요약까지만 담당한다. 신규 카드 신청은 카드사 공식 채널에서 사용자가 직접 수행한다.
-
-```mermaid
-sequenceDiagram
-  actor User as 사용자
-  participant UI as CardFit UI
-  participant State as Session State
-  participant Official as 카드사 공식 채널
-
-  User->>UI: 검증 완료된 조합 확정
-  UI->>State: 확정 조합 저장
-  alt 신규 카드 포함
-    UI-->>User: 신규 카드 다음 행동과 공식 신청 안내
-    User->>UI: 카드사에서 직접 신청하기
-    UI->>Official: 공식 신청 페이지 새 탭 열기
-    Official-->>User: 카드사 신청·심사 절차
-    User->>UI: CardFit으로 복귀
-    UI->>State: 확정 조합과 입력 상태 복구
-  else 유지·정리만 포함
-    UI-->>User: 계속 사용 또는 직접 해지 안내
-    Note over UI,User: CardFit에서 정리 실행 버튼은 제공하지 않음
-  end
-```
-
-### 6.8 예외 결과 상태 계약
+### 6.7 예외 결과 상태 계약
 
 | 상황 | 상태 코드 | UI 동작 | 다음 복구 행동 |
 |---|---|---|---|
@@ -476,7 +470,7 @@ MVP에서는 실제 HTTP 서버 대신 동일한 계약을 가진 함수/Mock Re
 | AC-002 근거 6개 완전성 | Flow K~N, Sequence 6.2 |
 | AC-004 게이트 미통과 | Flow I~J |
 
-SRS의 사용자 흐름 챕터에는 이 문서의 **7장 Flow Chart**를, 계산·근거 챕터에는 **6.1 정상 Sequence**와 **6.2 누락·복구 Sequence**를 배치하는 것을 권장한다. 실제 화면을 확인하려면 [CardFit 근거 검증 화면 프로토타입](../prototype/cardfit-evidence-flow.html)을 연다.
+SRS의 사용자 흐름 챕터에는 이 문서의 **7장 Flow Chart**를, 계산·근거 챕터에는 정상 흐름을 정의한 [`BUSINESS_SEQUENCE.md`](BUSINESS_SEQUENCE.md)와 **6.2~6.7 예외 Sequence**를 참조하는 것을 권장한다.
 
 ## 10. 구현·검증 체크리스트
 
