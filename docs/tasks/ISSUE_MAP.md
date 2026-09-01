@@ -2,6 +2,7 @@
 
 > GitHub: [`maybeaj/cardfit`](https://github.com/maybeaj/cardfit) · 생성일 2026-09-01  
 > 구성: Epic 9건(`#1~#9`) + 압축 후 원자 Task 49건 + 기술 제약 보완 Task 7건 = 총 56건. 기존 GitHub Issue 번호는 이력 보존을 위해 삭제하지 않고 통합 매핑으로 관리한다.
+> Project: [CardFit - 56 Task 실행 보드](https://github.com/users/jennie-brain/projects/2) · canonical Issue 56건 등록 완료
 
 | Task | GitHub Issue | 선행 Issue | 시작 조건 |
 | --- | --- | --- | --- |
@@ -19,12 +20,12 @@
 
 | Epic | Task 수 | GitHub Issue |
 | --- | ---: | --- |
-| IN-01 | 4 | 기존 #10~#14 이력 유지, `IN-01-04`는 `IN-01-02`로 통합 |
-| DS-01 | 6 | 기존 #15~#21 이력 유지, `DS-01-05`는 `DS-01-04`로 통합 |
-| FX-01 | 5 | 기존 #22~#27 이력 유지, `FX-01-05`는 `FX-01-04`로 통합 |
+| IN-01 | 4 | canonical #10~#12, #14 · #13은 #11로 통합 |
+| DS-01 | 6 | canonical #15~#18, #20~#21 · #19는 #18로 통합 |
+| FX-01 | 5 | canonical #22~#25, #27 · #26은 #25로 통합 |
 | CE-01 | 10 | [#28](https://github.com/maybeaj/cardfit/issues/28)~[#37](https://github.com/maybeaj/cardfit/issues/37) |
-| FE-01 | 4 | 기존 #38~#42 이력 유지, `FE-01-02`는 `FE-01-01`로 통합 |
-| FE-02 | 5 | 기존 #43~#48 이력 유지, `FE-02-04`는 `FE-02-03`으로 통합 |
+| FE-01 | 4 | canonical #38, #40~#42 · #39는 #38로 통합 |
+| FE-02 | 5 | canonical #43~#45, #47~#48 · #46은 #45로 통합 |
 | FE-03 | 7 | [#49](https://github.com/maybeaj/cardfit/issues/49)~[#55](https://github.com/maybeaj/cardfit/issues/55) |
 | QA-01 | 4 | [#56](https://github.com/maybeaj/cardfit/issues/56)~[#59](https://github.com/maybeaj/cardfit/issues/59) |
 | QA-02 | 4 | [#60](https://github.com/maybeaj/cardfit/issues/60)~[#63](https://github.com/maybeaj/cardfit/issues/63) |
@@ -41,11 +42,11 @@
 
 ## 기술 제약 보완 Task 범위
 
-기존 54개 Task Issue는 유지한다. 아래 7개는 기술 제약 반영을 위해 추가로 생성해야 하는 보완 Issue이며, 이 문서 커밋 시점에는 GitHub Issue 번호가 아직 부여되지 않았다.
+압축된 49개 canonical Task Issue는 유지한다. 아래 7개는 기술 제약 반영을 위해 추가 생성한 보완 Issue다.
 
 | Epic | Task 수 | GitHub Issue | 비고 |
 | --- | ---: | --- | --- |
-| TEC | 7 | 생성 필요 | Prisma·Supabase·Seed·Server Actions·Vercel |
+| TEC | 7 | [#64](https://github.com/maybeaj/cardfit/issues/64)~[#70](https://github.com/maybeaj/cardfit/issues/70) | Prisma·Supabase·Seed·Server Actions·Vercel |
 
 AI/Gemini 및 마이데이터·카드사 데이터 API Issue는 생성하지 않는다.
 
