@@ -892,3 +892,29 @@ RESOLVED: 5 / TOTAL: 5  ✅ ALL_RESOLVED
 예시 데이터를 불러왔다는 사실을 밝힌 뒤, 앞으로 쓸 돈을 확인해야 CardFit의 최종 결과가 나온다.
 
 **applied:** `docs/SRS.md` · `docs/SCOPE.md` · `CLAUDE.md` · 이 원장
+
+---
+
+## 세션 7 — 2026-09-01 · 9절 PRD 템플릿 정합화
+
+**참조 범위:** 현재 `docs/PRD.md`·`SRS.md`·`SCOPE.md`와 [2차 역기획 저장소](https://github.com/jennie-brain/team-project_2nd)의 PRD·KPI·리스크·데이터 문서
+
+```
+RESOLVED: 5 / TOTAL: 5  ✅ ALL_RESOLVED
+- [x] P06 | MINOR | PRD를 요청된 9절 구조로 재배치                 | status:RESOLVED
+- [x] P07 | CORE  | 사용자 Story 4개와 Story별 AC 3개 이상 연결    | status:RESOLVED
+- [x] P08 | CORE  | 운영형 NFR와 Mock 프로토타입 판정 분리          | status:RESOLVED
+- [x] P09 | CORE  | 리스크·가정·의존성을 ADR에 연결                  | status:RESOLVED
+- [x] P10 | CORE  | 실험·롤아웃 수치의 가정 등급과 중단선 명시       | status:RESOLVED
+```
+
+### P06~P10 — PRD 템플릿 정합화 · RESOLVED
+
+**decision:** PRD를 개요·사용자·Story/AC·FR·NFR·데이터·범위/리스크·실험·근거 9절로 재작성한다.
+참고 저장소의 운영형 수치는 그대로 승계하지 않고, 현재 프로토타입에서 판정 가능한 결정론성·보안·반응형과
+실서비스 전 측정할 p95·가용성을 분리한다. 사용자 행동 실험의 40% 등은 🟡 가정으로 유지한다.
+
+**쉬운 말:** 채울 수 없는 칸에 그럴듯한 숫자를 쓰지 않았다. 지금 검증할 수 있는 값과 나중에 사람·실데이터로
+확인할 값을 나눴고, 각 위험에는 왜 Mock·규칙 엔진·세션 저장을 골랐는지 ADR을 연결했다.
+
+**applied:** `docs/PRD.md` · `docs/adr/ADR-001~003` · `docs/SCOPE.md` · `CLAUDE.md` · 이 원장

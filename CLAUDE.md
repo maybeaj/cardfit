@@ -13,9 +13,13 @@
 | 요구사항 (FR·UI·NFR·AC) | `docs/SRS.md` |
 | 화면·흐름·상태 | `docs/ux/README.md` |
 | **결정 원장** | **`docs/grill/GRILL_LEDGER.md`** |
+| 기술·계산·Fixture·테스트 계약 | `docs/specs/` |
+| 아키텍처 결정 | `docs/adr/` |
 | 파일 소유 경계 | `docs/TEAM_OPERATIONS.md` 1절 — **소유 레인만 커밋** |
 
 ## 확정된 제약 (되돌리려면 Decision Log에 사유를 남긴다)
+
+- **PRD의 수치는 근거 등급을 함께 유지한다** — 사용자 데이터가 없는 결론 수용률과 실험 임계는 🟡 가정이며 프로토타입 합격 기준으로 쓰지 않는다. 운영형 p95·가용성·오류율을 Mock 프로토타입의 성과처럼 주장하지 않는다.
 
 ### UX 계약
 

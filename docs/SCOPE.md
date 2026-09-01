@@ -71,7 +71,7 @@
 | **보조 기능 2개** | F-06 계산 근거 공개 · F-11 초기값 자동 제안 |
 | **축 주의** | 위 "핵심/보조"는 **시연 비중**의 축입니다. **MoSCoW에서는 F-06·F-11 모두 Must**입니다 — F-11은 *"기능 추가가 아니라 MVP 성립 조건"*(2차 정본 3절). → `PRD.md` 5절 · `SRS.md` 0절 |
 | **전체 요구사항** | 활성 FR 8개 · UI 10개 (→ `docs/SRS.md`) — 온보딩·마이데이터 Mock 진입 UI 2개 포함, `T35`의 기준 선택·대조군은 철회 |
-| **프로토타입 구현 Issue** | 4~8개 (→ GitHub Project, `area:ui` / `area:ux`) |
+| **프로토타입 구현 Issue** | Epic 9건 + 원자 Task 54건 (→ `docs/tasks/ISSUE_MAP.md`) |
 
 ## 6. 명시적 제외 (Out of Scope)
 
