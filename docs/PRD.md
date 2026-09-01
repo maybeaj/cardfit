@@ -182,6 +182,7 @@
 - 프로젝트 근거 대장: [`knowledge-base/02-research-evidence.md`](knowledge-base/02-research-evidence.md)
 - 범위 잠금과 사용자 흐름: [`SCOPE.md`](SCOPE.md)
 - 요구사항·AC·데이터 계약: [`SRS.md`](SRS.md)
+- 비즈니스 로직 시퀀스: [`diagrams/BUSINESS_SEQUENCE.md`](diagrams/BUSINESS_SEQUENCE.md)
 - 계산·Fixture·테스트 명세: [`specs/`](specs/)
 - UX 기준: [`ux/README.md`](ux/README.md)
 - 요구사항 추적: [`TRACEABILITY.md`](TRACEABILITY.md)
