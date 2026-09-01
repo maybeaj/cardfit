@@ -17,6 +17,7 @@
 | [04 Decision Log](04-decisions.md) | 되돌리기 비싼 결정과 재검토 조건 | Product |
 | [05 용어집](05-glossary.md) | 팀과 AI가 같은 뜻으로 써야 하는 용어 | Knowledge |
 | [06 Open Questions](06-open-questions.md) | 근거가 없어 답하지 않아야 하는 질문과 검증 방법 | Product · Research |
+| [07 사업 모델·전략](07-business-model.md) | 수익 모델·중립성·Moat·지표 임계·진입 트리거 (🟡 팀 합의 초안) | Product |
 
 ## 빠른 탐색
 
@@ -28,8 +29,9 @@
 | 왜 계산 근거 6개를 공개하는가? | [E-02·I-02](02-research-evidence.md) | G4 · FR-005 · D-004 |
 | 어떤 숫자를 아직 믿으면 안 되는가? | [충돌 기록](02-research-evidence.md) | OQ-001~OQ-006 |
 | 카드 계산에서 지켜야 할 규칙은? | [03 도메인·기술](03-domain-and-tech-notes.md) | FR-002~FR-005 |
-| 현재 확정된 선택은 무엇인가? | [04 Decision Log](04-decisions.md) | D-001~D-007 |
+| 현재 확정된 선택은 무엇인가? | [04 Decision Log](04-decisions.md) | D-001~D-010 |
 | 아직 답할 수 없는 것은 무엇인가? | [06 Open Questions](06-open-questions.md) | 각 항목의 Linked Items |
+| 돈은 어떻게 벌고 중립성은 어떻게 지키나? | [07 사업 모델·전략](07-business-model.md) | T32~T46 · North Star(PRD §6) |
 
 ## 바깥 문서
 
@@ -68,7 +70,7 @@
 ## AI에게 이 KB를 쓰게 하는 지시문
 
 ```
-docs/knowledge-base의 00~06 문서만 근거로 다음을 수행하세요.
+docs/knowledge-base의 00~07 문서만 근거로 다음을 수행하세요.
 raw/는 원자료 보존 영역이므로, 02-research-evidence.md가 연결한 대목을 확인할 때만 사용하고
 raw/의 주장이나 상태를 독립적인 사실로 승격하지 마세요.
 1. 현재 제품 목표와 핵심 사용자 문제를 요약하세요.
