@@ -6,6 +6,8 @@
 
 > **기술 제약 보완**: 마이데이터·카드사 데이터 API·AI/Gemini는 사용하지 않는다. 과거 12개월 지출은 Mock Seed로 제공하고, 데이터 접근·변경은 Prisma와 Next.js Server Actions를 사용한다. DB는 Prisma + 로컬 Supabase CLI로 개발하고 배포 시 Supabase PostgreSQL을 사용하며, 배포는 Vercel Git Push 자동 배포를 사용한다.
 
+> 의존성 구조와 개발자 3명 기준 Gantt 계획은 [`DEPENDENCY_GANTT.md`](DEPENDENCY_GANTT.md)에서 관리한다.
+
 | ID | Task | Epic | 요구사항 | SRS 단계 | 선행 |
 | --- | --- | --- | --- | --- | --- |
 | IN-01-01 | Next.js App Router 초기화 | IN-01 | NFR-003 | Step 4 | 없음 |
