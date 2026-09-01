@@ -57,7 +57,9 @@ flowchart LR
 
 이는 일정 산정용 대표 경로이며, 실제 Critical Path는 작업 완료 시각과 재작업 여부에 따라 변할 수 있다.
 
-## 개발자 3명 기준 반일 배정
+## 개발자 3명 기준 반일 배정 — 56개 전체
+
+아래 표가 56개 원자 Task의 상세 일정이다. 각 날짜의 오전·오후 칸에 개발자 1·2·3의 작업을 모두 기재했으며, `대기·통합 확인·회귀 수정`은 Task가 아니라 의존성 확인과 재작업을 위한 버퍼다.
 
 | 날짜 | 오전 — 개발자 1 / 2 / 3 | 오후 — 개발자 1 / 2 / 3 |
 |---|---|---|
@@ -73,9 +75,12 @@ flowchart LR
 | 09-15 (화) | `FE-03-06` / 통합 확인 / 회귀 수정 | `FE-03-07` / `QA-01-04` / 회귀 수정 |
 | 09-16 (수) | `QA-02-01` / `QA-02-02` / `QA-02-03` | `QA-02-04` / 최종 검토 / 최종 검토 |
 
-## Gantt 차트
+## Gantt 차트 — Workstream 요약
+
+Mermaid 차트는 가독성을 위해 56개 원자 Task를 13개 Workstream 막대로 요약한다. 개별 Task의 실제 배정은 바로 위 반일 표를 기준으로 한다. 차트의 회색 세로 영역은 `excludes weekends` 설정에 따른 토·일요일이다.
 
 ```mermaid
+%%{init: {"theme":"base", "themeVariables": {"primaryColor":"#dbeafe", "primaryTextColor":"#0f172a", "primaryBorderColor":"#64748b", "secondaryColor":"#dcfce7", "tertiaryColor":"#fef3c7", "taskBkgColor":"#bfdbfe", "taskTextColor":"#0f172a", "taskTextOutsideColor":"#0f172a"}}}%%
 gantt
     title CardFit 56 Task 실행 계획
     dateFormat  YYYY-MM-DD
@@ -83,25 +88,25 @@ gantt
     excludes weekends
 
     section 기반·계약
-    IN-01 실행 기반                 :in, 2026-09-02, 2d
-    TEC-01~03 Prisma·Migration      :tec1, 2026-09-02, 3d
-    DS-01 디자인 시스템·AppShell     :ds, 2026-09-03, 2d
-    FX-01 Fixture·정답셋             :fx, 2026-09-03, 2d
+    IN-01 실행 기반                  :in, 2026-09-02, 2d
+    TEC-01~03 DB·Migration            :tec1, 2026-09-02, 3d
+    DS-01 디자인 시스템               :ds, 2026-09-03, 2d
+    FX-01 Fixture·정답셋              :fx, 2026-09-03, 2d
 
     section 데이터·엔진
     TEC-04 Mock Seed                 :tec4, 2026-09-07, 1d
-    TEC-05~06 Server Actions·Repository :tec56, 2026-09-10, 2d
-    CE-01 계산·게이팅·배분 엔진       :ce, 2026-09-07, 3d
+    TEC-05~06 서버 경계               :tec56, 2026-09-10, 2d
+    CE-01 계산·게이팅·배분             :ce, 2026-09-07, 3d
 
     section 화면
-    FE-01 온보딩·현재 진단            :fe1, 2026-09-07, 3d
-    FE-02 미래지출 입력               :fe2, 2026-09-09, 2d
-    FE-03 결과·근거·확정              :fe3, 2026-09-11, 3d
+    FE-01 온보딩·현재 진단             :fe1, 2026-09-07, 3d
+    FE-02 미래지출 입력                :fe2, 2026-09-09, 2d
+    FE-03 결과·근거·확정               :fe3, 2026-09-11, 3d
 
     section 검증·배포
     TEC-07 배포 Smoke Test            :tec7, 2026-09-11, 1d
-    QA-01 단위·Guardrail              :qa1, 2026-09-14, 2d
-    QA-02 E2E·반응형·측정              :qa2, 2026-09-16, 1d
+    QA-01 단위·Guardrail               :qa1, 2026-09-14, 2d
+    QA-02 E2E·반응형·측정               :qa2, 2026-09-16, 1d
 ```
 
 ## 일정 판단
