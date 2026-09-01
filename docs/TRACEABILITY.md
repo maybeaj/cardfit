@@ -1,6 +1,6 @@
 # 추적표 — KB → PRD → SRS → Spec → Issue → 구현·검증
 
-> 상태: 🟡 구현 전 추적 완료 · Epic 9건 + 기존 원자 Task 54건 + 기술 제약 보완 Task 7건
+> 상태: 🟡 구현 전 추적 완료 · Epic 9건 + 압축 후 원자 Task 49건 + 기술 제약 보완 Task 7건 = 총 56건
 > 구현 커밋과 Preview URL은 각 Issue가 닫힐 때 채운다.
 
 | KB 근거 | PRD 목표 | SRS Requirement | Spec | GitHub Issue | 구현 | 검증 |
