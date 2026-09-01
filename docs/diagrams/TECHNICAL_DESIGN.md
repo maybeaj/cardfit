@@ -245,32 +245,11 @@ flowchart TB
 
 ## 6. 대표 Sequence Diagram
 
-### 6.1 정상 계산과 결과 공개
+### 6.1 정상 흐름 참조
 
-```mermaid
-sequenceDiagram
-  autonumber
-  actor User as 사용자
-  participant UI as CardFit UI
-  participant State as Session State
-  participant Fixture as Mock Fixture
-  participant Calc as CalculationService
-  participant Validator as EvidenceValidator
+정상적인 전체 사용자 여정은 중복해서 관리하지 않고 [`BUSINESS_SEQUENCE.md`](BUSINESS_SEQUENCE.md)를 기준으로 한다. 해당 문서에는 예시 데이터 연결, 미래 지출 계획 확정, 후보 계산, Net Benefit 판정, 근거 검증, 결과 공개, 조합 확정, 카드사 공식 채널 실행 경계까지 포함되어 있다.
 
-  User->>UI: 예시 데이터 연결
-  UI->>Fixture: 현재 카드·최근 12개월 소비·규칙 조회
-  Fixture-->>UI: fixture + ruleVersion + asOfDate
-  UI-->>User: 현재 카드 요약과 미래 지출 제안 표시
-  User->>UI: 계획 수정 후 확인
-  UI->>State: confirmed FutureSpendPlan 저장
-  User->>UI: 계획대로 계산하기
-  UI->>Calc: 계산 요청(plan, cards, rules)
-  Calc->>Calc: 후보 생성·혜택·비용·Net Benefit 계산
-  Calc->>Validator: 후보별 근거 6개 검증
-  Validator-->>Calc: COMPLETE
-  Calc-->>UI: 공개 가능한 PlanCandidate + Evidence
-  UI-->>User: 추천/유지/정리 상태와 배분 표시
-```
+이 문서의 Sequence Diagram은 정상 흐름에 대한 대체 문서가 아니라, 정상 흐름에서 분기되는 예외·오류·복구 동작을 상세화한 보조 설계다.
 
 ### 6.2 근거 누락·복구
 
@@ -295,6 +274,144 @@ sequenceDiagram
   Validator-->>Calc: COMPLETE
   Calc-->>UI: 결과 공개 + 적용 CTA 활성화
 ```
+
+### 6.3 미래 지출 입력 오류
+
+입력값이 없거나 유효하지 않으면 계산 도메인을 호출하지 않는다. 사용자가 수정할 수 있도록 입력 화면에 남긴다.
+
+```mermaid
+sequenceDiagram
+  actor User as 사용자
+  participant UI as 입력 UI
+  participant State as Session State
+  participant Calc as CalculationService
+
+  User->>UI: 계획대로 계산하기
+  UI->>State: 입력값 검증 요청
+  State-->>UI: INVALID_PLAN
+  Note over State: 계획 0건·금액 전부 0원·음수·잘못된 형식
+  UI-->>User: 계산 CTA 비활성화 + 수정 항목 안내
+  UI-->>User: “앞으로의 지출 계획을 1개 이상 확인해 주세요.”
+  Note over UI,Calc: 유효하지 않은 입력에서는 계산 요청을 보내지 않음
+  User->>UI: 금액 또는 카테고리 수정
+  UI->>State: 수정된 계획 저장
+  State-->>UI: VALID_PLAN
+  UI-->>User: 계획대로 계산하기 활성화
+```
+
+### 6.4 Net Benefit 기준 미달
+
+계산은 완료됐지만 비즈니스 게이트를 통과하지 못한 경우다. 오류가 아니라 안전한 유지 결과로 처리한다.
+
+```mermaid
+sequenceDiagram
+  actor User as 사용자
+  participant UI as CardFit UI
+  participant Calc as CalculationService
+  participant Gate as GatePolicy
+  participant State as Session State
+
+  User->>UI: 계획대로 계산하기
+  UI->>Calc: 확정 계획과 카드 조합 계산 요청
+  Calc->>Calc: Gross Benefit·비용·Net Benefit 계산
+  Calc->>Gate: Net Benefit 판정
+  Gate-->>Calc: FAIL: Net < 50,000원 또는 Net < Gross × 15%
+  Calc->>Calc: 모든 보유 카드 상태를 CURRENT로 결정
+  Calc-->>UI: CURRENT + holdReason=THRESHOLD_NOT_MET
+  UI->>State: 보류 결과 저장
+  UI-->>User: “현재 조합을 유지하는 편이 낫습니다.”
+  UI-->>User: 신규 발급·정리 실행 CTA 숨김
+```
+
+### 6.5 Mock Fixture 또는 규칙 데이터 오류
+
+필수 데이터가 없으면 계산 전에 중단한다. 불완전한 규칙으로 추정 계산하지 않는다.
+
+```mermaid
+sequenceDiagram
+  actor User as 사용자
+  participant UI as CardFit UI
+  participant Fixture as Mock Fixture
+  participant State as Session State
+
+  User->>UI: 예시 데이터 연결
+  UI->>Fixture: 카드·소비·규칙·근거 조회
+  alt Fixture 조회 실패
+    Fixture-->>UI: FIXTURE_UNAVAILABLE
+    UI-->>User: 데이터를 불러오지 못했어요 + 다시 시도
+  else 기준일 또는 ruleVersion 누락
+    Fixture-->>UI: FIXTURE_INVALID
+    UI-->>User: 계산 기준을 확인할 수 없어 계산 보류
+  else 필수 카드 규칙 일부 누락
+    Fixture-->>UI: RULE_INCOMPLETE
+    UI-->>User: 해당 카드를 후보에서 제외하고 누락 규칙 표시
+  end
+  UI->>State: 오류 상태와 재시도 가능 여부 저장
+  User->>UI: 다시 시도
+  UI->>Fixture: Fixture 재조회
+```
+
+### 6.6 세션 복구 및 계획 재수정
+
+사용자가 결과를 본 뒤 계획을 수정하거나 화면을 다시 열면, 마지막 입력 스냅샷을 복구한다. 복구된 값은 재확정 전까지 계산에 사용하지 않는다.
+
+```mermaid
+sequenceDiagram
+  actor User as 사용자
+  participant UI as CardFit UI
+  participant State as Session State
+  participant Calc as CalculationService
+
+  User->>UI: 입력으로 돌아가기 또는 앱 재진입
+  UI->>State: 마지막 세션 스냅샷 요청
+  State-->>UI: FutureSpendPlan + 입력 상태
+  UI-->>User: 직전 계획과 수정 상태 표시
+  User->>UI: 계획 수정
+  UI->>State: draft 계획 저장
+  User->>UI: 계획 확정
+  UI->>State: confirmed=true 저장
+  State-->>UI: 확정 완료
+  User->>UI: 다시 계산하기
+  UI->>Calc: 새 계획으로 재계산
+  Calc-->>UI: 이전 결과가 아닌 새 runId 결과 반환
+```
+
+### 6.7 카드사 공식 채널 실행 경계
+
+CardFit은 추천과 확정 요약까지만 담당한다. 신규 카드 신청은 카드사 공식 채널에서 사용자가 직접 수행한다.
+
+```mermaid
+sequenceDiagram
+  actor User as 사용자
+  participant UI as CardFit UI
+  participant State as Session State
+  participant Official as 카드사 공식 채널
+
+  User->>UI: 검증 완료된 조합 확정
+  UI->>State: 확정 조합 저장
+  alt 신규 카드 포함
+    UI-->>User: 신규 카드 다음 행동과 공식 신청 안내
+    User->>UI: 카드사에서 직접 신청하기
+    UI->>Official: 공식 신청 페이지 새 탭 열기
+    Official-->>User: 카드사 신청·심사 절차
+    User->>UI: CardFit으로 복귀
+    UI->>State: 확정 조합과 입력 상태 복구
+  else 유지·정리만 포함
+    UI-->>User: 계속 사용 또는 직접 해지 안내
+    Note over UI,User: CardFit에서 정리 실행 버튼은 제공하지 않음
+  end
+```
+
+### 6.8 예외 결과 상태 계약
+
+| 상황 | 상태 코드 | UI 동작 | 다음 복구 행동 |
+|---|---|---|---|
+| 계획 0건·금액 0원·형식 오류 | `INVALID_PLAN` | 계산 요청 차단, 입력 오류 표시 | 계획 수정 |
+| Net Benefit 기준 미달 | `THRESHOLD_NOT_MET` | `CURRENT` 유지, 신규·정리 CTA 숨김 | 계획 재수정 또는 종료 |
+| Fixture 조회 실패 | `FIXTURE_UNAVAILABLE` | 데이터 오류·재시도 표시 | Fixture 재조회 |
+| 기준일·규칙 버전 누락 | `FIXTURE_INVALID` | 계산 보류 | 유효한 Fixture 재조회 |
+| 카드 규칙 일부 누락 | `RULE_INCOMPLETE` | 해당 후보 제외, 누락 규칙 표시 | 규칙 보완 후 재계산 |
+| 근거 6개 중 하나 이상 누락 | `EVIDENCE_INCOMPLETE` | 추천 결과·적용 CTA 차단 | 근거 보완 후 재검증 |
 
 ## 7. 화면 및 상태 Flow Chart
 
