@@ -399,3 +399,28 @@ v0.3의 화면·인터랙션과 v0.4의 UX 원칙을 기준으로 활성 UI 10�
 > **SRS를 완벽하게 만들고 개발을 시작하려고 기다리지 않습니다.**
 > 핵심 흐름의 요구사항이 Issue-ready가 되면 구현을 시작하고, 발견된 모호성은 이 문서에 되돌려 반영합니다.
 > 단, **구현이 명세를 조용히 대체해서는 안 됩니다.**
+
+---
+
+## 11. 기술 설계 문서 및 다이어그램 배치
+
+SRS의 요구사항을 구현 구조로 연결하기 위한 전체 기술 설계는 [`diagrams/TECHNICAL_DESIGN.md`](diagrams/TECHNICAL_DESIGN.md)에 정리한다. 이 문서는 SRS의 요구사항을 변경하지 않고, 각 챕터에서 다음 다이어그램을 참조하도록 연결한다.
+
+| SRS 관련 챕터 | 배치할 설계 문서 | 확인할 내용 |
+| --- | --- | --- |
+| 2. 사용자 역할과 핵심 사용자 흐름 | [정상 비즈니스 Sequence](diagrams/BUSINESS_SEQUENCE.md), [Use Case 개요](diagrams/TECHNICAL_DESIGN.md#22-use-case-다이어그램), [Flow Chart](diagrams/TECHNICAL_DESIGN.md#7-화면-및-상태-flow-chart) | 사용자·UI·계산 도메인의 책임과 정상·실패·복구 흐름 |
+| 3. 기능 요구사항(FR) | [Use Case 명세](diagrams/TECHNICAL_DESIGN.md#23-주요-use-case-명세), [SRS 추적성](diagrams/TECHNICAL_DESIGN.md#9-srs-추적성-및-배치-위치) | FR-001~008과 UC-01~06의 대응 관계 |
+| 4. 데이터 및 계산 규칙 | [ERD](diagrams/TECHNICAL_DESIGN.md#3-논리-데이터-모델erd), [CLD](diagrams/TECHNICAL_DESIGN.md#4-클래스도메인-구조cld) | `FutureSpendPlan`, `CalculationRun`, `PlanCandidate`, `EvidenceItem`, `Allocation` |
+| 5. 수용 기준(AC) | [입력 오류 Sequence](diagrams/TECHNICAL_DESIGN.md#63-미래-지출-입력-오류), [임계값 미달 Sequence](diagrams/TECHNICAL_DESIGN.md#64-net-benefit-기준-미달), [근거 누락·복구 Sequence](diagrams/TECHNICAL_DESIGN.md#62-근거-누락복구) | 입력 검증, Net Benefit 게이트, 근거 6개 완전성, 결과 공개 차단 |
+| 6. UI·화면 경계 | [Component Diagram](diagrams/TECHNICAL_DESIGN.md#5-컴포넌트-다이어그램), [화면 프로토타입](prototype/cardfit-evidence-flow.html) | `/` 랜딩, `/app` 데모, 결과·보류 상태, 카드사 실행 경계 |
+| 7. 제약·가정·Open Questions | [Fixture 오류 Sequence](diagrams/TECHNICAL_DESIGN.md#65-mock-fixture-또는-규칙-데이터-오류), [외부 실행 경계 Sequence](diagrams/TECHNICAL_DESIGN.md#67-카드사-공식-채널-실행-경계), [API·오류 계약](diagrams/TECHNICAL_DESIGN.md#8-api인터페이스-개요) | Mock 범위, 결정론적 계산, `EVIDENCE_INCOMPLETE`, 외부 실행 경계 |
+
+### 11.1 화면에서 확인할 수 있는 상태
+
+독자가 구현 배경지식 없이도 정책을 확인할 수 있도록 [CardFit 근거 검증 화면 프로토타입](prototype/cardfit-evidence-flow.html)을 제공한다.
+
+- 정상 상태: 근거 6개가 모두 확인되면 추천 결과와 적용 CTA를 표시한다.
+- 차단 상태: 근거 하나라도 누락되면 추천 결과와 적용 CTA를 숨기고 누락 항목·사유를 표시한다.
+- 복구 상태: 누락 근거를 보완한 뒤 동일 입력으로 재검증하고, 검증 완료 시 정상 결과로 전환한다.
+
+SRS Light에서는 위 다이어그램을 본문에 복사하지 않고 참조 링크로 유지한다. 정상 흐름은 [`BUSINESS_SEQUENCE.md`](diagrams/BUSINESS_SEQUENCE.md), 예외·오류·복구 흐름은 [`TECHNICAL_DESIGN.md`](diagrams/TECHNICAL_DESIGN.md)의 6장, 데이터 구조는 같은 문서의 3~5장을 기준으로 한다. 이 링크들은 SRS의 요구사항·우선순위·수용 기준을 대체하지 않는다.
