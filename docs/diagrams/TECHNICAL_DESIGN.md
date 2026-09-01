@@ -439,14 +439,16 @@ MVP에서는 실제 HTTP 서버 대신 동일한 계약을 가진 함수/Mock Re
 
 ### 오류 계약
 
-```json
-{
-  "code": "EVIDENCE_INCOMPLETE",
-  "message": "필수 근거가 모두 확인되지 않아 추천 결과를 보류했습니다.",
-  "missing": ["AnnualFee"],
-  "retryable": true
-}
-```
+`EVIDENCE_INCOMPLETE` 응답은 다음 필드를 반환한다.
+
+| 필드 | 타입 | 예시 | 설명 |
+|---|---|---|---|
+| `code` | string | `EVIDENCE_INCOMPLETE` | 필수 근거 누락 오류 코드 |
+| `message` | string | 필수 근거가 모두 확인되지 않아 추천 결과를 보류했습니다. | 사용자에게 표시할 안내 문구 |
+| `missing` | string[] | `AnnualFee` | 누락된 근거 유형 목록 |
+| `retryable` | boolean | `true` | 근거 보완 후 재검증 가능 여부 |
+
+화면에서는 `code`를 내부 상태 판정에 사용하고, `message`·`missing`을 사용자 안내에 사용한다. `retryable=true`인 경우에만 “근거 보완 후 다시 검사” 버튼을 표시한다.
 
 ## 9. SRS 추적성 및 배치 위치
 
