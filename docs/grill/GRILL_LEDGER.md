@@ -864,3 +864,31 @@ v0.3 HTML Stage 01→02가 같은 연결을 동작 가능한 형태로 보여준
 
 **PRD 확정 완료.** 남은 Open Questions는 구현 착수를 막지 않는 후속 조사 항목뿐이며,
 범위를 바꾸는 제안은 새 Grill 세션 또는 Decision Log에서 다룬다.
+
+---
+
+## 세션 6 — 2026-09-01 · SRS 구현 준비도 마감
+
+**참조 범위:** `docs/SRS.md` · 확정된 `PRD.md`·`SCOPE.md`·UX 계약
+
+```
+RESOLVED: 5 / TOTAL: 5  ✅ ALL_RESOLVED
+- [x] S01 | MINOR | SRS 상태를 PRD·SCOPE 승인 완료로 갱신            | status:RESOLVED
+- [x] S02 | CORE  | 온보딩·마이데이터 Mock 진입 UI와 AC 부여         | status:RESOLVED
+- [x] S03 | CORE  | 미래지출 전 현재 상태 금액의 허용 경계 확정       | status:RESOLVED
+- [x] S04 | MINOR | 변경 조건을 입력 다음 별도 화면으로 통일           | status:RESOLVED
+- [x] S05 | MINOR | 철회된 FR/UI/AC를 활성 개수에서 분리                | status:RESOLVED
+```
+
+### S01~S05 — SRS 구현 준비도 · RESOLVED
+
+**decision:** SRS를 🟢 확정으로 갱신한다. 온보딩과 마이데이터 Mock 안내는 `UI-011·012`, `AC-011`로,
+미래지출 전 진단 금액 경계는 `AC-012`로 판정한다. 현재 상태 금액은 `최근 12개월 소비 기준`과
+`앞으로의 지출은 아직 반영되지 않았어요`가 함께 있을 때만 허용하며 CardFit 최종 판정은 금지한다.
+변경 조건은 미래지출 입력 다음의 별도 화면으로 통일한다. 철회된 `FR-009·UI-009·010·AC-009`는
+결정 이력으로만 남기고 활성 개수에서 제외한다.
+
+**쉬운 말:** 첫 화면에서 과거 기준 금액은 보여줄 수 있지만 추천 결론처럼 말하면 안 된다.
+예시 데이터를 불러왔다는 사실을 밝힌 뒤, 앞으로 쓸 돈을 확인해야 CardFit의 최종 결과가 나온다.
+
+**applied:** `docs/SRS.md` · `docs/SCOPE.md` · `CLAUDE.md` · 이 원장

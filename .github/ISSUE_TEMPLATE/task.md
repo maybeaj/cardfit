@@ -1,35 +1,49 @@
 ---
-name: TASK
-about: SRS Requirement에서 추출한 실행 단위
-title: "[FR-000] "
+name: CardFit Task
+about: Spec와 SRS 요구사항을 구현·검증 단위로 추적
+title: "[TASK-ID] "
 labels: []
 assignees: ''
 ---
 
-## Why
+## 연결 문서
 
-- 연결 Requirement: `FR-000`, `UI-000`
-- 사용자 가치:
+- Task ID: `XX-00`
+- SRS: `FR/UI/NFR-000`
+- AC: `AC-000`
+- Spec: `docs/specs/...`
 
-## Scope
+## 목표
 
-- 포함:
-- 제외:
+이 작업이 끝났을 때 사용자가 얻는 결과를 한 문장으로 적습니다.
 
-## Acceptance Criteria
+## 구현 범위
 
-- [ ] Given ~, When ~, Then ~
-- [ ] Loading / Empty / Error 중 필요한 상태 확인
-- [ ] 모바일 · 데스크톱 핵심 레이아웃 확인
+- [ ]
 
-## References
+## 제외 범위
 
-- SRS: `docs/SRS.md#fr-000`
-- KB 근거:
-- 디자인 또는 관련 Issue:
+-
 
-## Verification
+## 인수 조건
 
-- 실행 명령:
-- 확인 경로:
-- 스크린샷 또는 Preview URL:
+- Given:
+- When:
+- Then:
+
+## 선행 작업
+
+- 없음 또는 `#이슈번호`
+
+## 완료 조건
+
+- [ ] 연결된 AC 통과
+- [ ] lint·typecheck·관련 테스트 통과
+- [ ] 402×874 / 1440×900 확인(화면 작업인 경우)
+- [ ] `docs/TRACEABILITY.md` 업데이트
+
+## 검증 증거
+
+- Commit / PR:
+- Preview URL:
+- Test log / Screenshot:
