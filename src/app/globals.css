@@ -1,0 +1,88 @@
+@import 'tailwindcss';
+
+/* 디자인 토큰 정본 — docs/ux/README.md 3절. 값을 컴포넌트에 직접 쓰지 않고 토큰으로 참조한다. */
+@theme {
+  --color-primary: #2878ff;
+  --color-ink: #10182b;
+  --color-muted: #697386;
+  --color-bg: #f6f8fc;
+  --color-surface: #ffffff;
+  --color-line: #e3e8f2;
+  --color-positive: #087a55;
+  --color-warning: #9a6200;
+  --color-banner: #10182b;
+
+  --radius-card: 20px;
+  --radius-button: 14px;
+
+  --font-sans:
+    'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR',
+    system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 모바일 기준은 iPhone 17 402×874. 데스크톱은 정보 위계를 유지하며 중앙 정렬한다. */
+.phone {
+  width: 100%;
+  max-width: 402px;
+  min-height: 100dvh;
+  margin-inline: auto;
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .phone {
+    min-height: 874px;
+    height: 874px;
+    margin-block: 40px;
+    border-radius: 44px;
+    box-shadow: 0 24px 70px rgba(16, 24, 43, 0.16);
+    overflow: hidden;
+  }
+}
+
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 24px;
+}
+
+/* 화면 하단은 고정 CTA 하나가 차지한다. 탭 네비게이션을 그리지 않는다 (T14). */
+.cta-bar {
+  flex: none;
+  padding: 12px 20px calc(16px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+:where(button, a):focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
