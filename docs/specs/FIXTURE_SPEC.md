@@ -13,7 +13,7 @@ Fixture는 페르소나를 선택하게 하는 기능이 아니라 동일한 사
 | `change_case` | 조합 변경, Net Benefit `186,000원` | 카드별 신규·유지·정리 상태 포함 |
 | `maintain_case` | 현재 조합 유지, Net Benefit `31,000원` | 모든 보유 카드 유지, 신규·정리 0건 |
 
-각 Fixture는 `User`, `OwnedCard`, `PastSpend`, `FutureSpendPlan`, `Constraint`, `CardProduct`, `BenefitRule`을 포함한다. 화면 카피에는 사람 이름 대신 “예시 데이터”를 사용한다.
+각 Mock Seed/Fixture는 `User`, `HeldCard`, `PastSpend`, `FutureSpendPlan`, `Constraint`, `CardProduct`, `BenefitRule`을 포함한다. 화면 카피에는 사람 이름 대신 “예시 데이터”를 사용한다.
 
 ## 3. 필수 필드
 

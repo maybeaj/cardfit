@@ -1,6 +1,6 @@
 # 추적표 — KB → PRD → SRS → Spec → Issue → 구현·검증
 
-> 상태: 🟡 구현 전 추적 완료 · Epic 9건 + 원자 Task 54건 생성
+> 상태: 🟡 구현 전 추적 완료 · Epic 9건 + 기존 원자 Task 54건 + 기술 제약 보완 Task 7건
 > 구현 커밋과 Preview URL은 각 Issue가 닫힐 때 채운다.
 
 | KB 근거 | PRD 목표 | SRS Requirement | Spec | GitHub Issue | 구현 | 검증 |
@@ -51,3 +51,18 @@ Spec 약칭은 `docs/specs/TECH_SPEC.md`, `CALC_SPEC.md`, `FIXTURE_SPEC.md`, `TE
 | AC-013 | AC-013 | 유지 원인 대응 |
 
 이 표는 기존 KB → PRD → SRS 추적표를 대체하지 않고, PRD의 사용자 요구와 수용 기준을 SRS ID에 직접 연결하는 보완 표다.
+
+## 기술 제약 → Task 추적
+
+| 기술 제약 | 반영 Task | 처리 |
+|---|---|---|
+| C-TEC-001 Next.js 단일 풀스택 | `IN-01-*`, `TEC-05~06` | 수용 |
+| C-TEC-002 Server Actions 또는 Route Handlers | `TEC-05~06` | Server Actions로 구현 |
+| C-TEC-003 Prisma + 로컬 Supabase CLI + 배포 Supabase PostgreSQL | `TEC-01~04`, `TEC-06~07` | 수용. 중복된 C-TEC-003 정의는 하나로 통일 필요 |
+| C-TEC-004 Tailwind CSS + shadcn/ui | `IN-01-03`, `DS-01-*` | 수용 |
+| C-TEC-005 Vercel AI SDK | — | 기각. AI 미사용 |
+| C-TEC-006 Google Gemini API | — | 기각. AI 미사용 |
+| C-TEC-007 Vercel 자동 배포 | `TEC-07` | 수용 |
+| 마이데이터·카드사 데이터 API | — | 기각. 12개월 Mock Seed 사용 |
+
+새 기술 제약은 현재 SRS의 Mock·무백엔드 설명과 충돌할 수 있으므로, 구현 착수 전에 PRD·SRS의 데이터 저장·서버 실행 범위를 `TEC-01~07`과 일치시키는 문서 갱신이 필요하다.

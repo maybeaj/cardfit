@@ -7,7 +7,8 @@ sequenceDiagram
     autonumber
     actor U as 사용자
     participant UI as CardFit UI
-    participant F as Mock Fixture
+    participant D as Prisma/Supabase Seed
+    participant A as Server Actions
     participant S as Session State
     participant C as 계산 엔진
     participant R as 혜택 규칙 엔진
@@ -17,14 +18,18 @@ sequenceDiagram
     U->>UI: 시작하기
     UI-->>U: 예시 데이터 사용 고지
     U->>UI: 예시 데이터 연결하기
-    UI->>F: 보유카드·최근 소비·혜택규칙 요청
-    F-->>UI: Mock 데이터 + rule_version + 기준일
+    UI->>A: 예시 데이터 연결 요청
+    A->>D: 보유카드·최근 소비·혜택규칙 조회
+    D-->>A: 12개월 Mock 데이터 + rule_version + 기준일
+    A-->>UI: 예시 데이터 반환
     UI-->>U: 현재 혜택 요약과 카드 진단
     Note over UI,U: 최근 12개월 소비 기준<br/>앞으로의 지출은 아직 미반영
 
     U->>UI: 앞으로 쓸 돈 반영하기
-    UI->>F: 과거 패턴 기반 제안값 요청
-    F-->>UI: 앞으로 12개월 지출 제안 초안
+    UI->>A: 과거 패턴 기반 제안값 요청
+    A->>D: 과거 12개월 지출 조회
+    D-->>A: 과거 지출 Mock
+    A-->>UI: 앞으로 12개월 지출 제안 초안
     UI-->>U: 미래지출 목록과 제안 출처 표시
     U->>UI: 항목 추가·수정·삭제 또는 그대로 확인
 
@@ -34,8 +39,10 @@ sequenceDiagram
     else 확인할 계획이 1건 이상
         UI-->>U: 카드 수·신규 발급 허용 조건 표시
         U->>UI: 이 계획대로 계산하기
-        UI->>S: 미래 계획·제약 입력 스냅샷 저장
-        UI->>C: 확인된 계획의 카드 조합 계산 요청
+        UI->>S: 외부 링크 복귀용 임시 상태 저장
+        UI->>A: 확인된 계획 저장·계산 요청
+        A->>D: 미래 계획·계산 결과 저장
+        A->>C: 확인된 계획의 카드 조합 계산 요청
         C->>C: 12개월 지출 계획 생성
         C->>C: 유효 조합 생성
         Note over C: 사용 카드 최대 2장<br/>신규 카드 최대 1장
@@ -59,13 +66,17 @@ sequenceDiagram
 
         alt 필수 근거 6항목 충족
             E-->>C: 검증 완료
-            C-->>UI: 단일 조합안·배분·근거 반환
+        C-->>A: 단일 조합안·배분·근거 반환
+        A-->>UI: 단일 조합안·배분·근거 반환
         else 근거 누락
             E-->>C: EVIDENCE_INCOMPLETE
-            C-->>UI: 결과 노출 거부
+            C-->>A: 결과 노출 거부
+            A-->>UI: 결과 노출 거부
         end
 
-        UI->>S: 결과 저장
+        UI->>A: 결과·확정 후보 저장
+        A->>D: 계산 결과 저장
+        UI->>S: 외부 링크 복귀용 임시 상태 저장
         UI-->>U: 카드별 신규·유지·정리 + 결제 배분 표시
 
         opt 사용자가 계획을 다시 수정

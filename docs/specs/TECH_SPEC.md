@@ -7,18 +7,19 @@
 
 CardFit의 32시간 프로토타입은 사용자가 예시 데이터를 연결하고, 과거 패턴으로 제안된 앞으로 12개월 지출을 확인·수정한 뒤, 최대 2장의 카드 조합과 결제 배분·계산 근거를 확인하는 흐름을 검증한다.
 
-- 포함: iPhone 17 기준 모바일 UI, 데스크톱 반응형, 정적 Fixture, 결정론적 계산, 세션 내 상태 보존, 공식 카드사 페이지 아웃링크
-- 제외: 실제 마이데이터·카드사 API, 로그인, DB, 결제·신청·해지 대행, 개인정보 저장, AI 계산
-- 계산은 규칙 엔진만 담당한다. 생성형 AI는 런타임 의존성이 아니다.
+- 포함: iPhone 17 기준 모바일 UI, 데스크톱 반응형, 12개월 Mock Seed, Prisma·Supabase 저장, 결정론적 계산, 세션 내 상태 보존, 공식 카드사 페이지 아웃링크
+- 제외: 실제 마이데이터·카드사 데이터 API, 로그인, 실사용자 개인정보, 결제·신청·해지 대행, AI 계산·AI 설명
+- 계산과 설명은 카드 혜택 Rule 및 고정 템플릿으로 처리한다. 생성형 AI는 런타임 의존성이 아니다.
 
 ## 2. 기술 선택
 
 | 영역 | 선택 | 이유 |
 | --- | --- | --- |
 | 앱 | Next.js App Router + TypeScript | 한 저장소에서 화면·도메인 로직·정적 배포를 처리 |
-| 스타일 | Tailwind CSS + CSS 변수 | 402×874 모바일과 데스크톱을 빠르게 동일 토큰으로 구현 |
-| 상태 | React state + `sessionStorage` | 외부 페이지 복귀 시 입력·조합·탭 보존, 서버 저장 없음 |
-| 데이터 | TypeScript/JSON Fixture | 실제 연동처럼 오해하지 않도록 Mock을 코드 경계에서 고정 |
+| 스타일 | Tailwind CSS + shadcn/ui | 402×874 모바일과 데스크톱을 동일 토큰으로 구현 |
+| 상태 | React state + `sessionStorage` | 외부 페이지 복귀 시 임시 입력·조합 보존 |
+| 데이터 | Prisma + Supabase Seed | 실제 연동 없이 고정된 12개월 Mock을 서버 데이터 경계에 저장 |
+| 서버 | Next.js Server Actions | DB 조회·변경·계산 요청을 서버에서 처리; 공개 REST API 없음 |
 | 단위 테스트 | Vitest | 계산 함수의 결정론성과 경계값 검증 |
 | E2E | Playwright | Happy Path, 402×874, 데스크톱, 아웃링크 상태 보존 검증 |
 
@@ -40,9 +41,9 @@ CardFit의 32시간 프로토타입은 사용자가 예시 데이터를 연결�
 | `src/app` | 라우트·화면 조립 | 계산식 직접 작성 |
 | `src/components` | 재사용 UI와 접근성 | Fixture 직접 참조 |
 | `src/domain` | 순수 계산·타입·상태 전이 | 브라우저 API·카피 |
-| `src/fixtures` | 예시 카드·지출·규칙·정답셋 | 실사용자 데이터 |
+| `src/fixtures` | 규칙·정답셋 및 Seed 원본 | 실사용자 데이터 |
 | `src/content` | 경계 고지·금지어 검사 대상 카피 | 계산 상수 |
-| `src/state` | 세션 상태 직렬화·복원 | 영구 저장 |
+| `src/state` | 세션 상태 직렬화·복원 | DB 정본을 대체하는 영구 저장 |
 
 ## 5. 상태와 오류 처리
 
@@ -53,4 +54,4 @@ CardFit의 32시간 프로토타입은 사용자가 예시 데이터를 연결�
 
 ## 6. 완료 기준
 
-`npm run lint`, `npm run typecheck`, `npm test`, `npm run test:e2e`가 통과하고 `AC-001~008·010~012`, `NFR-001~003`이 [`TEST_SPEC.md`](TEST_SPEC.md)의 검증과 연결돼야 한다.
+`npm run lint`, `npm run typecheck`, `npm test`, `npm run test:e2e`가 통과하고 `AC-001~008·010~012`, `NFR-001~004`가 [`TEST_SPEC.md`](TEST_SPEC.md)의 검증과 연결돼야 한다. Prisma migration·seed와 Vercel 배포 Smoke Test도 통과해야 한다.

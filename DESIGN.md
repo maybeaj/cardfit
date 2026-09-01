@@ -3,7 +3,7 @@
 ## Source of truth
 - Status: Active
 - Last refreshed: 2026-09-01
-- Primary product surfaces: iPhone 17 mobile prototype, onboarding, MyData connection, current-card diagnosis, future-spend planning, result and evidence
+- Primary product surfaces: iPhone 17 mobile prototype, onboarding, example-data connection, current-card diagnosis, future-spend planning, result and evidence
 - Evidence reviewed: `docs/knowledge-base/raw/카드핏.png`, user-provided diagnosis screenshot, `BankSalad_Home_0.jpeg`, `BankSalad_Home_1.jpeg`, `blueprint_v0.3.html`, `blueprint_v0.4_prompt.md`, `docs/ux/README.md`
 
 ## Brand
@@ -72,11 +72,12 @@
 - Microcopy rules: state what data is used; never imply guaranteed benefit or delegated card application
 
 ## Implementation constraints
-- Framework/styling system: standalone HTML/CSS/JavaScript prototype
-- Design-token constraints: extend existing CSS variables; no new dependency
+- Framework/styling system: Next.js App Router + TypeScript + Tailwind CSS + shadcn/ui
+- Data/server: Prisma + Supabase Seed/PostgreSQL; Next.js Server Actions; no public data API
+- Design-token constraints: use the shared Tailwind/shadcn token layer
 - Performance constraints: local assets only
 - Compatibility constraints: current Safari/Chrome; 402×874 primary viewport
 - Test/screenshot expectations: capture each key state at 402×874; compare the diagnosis screen with the approved screenshot
 
 ## Open questions
-- [ ] Replace Mock MyData with a real provider only after API authority and consent requirements are defined / Product & Engineering / post-prototype
+- [ ] Replace Mock data with a real provider only after API authority and consent requirements are defined / Product & Engineering / post-prototype

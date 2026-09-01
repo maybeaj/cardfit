@@ -2,7 +2,7 @@
 
 - 기준 문서: `docs/SRS.md`, `docs/specs/CALC_SPEC.md`, `docs/specs/TECH_SPEC.md`, `docs/specs/TEST_SPEC.md`
 - 문서 목적: SRS의 요구사항을 구현 가능한 구조, 데이터, 화면 흐름으로 연결
-- 범위: Mock Fixture 기반 MVP. 실제 카드사 API·인증·발급 연동은 제외
+- 범위: Next.js·Prisma·Supabase Seed 기반 MVP. 실제 마이데이터·카드사 데이터 API·인증·발급 연동은 제외
 - 기준일: 2026-09-01
 
 ## 1. 설계 원칙과 문서 사용법
@@ -34,7 +34,7 @@ Use Case는 Mermaid Flowchart로 표현한다. Mermaid에는 표준 UML Actor �
 ```mermaid
 flowchart LR
   User[사용자]
-  Data[(Mock Fixture<br/>실서비스: 마이데이터)]
+  Data[(Supabase Seed<br/>12개월 Mock)]
   Official[카드사 공식 채널]
 
   subgraph CardFit[CardFit 시스템]
@@ -245,12 +245,17 @@ classDiagram
 
 ```mermaid
 flowchart TB
-  subgraph Browser[브라우저 / 정적 프로토타입]
+  subgraph Browser[브라우저 / Next.js UI]
     Landing[Landing /]
     App[App /app]
     Input[입력 컴포넌트]
     Result[결과·근거 컴포넌트]
     Store[Session State]
+  end
+  subgraph Server[Next.js Server]
+    Actions[Server Actions]
+    Repo[Prisma Repository]
+    DB[(Supabase PostgreSQL)]
   end
   subgraph Domain[도메인 모듈]
     Fixture[Fixture Repository]
@@ -264,12 +269,16 @@ flowchart TB
   Landing --> App
   App --> Input
   Input --> Store
-  Store --> Fixture
-  Store --> Calc
+  Store --> Actions
+  Actions --> Repo
+  Repo --> DB
+  Actions --> Fixture
+  Actions --> Calc
   Calc --> Rules
   Calc --> Evidence
   Evidence --> Result
   Result --> Store
+  Actions --> Result
   Result -. 신규 카드 실행 .-> Official
 ```
 
@@ -363,19 +372,26 @@ sequenceDiagram
 sequenceDiagram
   actor User as 사용자
   participant UI as CardFit UI
-  participant Fixture as Mock Fixture
+  participant Fixture as Prisma/Supabase Seed
   participant State as Session State
+  participant Actions as Server Actions
 
   User->>UI: 예시 데이터 연결
-  UI->>Fixture: 카드·소비·규칙·근거 조회
+  UI->>Actions: 카드·소비·규칙·근거 조회
+  Actions->>Fixture: Prisma/Supabase Seed 조회
+  Fixture-->>Actions: Mock 데이터
+  Actions-->>UI: 카드·소비·규칙·근거 반환
   alt Fixture 조회 실패
-    Fixture-->>UI: FIXTURE_UNAVAILABLE
+    Fixture-->>Actions: FIXTURE_UNAVAILABLE
+    Actions-->>UI: FIXTURE_UNAVAILABLE
     UI-->>User: 데이터를 불러오지 못했어요 + 다시 시도
   else 기준일 또는 ruleVersion 누락
-    Fixture-->>UI: FIXTURE_INVALID
+    Fixture-->>Actions: FIXTURE_INVALID
+    Actions-->>UI: FIXTURE_INVALID
     UI-->>User: 계산 기준을 확인할 수 없어 계산 보류
   else 필수 카드 규칙 일부 누락
-    Fixture-->>UI: RULE_INCOMPLETE
+    Fixture-->>Actions: RULE_INCOMPLETE
+    Actions-->>UI: RULE_INCOMPLETE
     UI-->>User: 해당 카드를 후보에서 제외하고 누락 규칙 표시
   end
   UI->>State: 오류 상태와 재시도 가능 여부 저장
@@ -429,17 +445,16 @@ flowchart TD
   Q --> R[카드사 공식 채널에서 직접 실행]
 ```
 
-## 8. API·인터페이스 개요
+## 8. 서버 인터페이스 개요
 
-MVP에서는 실제 HTTP 서버 대신 동일한 계약을 가진 함수/Mock Repository로 시작한다. 추후 API 서버로 분리할 때도 요청·응답 구조는 유지한다.
+MVP에서는 별도 백엔드 서버나 공개 REST API를 만들지 않는다. Next.js Server Actions가 Prisma Repository와 결정론적 계산 엔진을 호출한다. 외부 HTTP API가 필요한 카드사·마이데이터 연동은 이번 범위에서 제외한다.
 
 | 인터페이스 | 입력 | 출력 | 제약 |
 |---|---|---|---|
-| `GET /api/fixtures/:fixtureId` | `fixtureId` | currentCards, pastSpend(12개월), rules, asOfDate, ruleVersion | 외부 개인정보·실결제 연동 없음 |
-| `POST /api/sessions/:id/future-plan` | plans[] | normalized plans, validation | 금액 정수·0 이상, category 중복 병합 |
-| `POST /api/calculations` | sessionId, confirmedPlan, cards | runId, candidates, status, holdReason, evidence | 미확정 계획은 거부 |
-| `GET /api/calculations/:runId/evidence` | runId | six evidence items, source metadata | 누락 시 `EVIDENCE_INCOMPLETE` |
-| `POST /api/sessions/:id/confirm` | candidateId | confirmation summary | `COMPLETE` 결과만 확정 가능 |
+| `getMockData()` Server Action | 단일 Mock 사용자 | 보유카드, 과거 지출 12개월, 규칙 | Prisma Seed 조회 |
+| `saveFuturePlan()` Server Action | confirmed plans | normalized plans, validation | 금액 정수·0 이상, 기준일 +1~12개월 |
+| `calculatePlan()` Server Action | confirmedPlan, cards, rules, constraints | calculation, candidate, allocation, evidence | 미확정 계획·근거 누락은 거부 |
+| `confirmPlan()` Server Action | candidateId | confirmation summary | 검증 완료 결과만 확정 가능 |
 
 ### 오류 계약
 
@@ -492,7 +507,7 @@ SRS의 사용자 흐름 챕터에는 이 문서의 **7장 Flow Chart**를, 계�
 | P0 | 화면·상태 Flow Chart | 입력 0건, 게이트 미통과, 근거 누락 시 제품이 어떻게 멈추는지 결정한다. | 2장 핵심 사용자 흐름, AC-001·002·004 |
 | P0 | 정상·누락 Sequence Diagram | UI·계산 도메인·근거 검증기의 책임과 결과 공개 조건을 고정한다. | 2장 흐름, 3장 FR-003·005 |
 | P0 | ERD | 계산 결과와 근거를 어떤 데이터로 보존할지 결정한다. `EvidenceItem` 누락 여부가 핵심이다. | 4장 데이터·계산 규칙 |
-| P1 | Component Diagram | 정적 프로토타입에서 도메인 모듈로 확장할 때 책임 경계를 명확히 한다. | 6장 UI·아키텍처 개요 |
+| P1 | Component Diagram | 프로토타입에서 도메인 모듈로 확장할 때 책임 경계를 명확히 한다. | 6장 UI·아키텍처 개요 |
 | P1 | Use Case Diagram | 사용자·Mock Fixture·외부 카드사 채널의 시스템 경계를 설명한다. | 2장 사용자 흐름, 7장 제약 |
 | P2 | CLD | 클래스와 메서드 수준의 구현 구조를 구체화한다. 도메인 테스트 작성 시 유용하다. | SRS 본문보다는 구현 설계 문서에 유지 |
 
