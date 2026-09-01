@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
+  <title id="title">CardFit Use Case Diagram</title>
+  <desc id="desc">사용자와 카드사 공식 채널이 CardFit의 주요 기능을 이용하는 관계를 나타낸 다이어그램</desc>
+  <defs>
+    <style>
+      .ink { fill:#17324d; stroke:#17324d; }
+      .label { font-family:Arial, "Noto Sans KR", sans-serif; fill:#17324d; font-size:18px; }
+      .small { font-family:Arial, "Noto Sans KR", sans-serif; fill:#687b8d; font-size:14px; }
+      .system { fill:#f7fbfd; stroke:#9bb8c9; stroke-width:2; }
+      .uc { fill:#ffffff; stroke:#1769aa; stroke-width:2; }
+      .actor-line { fill:none; stroke:#17324d; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+      .assoc { stroke:#6f8797; stroke-width:2; fill:none; }
+      .dashed { stroke:#6f8797; stroke-width:1.7; stroke-dasharray:7 6; fill:none; }
+    </style>
+  </defs>
+  <rect width="1200" height="650" fill="#ffffff"/>
+  <text x="600" y="36" text-anchor="middle" class="label" font-size="24" font-weight="700">CardFit Use Case Diagram</text>
+
+  <!-- system boundary -->
+  <rect x="265" y="70" width="700" height="520" rx="12" class="system"/>
+  <text x="285" y="102" class="label" font-weight="700">CardFit</text>
+
+  <!-- left actor -->
+  <g transform="translate(115 250)">
+    <circle cx="0" cy="0" r="25" class="actor-line" fill="#fff"/>
+    <path d="M0 25 L0 105 M0 48 L-48 82 M0 48 L48 82 M0 105 L-38 165 M0 105 L38 165" class="actor-line"/>
+    <text x="0" y="198" text-anchor="middle" class="label" font-weight="700">사용자</text>
+  </g>
+
+  <!-- right actor -->
+  <g transform="translate(1080 285)">
+    <circle cx="0" cy="0" r="25" class="actor-line" fill="#fff"/>
+    <path d="M0 25 L0 105 M0 48 L-48 82 M0 48 L48 82 M0 105 L-38 165 M0 105 L38 165" class="actor-line"/>
+    <text x="0" y="198" text-anchor="middle" class="label" font-weight="700">카드사 공식 채널</text>
+  </g>
+
+  <!-- use cases -->
+  <g>
+    <ellipse cx="470" cy="160" rx="145" ry="38" class="uc"/>
+    <text x="470" y="166" text-anchor="middle" class="label">데이터 연결</text>
+    <text x="470" y="184" text-anchor="middle" class="small">(실서비스: 마이데이터)</text>
+
+    <ellipse cx="760" cy="160" rx="145" ry="38" class="uc"/>
+    <text x="760" y="166" text-anchor="middle" class="label">미래 지출 계획 입력·확정</text>
+
+    <ellipse cx="470" cy="275" rx="145" ry="38" class="uc"/>
+    <text x="470" y="281" text-anchor="middle" class="label">카드 조합 계산</text>
+
+    <ellipse cx="760" cy="275" rx="145" ry="38" class="uc"/>
+    <text x="760" y="281" text-anchor="middle" class="label">계산 결과와 근거 확인</text>
+
+    <ellipse cx="470" cy="390" rx="145" ry="38" class="uc"/>
+    <text x="470" y="396" text-anchor="middle" class="label">근거 누락 복구·재검증</text>
+
+    <ellipse cx="760" cy="390" rx="145" ry="38" class="uc"/>
+    <text x="760" y="396" text-anchor="middle" class="label">조합 확정 및 다음 행동</text>
+
+    <ellipse cx="615" cy="505" rx="145" ry="38" class="uc"/>
+    <text x="615" y="511" text-anchor="middle" class="label">카드사 신청 안내</text>
+  </g>
+
+  <!-- associations -->
+  <path d="M163 250 L325 180" class="assoc"/>
+  <path d="M163 275 L315 275" class="assoc"/>
+  <path d="M163 300 L325 370" class="assoc"/>
+  <path d="M163 325 L610 390" class="assoc"/>
+  <path d="M163 345 L470 505" class="assoc"/>
+  <path d="M965 345 L1030 350" class="assoc"/>
+
+  <!-- include / extend relationships -->
+  <path d="M615 198 L520 240" class="dashed"/>
+  <text x="556" y="225" text-anchor="middle" class="small">&lt;&lt;include&gt;&gt;</text>
+  <path d="M615 313 L540 360" class="dashed"/>
+  <text x="575" y="345" text-anchor="middle" class="small">&lt;&lt;include&gt;&gt;</text>
+  <path d="M615 425 L560 475" class="dashed"/>
+  <text x="604" y="463" text-anchor="middle" class="small">&lt;&lt;extend&gt;&gt;</text>
+
+  <text x="600" y="625" text-anchor="middle" class="small">실선: 사용자 상호작용 · 점선: 기능 간 관계</text>
+</svg>

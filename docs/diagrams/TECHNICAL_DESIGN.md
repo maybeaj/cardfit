@@ -29,41 +29,9 @@ CardFit은 먼저 사용자의 앞으로 12개월 지출 계획을 확정하고,
 
 ### 2.2 Use Case 다이어그램
 
-Use Case는 사용자(졸라맨)와 시스템 기능(타원)을 구분하는 UML 표기법으로 표현한다. 아래 다이어그램에서 CardFit 경계 안의 타원은 사용자가 이용하는 기능이고, 경계 밖의 졸라맨은 시스템 외부 Actor다.
+아래 이미지는 사용자와 외부 채널을 Actor로, CardFit 내부 기능을 타원으로 표현한 Use Case Diagram이다. GitHub에서 바로 표시되도록 SVG 이미지로 저장했다.
 
-```plantuml
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-skinparam actorStyle stickman
-
-actor "사용자" as User
-actor "카드사 공식 채널" as Official
-
-rectangle "CardFit" {
-  usecase "예시 데이터 연결\n(실서비스: 마이데이터 연결)" as UC1
-  usecase "미래 지출 계획\n입력·확정" as UC2
-  usecase "카드 조합 계산" as UC3
-  usecase "계산 결과와\n근거 확인" as UC4
-  usecase "근거 누락\n복구·재검증" as UC5
-  usecase "조합 확정 및\n다음 행동 확인" as UC6
-}
-
-User --> UC1
-User --> UC2
-User --> UC3
-User --> UC4
-User --> UC5
-User --> UC6
-UC6 ..> Official : 신규 카드 신청 시 이동
-
-UC3 ..> UC2 : <<include>>
-UC3 ..> UC4 : <<include>>
-UC5 ..> UC4 : <<extend>>
-@enduml
-```
-
-> GitHub 기본 Markdown은 PlantUML을 직접 렌더링하지 않을 수 있다. 이 경우 위 코드를 PlantUML 렌더러에서 열어 졸라맨 형태로 확인하고, Mermaid 다이어그램은 시스템 상호작용 개요로 사용한다.
+![CardFit Use Case Diagram](use-case.svg)
 
 ### 2.3 주요 Use Case 명세
 
