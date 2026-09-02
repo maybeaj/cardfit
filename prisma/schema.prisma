@@ -1,0 +1,297 @@
+// CardFit — Prisma Schema (TEC-02 · C-TEC-003)
+//
+// SRS 6-1절 엔터티와 1:1로 대응한다. 실사용자 데이터를 담지 않는다 — 전부 Mock Seed다 (D-001).
+// 금액은 정수 원 단위이며 Int(32비트, 최대 약 21억)로 충분하다. 이 프로토타입의
+// 12개월 계획 총액 상한은 수천만 원대다.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum SpendDirection {
+  INCREASE
+  DECREASE
+}
+
+enum CardStatus {
+  NEW
+  KEEP
+  REMOVE
+}
+
+enum Decision {
+  CHANGE
+  HOLD
+}
+
+enum HoldReason {
+  THRESHOLD_NOT_MET
+  CONSTRAINT_TOO_TIGHT
+}
+
+/// Fixture 하나 = 같은 사용자 흐름에서 재현할 결론 한 세트 (change_case / maintain_case).
+/// 사용자 화면에 프로필 선택 UI를 만들지 않는다 (T17).
+model Fixture {
+  id        String   @id
+  label     String
+  asOfDate  DateTime @map("as_of_date") @db.Date
+  createdAt DateTime @default(now()) @map("created_at")
+
+  users       User[]
+  cards       CardProduct[]
+  pastSpends  PastSpend[]
+  suggestions SuggestedSpend[]
+  constraint  PlanConstraint?
+
+  @@map("fixture")
+}
+
+/// SRS 6-1 User — Mock 단일 사용자. 동의 필드는 실연동 확장용이며 사용하지 않는다.
+model User {
+  id        String  @id @default(uuid())
+  fixtureId String  @map("fixture_id")
+  label     String
+  fixture   Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+
+  @@unique([fixtureId, label])
+  @@map("app_user")
+}
+
+/// SRS 6-1 HeldCard + 신규 후보 카드 상품.
+/// `owned = true`면 보유 카드, `false`면 조합 후보다.
+model CardProduct {
+  id                   String  @id
+  fixtureId            String  @map("fixture_id")
+  issuer               String
+  name                 String
+  annualFee            Int     @map("annual_fee")
+  officialUrl          String  @map("official_url")
+  owned                Boolean
+  /// 실적 기준월 사용액
+  qualifyingMonthSpend Int     @map("qualifying_month_spend")
+  issuedAt             DateTime? @map("issued_at") @db.Date
+
+  /// 전환비용 3항목 중 Fixture 선언값 2개 (연회비는 annualFee에서 계산)
+  requalificationLoss  Int    @map("requalification_loss")
+  issuanceWaitCost     Int    @map("issuance_wait_cost")
+  transitionSourceLabel String @map("transition_source_label")
+  transitionSourceDate  DateTime @map("transition_source_date") @db.Date
+
+  fixture Fixture      @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+  rule    BenefitRule?
+
+  @@map("card_product")
+}
+
+/// SRS 6-1 BenefitRule — 실적구간·한도·제외조건·기준일·규칙 버전·미반영 상한.
+model BenefitRule {
+  id            String   @id @default(uuid())
+  cardId        String   @unique @map("card_id")
+  ruleVersion   String   @map("rule_version")
+  asOfDate      DateTime @map("as_of_date") @db.Date
+  effectiveFrom DateTime @map("effective_from") @db.Date
+  effectiveTo   DateTime @map("effective_to") @db.Date
+  /// 혜택이 적용되는 카테고리
+  categories    String[]
+  /// 근거 6항목 중 제외조건
+  excluded      String[]
+
+  card      CardProduct       @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  tiers     BenefitTier[]
+  unmodeled UnmodeledBound[]
+
+  @@map("benefit_rule")
+}
+
+/// 전월실적 구간 — 하한·적립률·월 통합한도.
+model BenefitTier {
+  id              String @id @default(uuid())
+  ruleId          String @map("rule_id")
+  minMonthlySpend Int    @map("min_monthly_spend")
+  /// 적립·할인율. 0.05 = 5%
+  rate            Float
+  monthlyCap      Int    @map("monthly_cap")
+
+  rule BenefitRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@unique([ruleId, minMonthlySpend])
+  @@map("benefit_tier")
+}
+
+/// 미반영 항목 상한. 출처를 댈 수 없으면 행을 만들지 않는다 — 0으로 채우지 않는다 (T42).
+model UnmodeledBound {
+  id          String   @id @default(uuid())
+  ruleId      String   @map("rule_id")
+  label       String
+  /// 약관에 명시된 한도. 추정값을 넣지 않는다 (T7)
+  bound       Int
+  sourceLabel String   @map("source_label")
+  sourceDate  DateTime @map("source_date") @db.Date
+
+  rule BenefitRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@map("unmodeled_bound")
+}
+
+/// SRS 6-1 PastSpend — 최근 12개월 거래. 가맹점·업종코드·금액·결제일.
+/// Repository가 카테고리별 월평균으로 집계해 계산 엔진에 넘긴다 (TEC-06).
+model PastSpend {
+  id         String   @id @default(uuid())
+  fixtureId  String   @map("fixture_id")
+  merchant   String
+  /// 업종코드
+  industry   String
+  category   String
+  amount     Int
+  paidAt     DateTime @map("paid_at") @db.Date
+
+  fixture Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+
+  @@index([fixtureId, category])
+  @@map("past_spend")
+}
+
+/// FR-006 초기값 자동 제안 — 과거 패턴으로 만든 제안 초안.
+/// 사용자가 확인하기 전에는 미래 계획이 아니다 (T19 · T37).
+model SuggestedSpend {
+  id          String         @id
+  fixtureId   String         @map("fixture_id")
+  category    String
+  /// 항상 양수. 감소는 direction으로 표현한다 (T20)
+  amount      Int
+  direction   SpendDirection
+  /// 기준일 +1~12개월
+  monthOffset Int            @map("month_offset")
+
+  fixture Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+
+  @@map("suggested_spend")
+}
+
+/// SRS 6-1 Constraint — 쓸 카드 수 기본 2장(상한 2) · 신규 발급 기본 허용(최대 1장) (T6).
+model PlanConstraint {
+  fixtureId    String  @id @map("fixture_id")
+  maxCards     Int     @map("max_cards")
+  allowNewCard Boolean @map("allow_new_card")
+  maxNewCards  Int     @map("max_new_cards")
+
+  fixture Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+
+  @@map("plan_constraint")
+}
+
+/// 로그인이 없으므로 클라이언트가 만든 세션 키로 정본 데이터를 묶는다.
+/// 인증·소유권 검증은 범위 밖이며 실사용자 개인정보를 담지 않는다 (D-012 · ADR-003).
+model Session {
+  id        String   @id
+  fixtureId String   @map("fixture_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  plans        FutureSpendPlan[]
+  calculations Calculation[]
+
+  @@map("session")
+}
+
+/// SRS 6-1 FutureSpendPlan — 사용자가 확인한 앞으로 12개월 계획.
+/// `confirmed = false`인 값은 계산에 들어가지 않는다 (TECHNICAL_DESIGN 10장 체크리스트).
+model FutureSpendPlan {
+  id          String         @id @default(uuid())
+  sessionId   String         @map("session_id")
+  planKey     String         @map("plan_key")
+  category    String
+  /// 항상 양수. 감소는 direction으로 표현한다 (T20)
+  amount      Int
+  direction   SpendDirection
+  monthOffset Int            @map("month_offset")
+  /// suggested | user
+  origin      String
+  confirmed   Boolean        @default(false)
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, planKey])
+  @@map("future_spend_plan")
+}
+
+/// SRS 6-1 Calculation — 입력 스냅샷·기준일·규칙 버전·유지 사유.
+model Calculation {
+  id             String      @id @default(uuid())
+  fixtureId      String      @map("fixture_id")
+  sessionId      String?     @map("session_id")
+  asOfDate       DateTime    @map("as_of_date") @db.Date
+  /// 확인한 계획과 제약의 스냅샷. 재현 검증에 쓴다 (NFR-001)
+  planSnapshot   Json        @map("plan_snapshot")
+  constraintSnapshot Json    @map("constraint_snapshot")
+  ruleVersions   Json        @map("rule_versions")
+  decision       Decision
+  holdReason     HoldReason? @map("hold_reason")
+  staleAsOfWarning Boolean   @map("stale_as_of_warning")
+  excludedCards  Json        @map("excluded_cards")
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  candidates PlanCandidate[]
+  confirmed  ConfirmedPlan[]
+  session    Session?        @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([fixtureId, createdAt])
+  @@map("calculation")
+}
+
+/// SRS 6-1 PlanCandidate — 조합 구성·Gross·전환비용 3항목·Net·임계 통과 여부.
+model PlanCandidate {
+  id                  String  @id @default(uuid())
+  calculationId       String  @map("calculation_id")
+  candidateKey        String  @map("candidate_key")
+  /// chosen | current | reviewed
+  role                String
+  grossBenefitAbsolute Int    @map("gross_benefit_absolute")
+  /// 현재 조합 대비 추가 혜택 — 게이팅과 배너가 읽는 값
+  grossBenefit        Int     @map("gross_benefit")
+  annualFeeCost       Int     @map("annual_fee_cost")
+  requalificationLoss Int     @map("requalification_loss")
+  issuanceWaitCost    Int     @map("issuance_wait_cost")
+  netBenefit          Int     @map("net_benefit")
+  passesThreshold     Boolean @map("passes_threshold")
+  statuses            Json
+
+  calculation Calculation  @relation(fields: [calculationId], references: [id], onDelete: Cascade)
+  allocations Allocation[]
+
+  @@index([calculationId, role])
+  @@map("plan_candidate")
+}
+
+/// SRS 6-1 Allocation — 배정 카테고리·카드·배분 금액.
+model Allocation {
+  id          String @id @default(uuid())
+  candidateId String @map("candidate_id")
+  category    String
+  cardId      String @map("card_id")
+  amount      Int
+  benefit     Int
+
+  candidate PlanCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@map("allocation")
+}
+
+/// FR-008 조합 확정 — 확정 시점 값으로 동결하고 자동 재계산하지 않는다 (T43).
+model ConfirmedPlan {
+  id            String   @id @default(uuid())
+  calculationId String   @map("calculation_id")
+  calculation   Calculation @relation(fields: [calculationId], references: [id], onDelete: Cascade)
+  candidateKey  String   @map("candidate_key")
+  asOfDate      DateTime @map("as_of_date") @db.Date
+  ruleVersions  Json     @map("rule_versions")
+  netBenefit    Int      @map("net_benefit")
+  confirmedAt   DateTime @default(now()) @map("confirmed_at")
+
+  @@map("confirmed_plan")
+}

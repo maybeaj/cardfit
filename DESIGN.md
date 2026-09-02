@@ -3,7 +3,7 @@
 ## Source of truth
 - Status: Active
 - Last refreshed: 2026-09-01
-- Primary product surfaces: iPhone 17 mobile prototype, onboarding, example-data connection, current-card diagnosis, future-spend planning, result and evidence
+- Primary product surfaces: `/` marketing landing page (desktop-first) and the `/app/*` iPhone 17 mobile prototype — onboarding, example-data connection, current-card diagnosis, future-spend planning, result, evidence, confirm
 - Evidence reviewed: `docs/knowledge-base/raw/카드핏.png`, user-provided diagnosis screenshot, `BankSalad_Home_0.jpeg`, `BankSalad_Home_1.jpeg`, `blueprint_v0.3.html`, `blueprint_v0.4_prompt.md`, `docs/ux/README.md`
 
 ## Brand
@@ -22,8 +22,8 @@
 - Key contexts of use: mobile, one-time event-driven review, five-minute decision
 
 ## Information architecture
-- Primary navigation: no tab navigation; one forward CTA per screen
-- Core routes/screens: onboarding → MyData example-data connection → current-benefit summary → current-card diagnosis → future spend → constraints → result → evidence → apply
+- Primary navigation: the landing page at `/` has a single entry CTA; inside `/app/*` there is no tab navigation, one forward CTA per screen
+- Core routes/screens: `/` landing → `/app` onboarding → `/app/connect` example-data connection → `/app/summary` current-benefit summary → `/app/diagnosis` current-card diagnosis → `/app/plan` future spend → `/app/constraint` constraints → `/app/calculating` → `/app/result` → `/app/evidence` → `/app/confirm`
 - Content hierarchy: benefit/decision first, supporting rules second
 
 ## Design principles

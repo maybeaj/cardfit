@@ -27,7 +27,20 @@ CardFit의 32시간 프로토타입은 사용자가 예시 데이터를 연결�
 
 ## 3. 화면 상태 흐름
 
-`ONBOARDING → MOCK_CONNECT → CURRENT_SUMMARY → CURRENT_DIAGNOSIS → FUTURE_PLAN → CONSTRAINT → CALCULATING → RESULT → EVIDENCE → CONFIRM`
+`LANDING → ONBOARDING → MOCK_CONNECT → CURRENT_SUMMARY → CURRENT_DIAGNOSIS → FUTURE_PLAN → CONSTRAINT → CALCULATING → RESULT → EVIDENCE → CONFIRM`
+
+랜딩페이지와 앱 데모를 한 배포에서 라우트로 나눈다 ([`../diagrams/TECHNICAL_DESIGN.md`](../diagrams/TECHNICAL_DESIGN.md) 7장의 `Landing /` → `App /app` 과 정합).
+
+| 상태 | 라우트 | 대응 |
+| --- | --- | --- |
+| `LANDING` | `/` | `UI-013` |
+| `ONBOARDING` · `MOCK_CONNECT` | `/app` · `/app/connect` | `UI-011` · `UI-012` |
+| `CURRENT_SUMMARY` · `CURRENT_DIAGNOSIS` | `/app/summary` · `/app/diagnosis` | `UI-001` |
+| `FUTURE_PLAN` · `CONSTRAINT` | `/app/plan` · `/app/constraint` | `UI-002` · `UI-003` |
+| `CALCULATING` · `RESULT` | `/app/calculating` · `/app/result` | `UI-004`~`UI-006` |
+| `EVIDENCE` · `CONFIRM` | `/app/evidence` · `/app/confirm` | `UI-007` · `UI-008` |
+
+- `/`는 앱 데모의 파생물이다. 랜딩에 표시하는 임계·경계 문구·금액 표현은 `src/content/copy.ts`·`src/domain/calc.ts`에서 읽고 랜딩에만 있는 숫자를 만들지 않는다 (`T12`).
 
 - `CURRENT_*`의 금액은 반드시 `최근 12개월 소비 기준`과 `앞으로 쓸 돈을 반영하면 내게 맞는 카드 조합을 확인할 수 있어요`를 함께 표시한다.
 - `FUTURE_PLAN`에서 전체 제안값을 확인해야 계산할 수 있다. 전부 삭제하거나 모두 0원이면 다음 단계가 비활성이다.
@@ -38,9 +51,11 @@ CardFit의 32시간 프로토타입은 사용자가 예시 데이터를 연결�
 
 | 경계 | 책임 | 금지 |
 | --- | --- | --- |
-| `src/app` | 라우트·화면 조립 | 계산식 직접 작성 |
+| `src/app` | 라우트·화면 조립 | 계산식 직접 작성 · Prisma·Fixture 직접 참조 |
+| **`src/server`** | **Server Actions · 서버 전용 Repository · Prisma Client** (`TEC-05·06`) | **클라이언트 컴포넌트에서 import · 비밀값을 반환값에 담기** |
 | `src/components` | 재사용 UI와 접근성 | Fixture 직접 참조 |
-| `src/domain` | 순수 계산·타입·상태 전이 | 브라우저 API·카피 |
+| `src/domain` | 순수 계산·타입·상태 전이 | 브라우저 API·카피·DB |
+| `prisma/` | Schema · Migration · Seed | 실사용자 데이터 |
 | `src/fixtures` | 규칙·정답셋 및 Seed 원본 | 실사용자 데이터 |
 | `src/content` | 경계 고지·금지어 검사 대상 카피 | 계산 상수 |
 | `src/state` | 세션 상태 직렬화·복원 | DB 정본을 대체하는 영구 저장 |
@@ -51,7 +66,19 @@ CardFit의 32시간 프로토타입은 사용자가 예시 데이터를 연결�
 - 근거 6항목 중 하나라도 없으면 결과 객체를 만들지 않고 `EVIDENCE_INCOMPLETE`를 반환한다.
 - 복원할 수 없는 세션 값은 폐기하고 `FUTURE_PLAN`으로 안전하게 이동한다.
 - 금액은 정수 원 단위이며 화면 표시 직전에만 포맷한다.
+- **오류를 성공 결과로 변환하지 않는다** (`TEC-05·06`). Server Action은 아래 상태 코드 중 하나를 반환하고, 화면은 `code`로 상태를 판정하고 `message`·`missing`을 사용자에게 보여준다. 코드 체계 정본은 [`../diagrams/TECHNICAL_DESIGN.md`](../diagrams/TECHNICAL_DESIGN.md) 6.7절이다.
+
+| 상태 코드 | 조건 | 화면 동작 |
+| --- | --- | --- |
+| `INVALID_PLAN` | 확인할 계획 0건 · 금액 전부 0 · 형식 오류 | 계산 요청 차단, 입력 복구 안내 (`AC-001`) |
+| `THRESHOLD_NOT_MET` | Net Benefit 이중 임계 미달 | 현재 조합 유지 — **정상 결과** (`AC-004`) |
+| `FIXTURE_UNAVAILABLE` | Seed 조회 실패 | 데이터 오류 표시 |
+| `FIXTURE_INVALID` | 기준일·규칙 버전 누락 | 계산 보류 |
+| `RULE_INCOMPLETE` | 카드 규칙 일부 누락 | 해당 후보 제외 + 사유 표기 (`T41`) |
+| `EVIDENCE_INCOMPLETE` | 결론 카드의 근거 6항목 미달 | 결과·적용 CTA 차단 (`AC-002`) |
+
+오류 응답은 `{ code, message, missing[], retryable }`을 반환한다. `retryable=true`일 때만 재검사 액션을 노출한다.
 
 ## 6. 완료 기준
 
-`npm run lint`, `npm run typecheck`, `npm test`, `npm run test:e2e`가 통과하고 `AC-001~008·010~012`, `NFR-001~004`가 [`TEST_SPEC.md`](TEST_SPEC.md)의 검증과 연결돼야 한다. Prisma migration·seed와 Vercel 배포 Smoke Test도 통과해야 한다.
+`npm run lint`, `npm run typecheck`, `npm test`, `npm run test:e2e`가 통과하고 `AC-001~008·010~014`, `NFR-001~005`가 [`TEST_SPEC.md`](TEST_SPEC.md)의 검증과 연결돼야 한다. Prisma migration·seed와 Vercel 배포 Smoke Test도 통과해야 한다.
