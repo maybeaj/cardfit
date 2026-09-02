@@ -1,8 +1,7 @@
-import { CONCLUSION_COPY, DATA_NOTICE, STATUS_COPY } from '@/content/copy'
+import { CONCLUSION_COPY, STATUS_COPY } from '@/content/copy'
 import { manwon, won } from '@/domain/format'
 import type { Calculation, CardProduct, PlanCandidate } from '@/domain/types'
 import { CARD_ART } from '@/fixtures/mydata/rules'
-import { SampleBadge } from './shell'
 
 /**
  * UI-005 결론 배너 — 좁게. 본문은 배분표가 차지한다 (`T2`).
@@ -52,6 +51,7 @@ export function CombinationList({
 }) {
   const statuses =
     calculation.decision === '변경' ? calculation.chosen.statuses : calculation.current.statuses
+  const shown = calculation.decision === '변경' ? calculation.chosen : calculation.current
   const entries = Object.entries(statuses).sort(([a], [b]) => a.localeCompare(b))
 
   return (
@@ -62,23 +62,34 @@ export function CombinationList({
           const card = cards.find((item) => item.card_id === cardId)
           if (!card) return null
           const art = CARD_ART[cardId]
+          const annualBenefit = shown.allocations
+            .filter((allocation) => allocation.card_id === cardId)
+            .reduce((sum, allocation) => sum + allocation.benefit, 0)
+          const stateClass = status === '신규' ? 'new' : status === '유지' ? 'keep' : 'organize'
           return (
-            <div key={cardId} className="cardrow">
+            <div key={cardId} className={`result-card status-${stateClass}`}>
               {art ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img className="card-art" src={art} alt="" width={48} height={30} />
+                <img className="card-art" src={art} alt="" width={64} height={40} />
               ) : (
                 <span className={`art tone-${(index % 3) + 1}`} aria-hidden />
               )}
-              <div className="card-copy">
-                <div className="card-title-row">
-                  <b>{card.name}</b>
-                  <SampleBadge label={DATA_NOTICE.sampleBadge} />
-                </div>
-                <small>
-                  {status} · {STATUS_COPY[status].note}
-                </small>
+              <div className="result-card-copy">
+                <b>{card.name}</b>
+                <small>예상 연간 혜택 · {STATUS_COPY[status].note}</small>
+                <strong className="tabular-nums">{won(annualBenefit)}</strong>
+                {status === '신규' ? (
+                  <a
+                    className="issuer-link"
+                    href={card.official_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    카드사 페이지 ›
+                  </a>
+                ) : null}
               </div>
+              <span className={`state-pill ${stateClass}`}>{status}</span>
             </div>
           )
         })}

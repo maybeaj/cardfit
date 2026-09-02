@@ -28,6 +28,7 @@ export default function ResultScreen() {
   const router = useRouter()
   const { calculation, error, profile, clearError } = useDemo()
   const [scenario, setScenario] = useState('expected')
+  const [liked, setLiked] = useState(false)
 
   useEffect(() => {
     if (!calculation && !error) router.replace('/app/plan')
@@ -82,38 +83,55 @@ export default function ResultScreen() {
   const multiplier =
     CONCLUSION_COPY.scenario.options.find((item) => item.key === scenario)?.multiplier ?? 1
 
+  const likeCombination = () => {
+    setLiked(true)
+    try {
+      window.localStorage.setItem(
+        'cardfit.liked-combination',
+        JSON.stringify({
+          candidate_id: shown.candidate_id,
+          scenario,
+          saved_at: new Date().toISOString(),
+        }),
+      )
+    } catch {
+      // 로컬 저장 실패가 결과 확인 흐름을 막지 않는다.
+    }
+  }
+
   return (
     <Screen>
       <ScreenHeader step="06 · 계산 결과" title={CONCLUSION_COPY.title} backHref="/app/constraint" />
-
-      <ConclusionBanner calculation={calculation} />
 
       {/*
         지출 탐색 — 계획이 예상보다 적거나 많을 때 폭이 어느 정도인지 가늠하는 참고값이다.
         계산을 다시 돌리지 않고 확인한 계획의 배수로만 보여주며, 공식 결론은 `예상대로` 기준이다.
       */}
-      <div className="scenario-explorer">
-        <span className="label">{CONCLUSION_COPY.scenario.label}</span>
-        <div className="scenario-tabs" role="group" aria-label="지출 탐색">
-          {CONCLUSION_COPY.scenario.options.map((option) => (
-            <button
-              key={option.key}
-              type="button"
-              className={scenario === option.key ? 'active' : ''}
-              aria-pressed={scenario === option.key}
-              onClick={() => setScenario(option.key)}
-            >
-              {option.label}
-            </button>
-          ))}
+      <div className="result-shell">
+        <div className="scenario-explorer">
+          <span className="label">{CONCLUSION_COPY.scenario.label}</span>
+          <div className="scenario-tabs" role="group" aria-label="지출 탐색">
+            {CONCLUSION_COPY.scenario.options.map((option) => (
+              <button
+                key={option.key}
+                type="button"
+                className={scenario === option.key ? 'active' : ''}
+                aria-pressed={scenario === option.key}
+                onClick={() => setScenario(option.key)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <div className="scenario-value">
+            {CONCLUSION_COPY.scenario.valueLabel}
+            <b className="tabular-nums">
+              연 {won(Math.round(shown.net_benefit * multiplier))}
+            </b>{' '}
+            {CONCLUSION_COPY.scenario.suffix}
+          </div>
         </div>
-        <div className="scenario-value">
-          {CONCLUSION_COPY.scenario.valueLabel}
-          <b className="tabular-nums">
-            연 {won(Math.round(shown.net_benefit * multiplier))}
-          </b>{' '}
-          {CONCLUSION_COPY.scenario.suffix}
-        </div>
+        <ConclusionBanner calculation={calculation} />
       </div>
 
       <Note>
@@ -131,6 +149,14 @@ export default function ResultScreen() {
       <p className="footer">{DATA_NOTICE.sampleFootnote}</p>
 
       <Actions>
+        <button
+          type="button"
+          className={liked ? 'primary liked' : 'primary'}
+          aria-pressed={liked}
+          onClick={likeCombination}
+        >
+          {liked ? '좋아요를 반영했어요' : '이 조합 좋아요'}
+        </button>
         <SecondaryLink href="/app/evidence">{CONCLUSION_COPY.evidenceCta}</SecondaryLink>
         <GhostLink href="/app/plan">{CONCLUSION_COPY.editPlanCta}</GhostLink>
       </Actions>

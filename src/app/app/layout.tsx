@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { loadProfile } from '@/server/repository'
 import { DemoProvider } from '@/state/store'
-import { FlowProgress } from '@/components/flow-progress'
 import { ErrorNote, PhoneShell, Screen, ScreenHeader } from '@/components/shell'
 
 /**
@@ -48,7 +47,6 @@ export default async function AppDemoLayout({ children }: { children: ReactNode 
   return (
     <DemoProvider profile={loaded.data}>
       <PhoneShell>
-        <FlowProgress />
         {children}
       </PhoneShell>
     </DemoProvider>

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { ONBOARDING_COPY } from '@/content/copy'
 import { ConsentSheet } from '@/components/consent-sheet'
 import { Actions, Note, PrimaryButton, Screen } from '@/components/shell'
@@ -28,10 +27,6 @@ export default function OnboardingScreen() {
 
   return (
     <Screen>
-      <div className="image-brand">
-        <Image src="/cardfit-brand.png" alt="CardFit" width={170} height={98} priority />
-      </div>
-
       <div className="onboarding-kicker">{ONBOARDING_COPY.kicker}</div>
       <h2>
         {ONBOARDING_COPY.title[0]}

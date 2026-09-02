@@ -75,14 +75,20 @@ test('기준본 s0~s7 플로우를 순서대로 통과한다', async ({ page }) 
     await expect(page.getByRole('button', { name: label })).toBeVisible()
   }
   await expect(page.getByText('카드별 상태')).toBeVisible()
+  const like = page.getByRole('button', { name: '이 조합 좋아요' })
+  await like.click()
+  const liked = page.getByRole('button', { name: '좋아요를 반영했어요' })
+  await expect(liked).toHaveAttribute('aria-pressed', 'true')
   await page.getByRole('link', { name: '계산 근거 보기' }).click()
 
   // s6 근거 검증 — 6항목
   await expect(page).toHaveURL(/\/app\/evidence$/)
   await expect(page.getByRole('heading', { name: '이 결과가 나온 이유' })).toBeVisible()
-  for (const field of ['실적구간', '혜택한도', '연회비', '제외조건', '기준일']) {
+  for (const field of ['실적구간', '혜택한도', '연회비', '제외조건', '기준일', '미반영 항목']) {
     await expect(page.getByText(new RegExp(field)).first()).toBeVisible()
   }
+  await expect(page.locator('details')).not.toHaveCount(0)
+  await expect(page.getByRole('link', { name: /카드사 공식 혜택 확인/ }).first()).toBeVisible()
   await page.getByRole('button', { name: '이 조합 확정하기' }).click()
 
   // s7 확정 및 실행 경계 — 해지 항목에 실행 버튼을 두지 않는다
@@ -92,28 +98,15 @@ test('기준본 s0~s7 플로우를 순서대로 통과한다', async ({ page }) 
   await expect(page.getByText('CardFit의 실행 경계')).toBeVisible()
 })
 
-test('진행 표시줄이 화면마다 한 칸씩 찬다', async ({ page }) => {
-  // 기준본 `.progress` — 8칸이며 현재 화면까지 채운다
-  const filled = async () => {
-    const bar = page.getByRole('progressbar')
-    await expect(bar).toBeVisible()
-    return Number(await bar.getAttribute('aria-valuenow'))
-  }
-
+test('하드웨어 목업 없이 모바일 웹 셸로 렌더된다', async ({ page }) => {
   await page.goto('/app')
-  expect(await filled()).toBe(1)
-
-  await page.goto('/app/summary')
-  expect(await filled()).toBe(3)
-
-  await page.goto('/app/plan')
-  expect(await filled()).toBe(4)
-
-  await page.goto('/app/constraint')
-  expect(await filled()).toBe(5)
-
-  // 8칸을 유지한다 — 칸 수가 달라지면 진행감이 흔들린다
-  await expect(page.getByRole('progressbar').locator('i')).toHaveCount(8)
+  await expect(page.locator('.mobile-shell')).toBeVisible()
+  await expect(page.locator('.device, .island, .statusbar, .homebar')).toHaveCount(0)
+  await expect(page.getByRole('progressbar')).toHaveCount(0)
+  const width = await page.locator('.mobile-shell').evaluate((element) =>
+    Math.round(element.getBoundingClientRect().width),
+  )
+  expect(width).toBeLessThanOrEqual(430)
 })
 
 test('결과에서 뒤로 가는 버튼들이 기준본과 같은 곳으로 간다', async ({ page }) => {
@@ -145,7 +138,6 @@ test('결과에서 뒤로 가는 버튼들이 기준본과 같은 곳으로 간�
 
 test('화면 콘텐츠에 다크 영역을 쓰지 않는다', async ({ page }) => {
   // 기준본의 결론 배너는 다크가 아니라 의미색이다 — 통과=민트, 유지=앰버.
-  // 목업의 기기 외형(베젤·다이나믹 아일랜드·홈바)은 iPhone 하드웨어라 이 규칙 밖이다.
   await page.goto('/app')
   const darkCount = await page.evaluate(() => {
     const isDark = (color: string) => {
@@ -156,9 +148,7 @@ test('화면 콘텐츠에 다크 영역을 쓰지 않는다', async ({ page }) =
       if (match.length > 3 && Number(match[3]) === 0) return false
       return 0.299 * r + 0.587 * g + 0.114 * b < 90
     }
-    // 기기 외형이 아니라 화면 안에 그린 것만 센다
-    return [...document.querySelectorAll('.device-screen *')].filter((el) => {
-      if (el.classList.contains('homebar')) return false
+    return [...document.querySelectorAll('.mobile-shell *')].filter((el) => {
       const bg = getComputedStyle(el).backgroundColor
       return bg && bg !== 'transparent' && isDark(bg)
     }).length

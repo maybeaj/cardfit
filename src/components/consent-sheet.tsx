@@ -33,7 +33,7 @@ export function ConsentSheet({
 
   useEffect(() => {
     if (!open) return
-    const screen = document.querySelector('.device-screen')
+    const screen = document.querySelector('.mobile-shell')
     screen?.classList.add('modal-open')
 
     const onKey = (event: KeyboardEvent) => {

@@ -10,28 +10,9 @@ import type { CardStatus } from '@/domain/types'
  * 다크 영역은 쓰지 않는다 — 결론의 신호값은 명도가 아니라 의미색이 담당한다.
  */
 
-/** iPhone 17 목업 — 402×900 프레임 안에서 872px 화면이 스크롤된다. */
+/** 실제 모바일 웹 셸 — 작은 화면은 전체 폭, 넓은 화면은 430px로 중앙 정렬한다. */
 export function PhoneShell({ children }: { children: ReactNode }) {
-  return (
-    <div className="py-7">
-      <div className="device" aria-label="iPhone 17 목업">
-        <div className="island" aria-hidden />
-        <div className="device-screen">
-          <div className="statusbar">
-            <span>9:41</span>
-            <span className="status-icons">
-              <span>5G</span>
-              <span aria-hidden>▮▮▮</span>
-              <span aria-hidden>▰</span>
-            </span>
-          </div>
-          {children}
-          <div className="homebar" aria-hidden />
-        </div>
-      </div>
-      <p className="device-caption">iPhone 17 logical viewport · 402 × 874</p>
-    </div>
-  )
+  return <main className="mobile-shell">{children}</main>
 }
 
 /** 한 화면. 패널 하나를 담고 세로로 늘어난다. */
