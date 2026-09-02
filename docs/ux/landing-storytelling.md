@@ -1,4 +1,4 @@
-# CardFit 랜딩페이지 콘텐츠 초안
+# CardFit 랜딩페이지 콘텐츠 계획서
 
 > 상태: 🟡 초안 · 2026-09-02
 > 상위 문서: `docs/PRD.md` · `docs/ux/README.md` 1절 · `docs/knowledge-base/raw/CardFit_Deck_10min_v2-2.md`(마스터덱 18장)
