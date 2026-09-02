@@ -23,6 +23,17 @@ export const MYDATA_AS_OF = '2026-08-31'
 export const HELD_CARD_IDS = ['card_01', 'card_02', 'card_03'] as const
 
 /**
+ * 카드 아트 이미지. `docs/prototype/assets/`에서 `public/cards/`로 옮긴 파일이다.
+ *
+ * **이름이 정확히 맞는 카드에만 붙인다.** 다른 카드의 이미지를 빌려 쓰면 화면이
+ * 그 카드인 것처럼 보여 `T18`(실명 카드를 쓰되 예시임을 밝힌다)을 깬다.
+ * 이미지가 없는 카드는 기준본의 `.art` 그라데이션 자리표시를 쓴다.
+ */
+export const CARD_ART: Record<string, string> = {
+  'card_02': '/cards/samsung-taptap-o.png',
+}
+
+/**
  * 보유 카드의 전환비용.
  *
  * `requalification_loss`는 그 카드를 조합에서 빼면 사라지는 실적 재적립분이고,

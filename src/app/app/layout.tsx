@@ -2,8 +2,7 @@ import type { ReactNode } from 'react'
 import { loadProfile } from '@/server/repository'
 import { DemoProvider } from '@/state/store'
 import { FlowProgress } from '@/components/flow-progress'
-import { PhoneShell, ScreenHeader } from '@/components/shell'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { ErrorNote, PhoneShell, Screen, ScreenHeader } from '@/components/shell'
 
 /**
  * DB를 요청마다 읽는다. 빌드 시점에 구워버리면 Seed 변경이 반영되지 않고
@@ -31,20 +30,17 @@ export default async function AppDemoLayout({ children }: { children: ReactNode 
     // 오류를 성공 결과로 변환하지 않는다 (TEC-05)
     return (
       <PhoneShell>
-        <ScreenHeader step="데이터 오류" title="예시 데이터를 불러오지 못했어요" />
-        <div className="scroll-area">
-          <Alert variant="destructive">
-            <AlertTitle>{loaded.error.code}</AlertTitle>
-            <AlertDescription>
-              {loaded.error.message}
-              {loaded.error.missing.length > 0 ? ` (${loaded.error.missing.join(', ')})` : null}
-            </AlertDescription>
-          </Alert>
-          <p className="mt-3 text-[12.5px] leading-relaxed text-subtle">
+        <Screen>
+          <ScreenHeader step="데이터 오류" title="예시 데이터를 불러오지 못했어요" />
+          <ErrorNote>
+            {loaded.error.message}
+            {loaded.error.missing.length > 0 ? ` (${loaded.error.missing.join(', ')})` : null}
+          </ErrorNote>
+          <p className="footer">
             로컬에서는 <code>npm run db:start</code> → <code>npm run db:migrate</code> →{' '}
             <code>npm run db:seed</code> 를 실행하면 복구됩니다.
           </p>
-        </div>
+        </Screen>
       </PhoneShell>
     )
   }

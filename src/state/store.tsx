@@ -13,7 +13,7 @@ import {
 import type { Calculation, Constraint, FutureSpendPlan, Profile } from '@/domain/types'
 import type { ActionError } from '@/server/errors'
 import { calculateAction, confirmPlanAction, savePlanAction, startSessionAction } from '@/server/actions'
-import { loadSession, saveSession, type SessionState } from './session'
+import { clearSession, loadSession, saveSession, type SessionState } from './session'
 
 /**
  * 화면 상태. 계산은 Server Action이 수행하고 여기서는 결과만 들고 있는다 (TEC-05).
@@ -62,10 +62,24 @@ export function DemoProvider({ children, profile }: { children: ReactNode; profi
   const [pending, startTransition] = useTransition()
 
   useEffect(() => {
+    /*
+     * 랜딩 CTA는 `/app?restart=1`로 넘어온다 — 이전 세션 입력을 지우고 처음부터 시작하라는 뜻이다.
+     * 아웃링크에서 돌아올 때는 이 표시가 없으므로 입력값과 확정 조합이 그대로 복원된다 (`T28`).
+     */
+    const restart = new URLSearchParams(window.location.search).get('restart') === '1'
+    if (restart) {
+      clearSession()
+      // 주소창에 표시가 남으면 새로고침할 때마다 입력이 지워진다
+      window.history.replaceState(null, '', window.location.pathname)
+      setState(initialState(profile))
+      setHydrated(true)
+      return
+    }
+
     const restored = loadSession()
     setState((prev) => ({ ...(restored ?? prev), sessionId: restored?.sessionId || newSessionId() }))
     setHydrated(true)
-  }, [])
+  }, [profile])
 
   useEffect(() => {
     if (hydrated) saveSession(state)

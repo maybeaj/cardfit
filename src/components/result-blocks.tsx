@@ -1,16 +1,8 @@
 import { CONCLUSION_COPY, DATA_NOTICE, STATUS_COPY } from '@/content/copy'
 import { manwon, won } from '@/domain/format'
 import type { Calculation, CardProduct, PlanCandidate } from '@/domain/types'
-import { cn } from '@/lib/utils'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Panel, SampleBadge, StatusChip } from './shell'
+import { CARD_ART } from '@/fixtures/mydata/rules'
+import { SampleBadge } from './shell'
 
 /**
  * UI-005 결론 배너 — 좁게. 본문은 배분표가 차지한다 (`T2`).
@@ -35,25 +27,18 @@ export function ConclusionBanner({ calculation }: { calculation: Calculation }) 
       : CONCLUSION_COPY.hold.caption()
 
   return (
-    <Panel tone={decision === '변경' ? 'pass' : 'hold'}>
-      <p
-        className={cn(
-          'm-0 text-[12px] font-extrabold',
-          decision === '변경' ? 'text-positive' : 'text-warning',
-        )}
-      >
-        {decision === '변경' ? '✓ 바꿀 가치가 충분해요' : '✓ 지금은 바꾸지 않아도 돼요'}
-      </p>
-      <p className="mt-1.5 mb-0 text-[19px] leading-[1.4] font-extrabold tracking-tight text-ink">
-        {body}
-      </p>
-      <p className="mt-2 mb-0 text-[11.5px] leading-relaxed text-subtle">{caption}</p>
+    <div className={decision === '변경' ? 'result' : 'result hold'}>
+      <div className="status">
+        {decision === '변경' ? CONCLUSION_COPY.passStatus : CONCLUSION_COPY.holdStatus}
+      </div>
+      <div className="big">{body}</div>
+      <small>{caption}</small>
       {decision === '유지' && hold_reason === '제약과다' ? (
-        <p className="mt-3 mb-0 rounded-lg bg-surface/70 px-3 py-2 text-[12px] font-semibold text-ink">
+        <p className="mt-2.5 mb-0 rounded-lg bg-white/70 px-2.5 py-2 text-[11px] font-semibold">
           {CONCLUSION_COPY.relaxHint}
         </p>
       ) : null}
-    </Panel>
+    </div>
   )
 }
 
@@ -65,36 +50,41 @@ export function CombinationList({
   calculation: Calculation
   cards: CardProduct[]
 }) {
-  const statuses = calculation.decision === '변경' ? calculation.chosen.statuses : calculation.current.statuses
+  const statuses =
+    calculation.decision === '변경' ? calculation.chosen.statuses : calculation.current.statuses
   const entries = Object.entries(statuses).sort(([a], [b]) => a.localeCompare(b))
 
   return (
-    <Panel>
-      <h2 className="m-0 text-[15px] font-extrabold text-ink">카드별 상태</h2>
-      <ul className="mt-3 mb-0 list-none space-y-2 p-0">
-        {entries.map(([cardId, status]) => {
+    <>
+      <h3>{CONCLUSION_COPY.cardStatusHeading}</h3>
+      <div className="grid">
+        {entries.map(([cardId, status], index) => {
           const card = cards.find((item) => item.card_id === cardId)
           if (!card) return null
+          const art = CARD_ART[cardId]
           return (
-            <li
-              key={cardId}
-              className="flex items-start justify-between gap-2 rounded-xl bg-bg px-3 py-2.5"
-            >
-              <div>
-                <p className="m-0 text-[11.5px] text-subtle">{card.issuer}</p>
-                <p className="mt-0.5 mb-0 text-[14.5px] font-bold text-ink">{card.name}</p>
-                <p className="mt-1 mb-0 text-[11.5px] text-subtle">{STATUS_COPY[status].note}</p>
+            <div key={cardId} className="cardrow">
+              {art ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="card-art" src={art} alt="" width={48} height={30} />
+              ) : (
+                <span className={`art tone-${(index % 3) + 1}`} aria-hidden />
+              )}
+              <div className="card-copy">
+                <div className="card-title-row">
+                  <b>{card.name}</b>
+                  <SampleBadge label={DATA_NOTICE.sampleBadge} />
+                </div>
+                <small>
+                  {status} · {STATUS_COPY[status].note}
+                </small>
               </div>
-              <div className="flex flex-col items-end gap-1">
-                <StatusChip status={status} />
-                <SampleBadge label={DATA_NOTICE.sampleBadge} />
-              </div>
-            </li>
+            </div>
           )
         })}
-      </ul>
-      <p className="mt-3 mb-0 text-[11.5px] text-subtle">{CONCLUSION_COPY.boundedOptimum}</p>
-    </Panel>
+      </div>
+      <p className="footer">{CONCLUSION_COPY.boundedOptimum}</p>
+    </>
   )
 }
 
@@ -117,50 +107,46 @@ export function AllocationTable({
   }
 
   return (
-    <Panel>
-      <h2 className="m-0 text-[15px] font-extrabold text-ink">이렇게 나눠 쓰세요</h2>
-      <p className="mt-1 mb-0 text-[11.5px] text-subtle">
-        앞으로 12개월 합계 기준 · 총 {manwon(total)}
-      </p>
-      <Table className="mt-3">
-        <TableHeader>
-          <TableRow className="border-line">
-            <TableHead className="h-auto pb-2 text-[11.5px] font-semibold text-subtle">카드</TableHead>
-            <TableHead className="h-auto pb-2 text-right text-[11.5px] font-semibold text-subtle">
-              결제 금액
-            </TableHead>
-            <TableHead className="h-auto pb-2 text-right text-[11.5px] font-semibold text-subtle">
-              혜택
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {[...byCard.entries()]
-            .sort((a, b) => b[1].amount - a[1].amount)
-            .map(([cardId, entry]) => {
-              const card = cards.find((item) => item.card_id === cardId)
-              return (
-                <TableRow key={cardId} className="border-line align-top">
-                  <TableCell className="py-2.5 whitespace-normal">
-                    <span className="block text-[13.5px] font-bold text-ink">
-                      {card?.name ?? cardId}
-                    </span>
-                    <span className="block text-[11px] text-subtle">
-                      {entry.categories.join(' · ')}
-                    </span>
-                  </TableCell>
-                  <TableCell className="py-2.5 text-right text-[13.5px] font-bold text-ink tabular-nums">
-                    {manwon(entry.amount)}
-                  </TableCell>
-                  <TableCell className="py-2.5 text-right text-[13.5px] font-bold text-positive tabular-nums">
-                    {won(entry.benefit)}
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-        </TableBody>
-      </Table>
-    </Panel>
+    <>
+      <h3>이렇게 나눠 쓰세요</h3>
+      <p className="sub">앞으로 12개월 합계 기준 · 총 {manwon(total)}</p>
+      <div className="mt-2 overflow-x-auto">
+        <table className="w-full border-collapse text-[11px]">
+          <thead>
+            <tr className="border-b border-[var(--color-line)] text-left">
+              <th className="pb-2 font-semibold text-[var(--color-subtle)]">카드</th>
+              <th className="pb-2 text-right font-semibold text-[var(--color-subtle)]">결제 금액</th>
+              <th className="pb-2 text-right font-semibold text-[var(--color-subtle)]">혜택</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...byCard.entries()]
+              .sort((a, b) => b[1].amount - a[1].amount)
+              .map(([cardId, entry]) => {
+                const card = cards.find((item) => item.card_id === cardId)
+                return (
+                  <tr key={cardId} className="border-b border-[var(--color-line)] align-top">
+                    <td className="py-2">
+                      <span className="block font-bold text-[var(--color-ink)]">
+                        {card?.name ?? cardId}
+                      </span>
+                      <span className="block text-[9px] text-[var(--color-subtle)]">
+                        {entry.categories.join(' · ')}
+                      </span>
+                    </td>
+                    <td className="py-2 text-right font-bold text-[var(--color-ink)] tabular-nums">
+                      {manwon(entry.amount)}
+                    </td>
+                    <td className="py-2 text-right font-bold text-[var(--color-positive)] tabular-nums">
+                      {won(entry.benefit)}
+                    </td>
+                  </tr>
+                )
+              })}
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 }
 
@@ -174,43 +160,45 @@ export function ReviewedAlternatives({
 }) {
   if (reviewed.length === 0) return null
   return (
-    <Panel>
-      <h2 className="m-0 text-[15px] font-extrabold text-ink">{CONCLUSION_COPY.reviewedTitle}</h2>
-      <ul className="mt-3 mb-0 list-none space-y-2 p-0">
+    <>
+      <h3>{CONCLUSION_COPY.reviewedTitle}</h3>
+      <div className="grid">
         {reviewed.map((candidate) => (
-          <li key={candidate.candidate_id} className="rounded-xl bg-bg px-3 py-2.5">
-            <p className="m-0 text-[13.5px] font-bold text-ink">
+          <div key={candidate.candidate_id} className="metric">
+            <b className="text-[11px]">
               {candidate.card_ids
                 .map((id) => cards.find((card) => card.card_id === id)?.name ?? id)
                 .join(' + ')}
-            </p>
+            </b>
             <dl className="mt-2 mb-0 grid grid-cols-3 gap-1">
               <div>
-                <dt className="m-0 text-[10.5px] text-subtle">추가 혜택</dt>
-                <dd className="m-0 text-[12.5px] font-bold text-ink tabular-nums">
+                <dt className="m-0 text-[9px] text-[var(--color-subtle)]">추가 혜택</dt>
+                <dd className="m-0 text-[11px] font-bold text-[var(--color-ink)] tabular-nums">
                   {won(candidate.gross_benefit)}
                 </dd>
               </div>
               <div>
-                <dt className="m-0 text-[10.5px] text-subtle">전환비용</dt>
-                <dd className="m-0 text-[12.5px] font-bold text-ink tabular-nums">
+                <dt className="m-0 text-[9px] text-[var(--color-subtle)]">전환비용</dt>
+                <dd className="m-0 text-[11px] font-bold text-[var(--color-ink)] tabular-nums">
                   −{won(candidate.switching_cost.total)}
                 </dd>
               </div>
               <div>
-                <dt className="m-0 text-[10.5px] text-subtle">순손익</dt>
+                <dt className="m-0 text-[9px] text-[var(--color-subtle)]">순손익</dt>
                 <dd
-                  className={`m-0 text-[12.5px] font-bold tabular-nums ${
-                    candidate.net_benefit >= 0 ? 'text-positive' : 'text-warning'
+                  className={`m-0 text-[11px] font-bold tabular-nums ${
+                    candidate.net_benefit >= 0
+                      ? 'text-[var(--color-positive)]'
+                      : 'text-[var(--color-warning)]'
                   }`}
                 >
                   {won(candidate.net_benefit)}
                 </dd>
               </div>
             </dl>
-          </li>
+          </div>
         ))}
-      </ul>
-    </Panel>
+      </div>
+    </>
   )
 }

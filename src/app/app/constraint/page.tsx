@@ -5,7 +5,7 @@ import { CONSTRAINT_COPY, PLAN_NOTICE } from '@/content/copy'
 import { NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO } from '@/domain/calc'
 import { manwon, won } from '@/domain/format'
 import { planTotal } from '@/domain/plan'
-import { CtaBar, Notice, Panel, PrimaryButton, ScreenHeader } from '@/components/shell'
+import { Actions, Note, PrimaryButton, Screen, ScreenHeader } from '@/components/shell'
 import { logEvent } from '@/state/events'
 import { useDemo } from '@/state/store'
 
@@ -38,94 +38,80 @@ export default function ConstraintScreen() {
   }
 
   return (
-    <>
+    <Screen>
       <ScreenHeader
-        step="계산 조건"
+        step="05 · 계산 조건"
         title={CONSTRAINT_COPY.title}
         lead={CONSTRAINT_COPY.lead}
         backHref="/app/plan"
       />
-      <div className="scroll-area flex flex-col gap-2.5">
-        <Panel>
-          <div className="flex min-h-[58px] items-center justify-between gap-2.5">
-            <div>
-              <b className="block text-[12px] text-ink">{CONSTRAINT_COPY.maxCardsLabel}</b>
-              <small className="text-[10px] text-subtle">{CONSTRAINT_COPY.maxCardsHint}</small>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => changeMax(-1)}
-                disabled={constraint.max_cards <= MIN_CARDS_LIMIT}
-                aria-label="사용 카드 최대 수 줄이기"
-                className="h-7 w-7 rounded-lg bg-primary-soft text-[15px] font-black text-primary disabled:opacity-40"
-              >
-                −
-              </button>
-              <b aria-live="polite" className="text-[15px] text-ink tabular-nums">
-                {constraint.max_cards}
-              </b>
-              <button
-                type="button"
-                onClick={() => changeMax(1)}
-                disabled={constraint.max_cards >= MAX_CARDS_LIMIT}
-                aria-label="사용 카드 최대 수 늘리기"
-                className="h-7 w-7 rounded-lg bg-primary-soft text-[15px] font-black text-primary disabled:opacity-40"
-              >
-                ＋
-              </button>
-            </div>
-          </div>
-        </Panel>
 
-        <Panel>
-          <div className="flex min-h-[58px] items-center justify-between gap-2.5">
-            <div>
-              <b className="block text-[12px] text-ink">{CONSTRAINT_COPY.newCardLabel}</b>
-              <small className="text-[10px] text-subtle">{CONSTRAINT_COPY.newCardHint}</small>
-            </div>
-            <div
-              role="group"
-              aria-label={CONSTRAINT_COPY.newCardLabel}
-              className="flex flex-none overflow-hidden rounded-[9px] border border-line"
+      <div className="mt-3 grid gap-2.5">
+        <div className="rule">
+          <div>
+            <b>{CONSTRAINT_COPY.maxCardsLabel}</b>
+            <small className="sub block">{CONSTRAINT_COPY.maxCardsHint}</small>
+          </div>
+          <div className="stepper">
+            <button
+              type="button"
+              onClick={() => changeMax(-1)}
+              disabled={constraint.max_cards <= MIN_CARDS_LIMIT}
+              aria-label="사용 카드 최대 수 줄이기"
             >
-              {[
-                { value: true, label: CONSTRAINT_COPY.yes },
-                { value: false, label: CONSTRAINT_COPY.no },
-              ].map((option) => (
-                <button
-                  key={String(option.value)}
-                  type="button"
-                  aria-pressed={constraint.allow_new_card === option.value}
-                  onClick={() => updateConstraint({ allow_new_card: option.value })}
-                  className={`min-w-[42px] px-2.5 py-1.5 text-[11px] ${
-                    constraint.allow_new_card === option.value
-                      ? 'bg-primary text-white'
-                      : 'bg-surface text-subtle'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
+              −
+            </button>
+            <b aria-live="polite" className="tabular-nums">
+              {constraint.max_cards}
+            </b>
+            <button
+              type="button"
+              onClick={() => changeMax(1)}
+              disabled={constraint.max_cards >= MAX_CARDS_LIMIT}
+              aria-label="사용 카드 최대 수 늘리기"
+            >
+              ＋
+            </button>
           </div>
-        </Panel>
+        </div>
 
-        <Panel tone="bg">
-          <p className="m-0 text-[11px] text-subtle">확인할 앞으로 12개월 계획</p>
-          <p className="mt-1 mb-0 text-[17px] font-extrabold text-ink tabular-nums">
-            {plan.length}건 · 순증 {manwon(planTotal(plan))}
-          </p>
-        </Panel>
-
-        <Notice tone="info">
-          {CONSTRAINT_COPY.gate(won(NET_BENEFIT_FLOOR), Math.round(NET_BENEFIT_RATIO * 100))}
-        </Notice>
-        <Notice>{CONSTRAINT_COPY.confirmNote}</Notice>
+        <div className="rule">
+          <div>
+            <b>{CONSTRAINT_COPY.newCardLabel}</b>
+            <small className="sub block">{CONSTRAINT_COPY.newCardHint}</small>
+          </div>
+          <div className="choice-group" role="group" aria-label={CONSTRAINT_COPY.newCardLabel}>
+            {[
+              { value: true, label: CONSTRAINT_COPY.yes },
+              { value: false, label: CONSTRAINT_COPY.no },
+            ].map((option) => (
+              <button
+                key={String(option.value)}
+                type="button"
+                className={`choice ${constraint.allow_new_card === option.value ? 'active' : ''}`}
+                aria-pressed={constraint.allow_new_card === option.value}
+                onClick={() => updateConstraint({ allow_new_card: option.value })}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
-      <CtaBar>
+
+      <div className="total">
+        <span>확인할 앞으로 12개월 계획</span>
+        <span className="tabular-nums">
+          {plan.length}건 · 순증 {manwon(planTotal(plan))}
+        </span>
+      </div>
+
+      <Note>{CONSTRAINT_COPY.gate(won(NET_BENEFIT_FLOOR), Math.round(NET_BENEFIT_RATIO * 100))}</Note>
+      <p className="footer">{CONSTRAINT_COPY.confirmNote}</p>
+
+      <Actions>
         <PrimaryButton onClick={confirm}>{PLAN_NOTICE.confirmCta}</PrimaryButton>
-      </CtaBar>
-    </>
+      </Actions>
+    </Screen>
   )
 }

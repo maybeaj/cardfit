@@ -4,13 +4,13 @@ import { expect, test } from '@playwright/test'
  * QA-02 — Happy Path. 402×874와 1440×900 두 폭에서 완주한다 (NFR-003).
  * 화면 순서와 버튼은 `docs/prototype/cardfit-prd-srs-v0.4.html`의 s0~s7을 따른다 (`D-011`).
  */
-test('랜딩에서 앱 데모로 들어가 조합을 확정한다', async ({ page }) => {
+test('랜딩에서 앱으로 들어가 조합을 확정한다', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('앞으로 쓸 돈')
-  await page.getByRole('link', { name: '앱 데모 시연하기' }).first().click()
+  await page.getByRole('button', { name: /내 미래지출 혜택 시뮬레이션 하기/ }).click()
 
-  // s0 온보딩 — 예시 데이터 고지. 동의 체크박스는 시트 안에 있고 이 화면에는 없다
-  await expect(page.getByText('예시 데이터로 동작합니다')).toBeVisible()
+  // s0 온보딩 — 동의 체크박스는 시트 안에 있고 이 화면에는 없다
+  await expect(page).toHaveURL(/\/app$/)
+  await expect(page.getByText('카드 선택이 어려운 순간')).toBeVisible()
   await expect(page.locator('input[type=checkbox]')).toHaveCount(0)
   await page.getByRole('button', { name: '카드조합 추천받기' }).click()
 
@@ -38,7 +38,8 @@ test('랜딩에서 앱 데모로 들어가 조합을 확정한다', async ({ pag
 
   // s5 계산 결과 — 결론 배너 + 배분표
   await expect(page.getByText('지금 조합 그대로면')).toBeVisible({ timeout: 15_000 })
-  await expect(page.getByText('현재 조합 3장을 그대로 쓸 때와 비교', { exact: false })).toBeVisible()
+  // 배너의 캡션과 아래 `비교 기준선` 블록 두 곳에 나온다 — 둘 다 있어야 정상이다
+  await expect(page.getByText('현재 조합 3장을 그대로 쓸 때와 비교', { exact: false })).toHaveCount(2)
   await expect(page.getByText('이렇게 나눠 쓰세요')).toBeVisible()
   await expect(page.getByText('사용 카드 2장 · 신규 1장 이내에서의 최선')).toBeVisible()
 
@@ -105,4 +106,19 @@ test('기준본 s3의 항목 추가와 건너뛰기가 동작한다', async ({ p
   // 이 단계 건너뛰기 → 계산 조건으로 간다
   await page.getByRole('link', { name: '이 단계 건너뛰기' }).click()
   await expect(page).toHaveURL(/\/app\/constraint$/)
+})
+
+test('랜딩 CTA는 앱을 처음부터 시작한다', async ({ page }) => {
+  // 흐름을 진행해 세션에 입력을 남긴다
+  await page.goto('/app/plan')
+  const deleteButtons = page.getByRole('button', { name: /항목 삭제$/ })
+  await deleteButtons.first().click()
+  await expect(page.locator('input[type=number]')).toHaveCount(2)
+
+  // 랜딩 CTA로 다시 들어오면 제안값이 복원된다 (`restart=1`)
+  await page.goto('/')
+  await page.getByRole('button', { name: /내 미래지출 혜택 시뮬레이션 하기/ }).click()
+  await expect(page).toHaveURL(/\/app$/)
+  await page.goto('/app/plan')
+  await expect(page.locator('input[type=number]')).toHaveCount(3)
 })

@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CALC_NOTICE } from '@/content/copy'
-import { Notice, Panel, ScreenHeader } from '@/components/shell'
-import { Progress } from '@/components/ui/progress'
+import { Note, Screen, ScreenHeader } from '@/components/shell'
 import { useDemo } from '@/state/store'
 
 /**
@@ -40,33 +39,42 @@ export default function CalculatingScreen() {
   }, [calculation, error, step, router])
 
   return (
-    <>
+    <Screen>
       <ScreenHeader step="계산 중" title="확인한 계획으로 조합을 계산하고 있어요" />
-      <div className="scroll-area flex flex-col gap-3">
-        <Progress
-          value={(step / CALC_NOTICE.steps.length) * 100}
+
+      <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-line)]">
+        <div
+          className="h-full rounded-full bg-[var(--color-blue)] transition-[width] duration-300"
+          style={{ width: `${(step / CALC_NOTICE.steps.length) * 100}%` }}
+          role="progressbar"
           aria-label="계산 진행률"
-          className="h-1.5"
+          aria-valuenow={step}
+          aria-valuemin={0}
+          aria-valuemax={CALC_NOTICE.steps.length}
         />
-        <Panel>
-          <ol className="m-0 list-none space-y-3 p-0">
-            {CALC_NOTICE.steps.map((label, index) => (
-              <li key={label} className="flex items-center gap-2 text-[14px]">
-                <span
-                  aria-hidden
-                  className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                    index < step ? 'bg-primary text-white' : 'bg-bg text-subtle'
-                  }`}
-                >
-                  {index < step ? '✓' : index + 1}
-                </span>
-                <span className={index < step ? 'text-ink' : 'text-subtle'}>{label}</span>
-              </li>
-            ))}
-          </ol>
-        </Panel>
-        <Notice>{CALC_NOTICE.engine}</Notice>
       </div>
-    </>
+
+      <ol className="mt-4 mb-0 grid list-none gap-2 p-0">
+        {CALC_NOTICE.steps.map((label, index) => (
+          <li key={label} className="flex items-center gap-2 text-[11px]">
+            <span
+              aria-hidden
+              className={`inline-flex h-5 w-5 flex-none items-center justify-center rounded-full text-[10px] font-bold ${
+                index < step
+                  ? 'bg-[var(--color-blue)] text-white'
+                  : 'bg-[var(--color-bg)] text-[var(--color-subtle)]'
+              }`}
+            >
+              {index < step ? '✓' : index + 1}
+            </span>
+            <span className={index < step ? 'text-[var(--color-ink)]' : 'text-[var(--color-subtle)]'}>
+              {label}
+            </span>
+          </li>
+        ))}
+      </ol>
+
+      <Note>{CALC_NOTICE.engine}</Note>
+    </Screen>
   )
 }

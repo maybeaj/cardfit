@@ -1,23 +1,46 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import type { CardStatus } from '@/domain/types'
-import { cn } from '@/lib/utils'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 
 /**
- * 앱 셸과 공통 블록. 프리미티브는 shadcn/ui를 쓰고(`C-TEC-004`) 여기서는
- * CardFit 고유의 배치 규칙만 얹는다 — 402×874 프레임, 하단 고정 CTA 하나.
+ * 앱 셸과 공통 블록 — `docs/prototype/cardfit-prd-srs-v0.4.html`이 기준본이다 (`D-011`).
  *
- * 색과 치수는 `docs/prototype/cardfit-prd-srs-v0.4.html`이 기준본이다 (`D-011`).
+ * 클래스 이름과 치수를 기준본 CSS와 1:1로 맞춘다. 구현 화면이 기준본과 다르면 기준본이 옳다.
+ * 한 화면 = 흰 패널 하나이고 버튼은 패널 맨 아래(`.actions`)에 붙는다.
  * 다크 영역은 쓰지 않는다 — 결론의 신호값은 명도가 아니라 의미색이 담당한다.
  */
 
-/** iPhone 17 402×874 프레임. 데스크톱에서는 중앙 정렬만 하고 정보 위계를 바꾸지 않는다. */
+/** iPhone 17 목업 — 402×900 프레임 안에서 872px 화면이 스크롤된다. */
 export function PhoneShell({ children }: { children: ReactNode }) {
-  return <div className="phone">{children}</div>
+  return (
+    <div className="py-7">
+      <div className="device" aria-label="iPhone 17 목업">
+        <div className="island" aria-hidden />
+        <div className="device-screen">
+          <div className="statusbar">
+            <span>9:41</span>
+            <span className="status-icons">
+              <span>5G</span>
+              <span aria-hidden>▮▮▮</span>
+              <span aria-hidden>▰</span>
+            </span>
+          </div>
+          {children}
+          <div className="homebar" aria-hidden />
+        </div>
+      </div>
+      <p className="device-caption">iPhone 17 logical viewport · 402 × 874</p>
+    </div>
+  )
+}
+
+/** 한 화면. 패널 하나를 담고 세로로 늘어난다. */
+export function Screen({ children }: { children: ReactNode }) {
+  return (
+    <section className="screen">
+      <div className="panel">{children}</div>
+    </section>
+  )
 }
 
 export function ScreenHeader({
@@ -27,104 +50,28 @@ export function ScreenHeader({
   backHref,
 }: {
   step?: string
-  title: string
-  lead?: string
+  title: ReactNode
+  lead?: ReactNode
   backHref?: string
 }) {
   return (
-    <header className="px-5 pt-6 pb-4">
+    <>
       {backHref ? (
-        <Link href={backHref} className="mb-3 inline-block text-sm text-subtle">
+        <Link href={backHref} className="mb-1 inline-block text-[11px] text-[var(--color-subtle)]">
           ← 뒤로
         </Link>
       ) : null}
-      {step ? <p className="mb-2 text-xs font-bold tracking-wide text-primary">{step}</p> : null}
-      <h1 className="m-0 text-[22px] leading-[1.35] font-extrabold tracking-tight text-ink">
-        {title}
-      </h1>
-      {lead ? <p className="mt-2 mb-0 text-[14px] leading-relaxed text-subtle">{lead}</p> : null}
-    </header>
+      {step ? <span className="badge">{step}</span> : null}
+      <h2>{title}</h2>
+      {lead ? <p className="sub">{lead}</p> : null}
+    </>
   )
 }
 
-export function Panel({
-  children,
-  tone = 'surface',
-  className,
-}: {
-  children: ReactNode
-  tone?: 'surface' | 'bg' | 'pass' | 'hold'
-  className?: string
-}) {
-  const tones = {
-    surface: 'bg-surface border-line text-ink',
-    bg: 'bg-bg border-line text-ink',
-    // 결론 배너 — 기준본의 `.result` / `.result.hold`. 통과는 민트, 유지는 앰버다
-    pass: 'bg-mint border-mint-line text-ink',
-    hold: 'bg-amber border-amber-line text-ink',
-  } as const
-  return (
-    <Card
-      className={cn('gap-0 rounded-[var(--radius-card)] border py-0 shadow-none', tones[tone], className)}
-    >
-      <CardContent className="px-4 py-4">{children}</CardContent>
-    </Card>
-  )
+/** 버튼 묶음. 패널 맨 아래에 붙는다 — 탭 네비게이션을 그리지 않는다 (`T14`). */
+export function Actions({ children }: { children: ReactNode }) {
+  return <div className="actions">{children}</div>
 }
-
-export function Notice({
-  children,
-  tone = 'neutral',
-}: {
-  children: ReactNode
-  tone?: 'neutral' | 'info' | 'warning' | 'positive'
-}) {
-  const tones = {
-    neutral: 'bg-bg text-subtle border-transparent',
-    // 기준본의 `.note` — 안내는 파란 계열, 주의는 앰버 계열이다
-    info: 'bg-primary-soft text-primary border-transparent',
-    warning: 'bg-amber text-warning border-transparent',
-    positive: 'bg-mint text-positive border-transparent',
-  } as const
-  return (
-    <Alert className={cn('grid-cols-1 gap-0 rounded-xl px-3 py-2', tones[tone])}>
-      <AlertDescription className="text-[12.5px] leading-relaxed text-inherit">
-        {children}
-      </AlertDescription>
-    </Alert>
-  )
-}
-
-export function StatusChip({ status }: { status: CardStatus }) {
-  const tones: Record<CardStatus, string> = {
-    신규: 'bg-primary text-white border-transparent',
-    유지: 'bg-primary-soft text-primary border-transparent',
-    정리: 'bg-bg text-subtle border-transparent',
-  }
-  return (
-    <Badge className={cn('rounded-lg px-2 py-1 text-[11px] font-bold', tones[status])}>
-      {status}
-    </Badge>
-  )
-}
-
-export function SampleBadge({ label }: { label: string }) {
-  return (
-    <Badge
-      variant="secondary"
-      className="rounded-md bg-bg px-1.5 py-0.5 text-[10px] font-semibold text-subtle"
-    >
-      {label}
-    </Badge>
-  )
-}
-
-/** 화면 하단은 고정 CTA 하나가 차지한다. 탭 네비게이션을 그리지 않는다 (T14). */
-export function CtaBar({ children }: { children: ReactNode }) {
-  return <div className="cta-bar">{children}</div>
-}
-
-const CTA = 'w-full min-h-[52px] rounded-[var(--radius-button)] text-[16px] font-bold'
 
 export function PrimaryLink({
   href,
@@ -136,11 +83,25 @@ export function PrimaryLink({
   onClick?: () => void
 }) {
   return (
-    <Button asChild size="lg" className={CTA}>
-      <Link href={href} onClick={onClick}>
-        {children}
-      </Link>
-    </Button>
+    <Link href={href} className="primary" onClick={onClick}>
+      {children}
+    </Link>
+  )
+}
+
+export function SecondaryLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link href={href} className="secondary">
+      {children}
+    </Link>
+  )
+}
+
+export function GhostLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link href={href} className="ghost">
+      {children}
+    </Link>
   )
 }
 
@@ -156,25 +117,73 @@ export function PrimaryButton({
   type?: 'button' | 'submit'
 }) {
   return (
-    <Button type={type} size="lg" onClick={onClick} disabled={disabled} className={CTA}>
+    <button type={type} className="primary" onClick={onClick} disabled={disabled}>
       {children}
-    </Button>
+    </button>
   )
 }
 
-export function SecondaryLink({ href, children }: { href: string; children: ReactNode }) {
+export function SecondaryButton({
+  children,
+  onClick,
+  disabled,
+}: {
+  children: ReactNode
+  onClick?: () => void
+  disabled?: boolean
+}) {
   return (
-    <Button asChild variant="outline" size="lg" className={cn(CTA, 'text-[14px] text-subtle')}>
-      <Link href={href}>{children}</Link>
-    </Button>
+    <button type="button" className="secondary" onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
   )
+}
+
+/** 안내(`.note`, 파랑)와 주의(`.notice`, 앰버). 입력을 되돌릴 때만 `.error`를 쓴다. */
+export function Note({ children }: { children: ReactNode }) {
+  return <div className="note">{children}</div>
+}
+
+export function Notice({ children }: { children: ReactNode }) {
+  return <div className="notice">{children}</div>
+}
+
+export function ErrorNote({ children }: { children: ReactNode }) {
+  return <div className="error">{children}</div>
+}
+
+export function Metric({
+  label,
+  children,
+  className,
+}: {
+  label: string
+  children: ReactNode
+  className?: string
+}) {
+  return (
+    <div className={className ? `metric ${className}` : 'metric'}>
+      <span>{label}</span>
+      {children}
+    </div>
+  )
+}
+
+export function StatusChip({ status }: { status: CardStatus }) {
+  return <span className="tag">{status}</span>
+}
+
+export function SampleBadge({ label }: { label: string }) {
+  return <span className="category-tag">{label}</span>
 }
 
 export function KeyValue({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 py-1.5">
-      <dt className="m-0 text-[13px] text-subtle">{label}</dt>
-      <dd className="m-0 text-[14px] font-semibold text-ink tabular-nums">{value}</dd>
+    <div className="flex items-baseline justify-between gap-3 border-b border-[var(--color-line)] py-1.5 last:border-b-0">
+      <dt className="m-0 text-[11px] text-[var(--color-subtle)]">{label}</dt>
+      <dd className="m-0 text-[11px] font-semibold text-[var(--color-ink)] tabular-nums">
+        {value}
+      </dd>
     </div>
   )
 }

@@ -143,8 +143,9 @@ test('결과에서 뒤로 가는 버튼들이 기준본과 같은 곳으로 간�
   await expect(page).toHaveURL(/\/app\/result$/)
 })
 
-test('다크 영역을 쓰지 않는다', async ({ page }) => {
-  // 기준본의 결론 배너는 다크가 아니라 의미색이다 — 통과=민트, 유지=앰버
+test('화면 콘텐츠에 다크 영역을 쓰지 않는다', async ({ page }) => {
+  // 기준본의 결론 배너는 다크가 아니라 의미색이다 — 통과=민트, 유지=앰버.
+  // 목업의 기기 외형(베젤·다이나믹 아일랜드·홈바)은 iPhone 하드웨어라 이 규칙 밖이다.
   await page.goto('/app')
   const darkCount = await page.evaluate(() => {
     const isDark = (color: string) => {
@@ -155,7 +156,9 @@ test('다크 영역을 쓰지 않는다', async ({ page }) => {
       if (match.length > 3 && Number(match[3]) === 0) return false
       return 0.299 * r + 0.587 * g + 0.114 * b < 90
     }
-    return [...document.querySelectorAll('*')].filter((el) => {
+    // 기기 외형이 아니라 화면 안에 그린 것만 센다
+    return [...document.querySelectorAll('.device-screen *')].filter((el) => {
+      if (el.classList.contains('homebar')) return false
       const bg = getComputedStyle(el).backgroundColor
       return bg && bg !== 'transparent' && isDark(bg)
     }).length

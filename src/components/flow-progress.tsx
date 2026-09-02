@@ -32,7 +32,7 @@ export function FlowProgress() {
 
   return (
     <div
-      className="mx-[18px] mt-1 mb-3 flex gap-1.5"
+      className="progress"
       role="progressbar"
       aria-label="진행 상태"
       aria-valuemin={1}
@@ -40,10 +40,7 @@ export function FlowProgress() {
       aria-valuenow={filled}
     >
       {Array.from({ length: STEPS }, (_, i) => (
-        <i
-          key={i}
-          className={`h-[5px] flex-1 rounded-full ${i < filled ? 'bg-primary' : 'bg-line'}`}
-        />
+        <i key={i} className={i < filled ? 'on' : undefined} />
       ))}
     </div>
   )
