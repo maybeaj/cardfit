@@ -32,6 +32,17 @@
 | 현재 확정된 선택은 무엇인가? | [04 Decision Log](04-decisions.md) | D-001~D-010 |
 | 아직 답할 수 없는 것은 무엇인가? | [06 Open Questions](06-open-questions.md) | 각 항목의 Linked Items |
 | 돈은 어떻게 벌고 중립성은 어떻게 지키나? | [07 사업 모델·전략](07-business-model.md) | T32~T46 · North Star(PRD §6) |
+| [06 추가 리서치 — 고객](06-customer-research.md) | 고객 질문 20건의 공개근거·한계·사용자 검증 계획 | Knowledge |
+| [07 추가 리서치 — 운영](07-operations-research.md) | 카드 규칙·마이데이터·보안·로그·운영 질문 20건 | Knowledge |
+| [08 추가 리서치 — BM](08-business-model-research.md) | 시장규모·수익모델·규제·단위경제 질문 20건 | Knowledge |
+
+## 핵심 Open Questions 바로가기
+
+| 주제 | 질문 | 현재 상태 | 문서 |
+| --- | --- | --- | --- |
+| 고객 입력·신뢰 | Q01~Q10, S01~S10 | 공개 통계만으로 확정 불가; 사용자 테스트 필요 | [06 고객](06-customer-research.md#질문별-판정) |
+| 계산·데이터 운영 | Q11~Q20, S11~S20 | 운영 원칙 일부 확인; 임계값·단가·법적 책임 미확정 | [07 운영](07-operations-research.md#질문별-판정) |
+| 시장·수익·규제 | Q21~Q30, S21~S30 | 시장 상단 모수 확인; CAC·CPA·WTP·LTV 미확정 | [08 BM](08-business-model-research.md#질문별-판정) |
 
 ## 바깥 문서
 

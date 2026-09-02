@@ -130,7 +130,7 @@
 | HeldCard | 카드사, 카드명, 연회비, 발급일, 실적 기준월 | Supabase Seed Mock |
 | PastSpend | 가맹점, 업종코드, 금액, 결제일 | Supabase Seed Mock 최근 12개월 |
 | FutureSpendPlan | 자유 카테고리, 금액, 기준일 +1~12개월 시점, 확실도 | 제안값 + 사용자 확인·수정 |
-| Constraint | 최대 카드 수 2, 신규 발급 허용, 신규 최대 1 | 기본값 + 사용자 수정 |
+| Constraint | 최대 카드 수 3, 신규 발급 허용, 신규 최대 1 | 기본값 + 사용자 수정 |
 | BenefitRule | 실적구간, 한도, 제외항목, 적용일, `rule_version`, 미반영 상한·출처 | Supabase Seed Mock 규칙 |
 | Calculation | 입력 스냅샷, 기준일, 규칙 버전 | 결정론적 엔진 |
 | PlanCandidate | 조합, Gross, 전환비용 3항목, Net, 임계 통과 | 결정론적 엔진 |
@@ -161,7 +161,7 @@
 | 제품 리스크 | 5만원·15% 임계가 실제 사용자 가치와 다를 수 있음 | 팀 합의 상수로만 표기, 시장 사실 주장 금지, 실험 후 재설정 | [`CALC_SPEC`](specs/CALC_SPEC.md) |
 | 데이터 리스크 | 공식 혜택 통합 API가 없고 규칙이 파편화됨 | `rule_version`, 기준일, 미반영 상한 출처, v0.1 Mock | [`ADR-001`](adr/ADR-001-mock-first.md) |
 | 신뢰 리스크 | 계산·근거가 달라지거나 누락됨 | 규칙 엔진 분리, 근거 6항목 미달 시 결과 거부 | [`ADR-002`](adr/ADR-002-deterministic-engine.md) |
-| 규제·오인 리스크 | 실제 연결·신청·해지 대행으로 오해 | 예시 데이터 고지, 신규 공식 링크만, 해지 버튼 0개 | [`ADR-001`](adr/ADR-001-mock-first.md) |
+| 규제·오인 리스크 | 실제 연결·신청·해지 대행 또는 법정 동의기간으로 오해 | 예시 데이터 고지, 동의 UI는 검증용으로 한정, 신규 공식 링크만, 해지 버튼 0개 | [`ADR-001`](adr/ADR-001-mock-first.md), [`MYDATA_CONSENT_REVIEW`](compliance/MYDATA_CONSENT_REVIEW.md) |
 | 상태 리스크 | 외부 링크 복귀 시 계획과 결론 소실 | 서버 저장 없이 세션 상태만 복원 | [`ADR-003`](adr/ADR-003-session-state.md) |
 
 ## 8. 실험·롤아웃·측정
@@ -190,6 +190,7 @@
 - 비즈니스 로직 시퀀스: [`diagrams/BUSINESS_SEQUENCE.md`](diagrams/BUSINESS_SEQUENCE.md)
 - 계산·Fixture·테스트 명세: [`specs/`](specs/)
 - UX 기준: [`ux/README.md`](ux/README.md)
+- 마이데이터 동의·약관 법적 검토 메모: [`compliance/MYDATA_CONSENT_REVIEW.md`](compliance/MYDATA_CONSENT_REVIEW.md)
 - 요구사항 추적: [`TRACEABILITY.md`](TRACEABILITY.md)
 - 참고한 2차 역기획 저장소: [jennie-brain/team-project_2nd](https://github.com/jennie-brain/team-project_2nd)
 
