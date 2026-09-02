@@ -14,6 +14,7 @@ import { PrismaClient, SpendDirection } from '@prisma/client'
 import { changeCase } from '../src/fixtures/change-case'
 import { maintainCase } from '../src/fixtures/maintain-case'
 import type { Profile } from '../src/domain/types'
+import { seedMydata } from './seed-mydata'
 
 const prisma = new PrismaClient()
 
@@ -172,6 +173,13 @@ async function main() {
   const a = await seedProfile(changeCase, '변경 조합형')
   const b = await seedProfile(maintainCase, '현재 조합 유지형')
   console.info(`[seed] change_case 거래 ${a}건 · maintain_case 거래 ${b}건 적재 완료`)
+
+  // 마이데이터 CSV — 앱 기본 흐름이 읽는 Fixture. 합성 거래가 아니라 CSV 원본을 넣는다.
+  const csv = await seedMydata(prisma)
+  console.info(
+    `[seed] mydata_csv 카드 ${csv.cards}장 · 월실적 ${csv.performances}건 · 거래 ${csv.transactions}건 ` +
+      `(12개월 합계 ${csv.totalSpend.toLocaleString('ko-KR')}원) 적재 완료`,
+  )
 }
 
 main()

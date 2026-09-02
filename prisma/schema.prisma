@@ -35,6 +35,12 @@ enum HoldReason {
   CONSTRAINT_TOO_TIGHT
 }
 
+/// 마이데이터 CSV의 `card_type` — `신용` / `체크`.
+enum CardType {
+  CREDIT
+  CHECK
+}
+
 /// Fixture 하나 = 같은 사용자 흐름에서 재현할 결론 한 세트 (change_case / maintain_case).
 /// 사용자 화면에 프로필 선택 UI를 만들지 않는다 (T17).
 model Fixture {
@@ -73,6 +79,8 @@ model CardProduct {
   annualFee            Int     @map("annual_fee")
   officialUrl          String  @map("official_url")
   owned                Boolean
+  /// `cards.csv`의 card_type. 체크카드는 연회비가 0이고 실적 산정 방식이 다르다.
+  cardType             CardType @default(CREDIT) @map("card_type")
   /// 실적 기준월 사용액
   qualifyingMonthSpend Int     @map("qualifying_month_spend")
   issuedAt             DateTime? @map("issued_at") @db.Date
@@ -83,10 +91,30 @@ model CardProduct {
   transitionSourceLabel String @map("transition_source_label")
   transitionSourceDate  DateTime @map("transition_source_date") @db.Date
 
-  fixture Fixture      @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
-  rule    BenefitRule?
+  fixture      Fixture                   @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+  rule         BenefitRule?
+  pastSpends   PastSpend[]
+  performances CardMonthlyPerformance[]
 
   @@map("card_product")
+}
+
+/// `card_performance.csv` — 카드별 월 전월실적·청구액·포인트 잔액.
+/// `prevMonthSpending`이 실적구간 판정의 입력이다 (근거 6항목의 `실적구간` · AC-002).
+/// 이 값이 있어야 BenefitTier의 `minMonthlySpend`와 대조해 어느 구간인지 확정할 수 있다.
+model CardMonthlyPerformance {
+  id                String @id
+  cardId            String @map("card_id")
+  /// `YYYY-MM`
+  yearMonth         String @map("year_month")
+  prevMonthSpending Int    @map("prev_month_spending")
+  billedAmount      Int    @map("billed_amount")
+  pointsBalance     Int    @map("points_balance")
+
+  card CardProduct @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@unique([cardId, yearMonth])
+  @@map("card_monthly_performance")
 }
 
 /// SRS 6-1 BenefitRule — 실적구간·한도·제외조건·기준일·규칙 버전·미반영 상한.
@@ -145,15 +173,26 @@ model PastSpend {
   id         String   @id @default(uuid())
   fixtureId  String   @map("fixture_id")
   merchant   String
-  /// 업종코드
-  industry   String
+  /// 업종코드. `transactions.csv`에는 이 칼럼이 없어(merchant_category만 있음) CSV 유입 행은 비어 있다.
+  industry   String?
   category   String
   amount     Int
-  paidAt     DateTime @map("paid_at") @db.Date
+  /// `transactions.csv`의 approved_at. 승인 시각까지 담기 위해 Date가 아니라 timestamp다.
+  paidAt     DateTime @map("paid_at")
 
-  fixture Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+  /// 어느 카드로 결제했는지. "카드별 최근 12개월 받은 혜택"(UI-001) 계산에 필요하다.
+  /// CSV 없이 만든 Fixture 행은 카드가 없을 수 있어 nullable로 둔다.
+  cardId            String? @map("card_id")
+  /// 승인번호. 같은 Fixture 안에서 거래를 유일하게 식별해 재시드 시 중복을 막는다.
+  approvalNo        String? @map("approval_no")
+  installmentMonths Int     @default(0) @map("installment_months")
 
+  fixture Fixture      @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+  card    CardProduct? @relation(fields: [cardId], references: [id])
+
+  @@unique([fixtureId, approvalNo])
   @@index([fixtureId, category])
+  @@index([cardId, paidAt])
   @@map("past_spend")
 }
 

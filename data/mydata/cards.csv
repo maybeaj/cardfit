@@ -1,0 +1,4 @@
+user_id,card_id,issuer,card_name,card_type,annual_fee,issued_date
+u_001,card_01,신한카드,신한카드 Deep Dream,신용,10000,2023-04-12
+u_001,card_02,삼성카드,삼성 taptap O,신용,10000,2024-08-03
+u_001,card_03,카카오뱅크,카카오뱅크 체크카드,체크,0,2022-11-20
