@@ -29,7 +29,7 @@ CardFit의 32시간 프로토타입은 사용자가 예시 데이터를 연결�
 
 `ONBOARDING → MOCK_CONNECT → CURRENT_SUMMARY → CURRENT_DIAGNOSIS → FUTURE_PLAN → CONSTRAINT → CALCULATING → RESULT → EVIDENCE → CONFIRM`
 
-- `CURRENT_*`의 금액은 반드시 `최근 12개월 소비 기준`과 `앞으로의 지출은 아직 반영되지 않았어요`를 함께 표시한다.
+- `CURRENT_*`의 금액은 반드시 `최근 12개월 소비 기준`과 `앞으로 쓸 돈을 반영하면 내게 맞는 카드 조합을 확인할 수 있어요`를 함께 표시한다.
 - `FUTURE_PLAN`에서 전체 제안값을 확인해야 계산할 수 있다. 전부 삭제하거나 모두 0원이면 다음 단계가 비활성이다.
 - `RESULT`는 단일 조합안을 보여주며 각 카드에 `신규·유지·정리` 상태를 표시한다.
 - `EVIDENCE`에서만 `CONFIRM`으로 이동한다.
