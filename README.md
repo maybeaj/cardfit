@@ -65,12 +65,13 @@ cardfit/
 ├── supabase/                     # 로컬 Supabase CLI 설정
 ├── src/                          # 프로토타입 소스 (Next.js App Router)
 │   ├── app/page.tsx              #   / 랜딩페이지
-│   ├── app/app/**                #   /app/* 앱 데모 9화면
+│   ├── app/app/**                #   /app/* 앱 데모 6화면 (기준본 s0~s6)
 │   ├── server/                   #   Server Actions · Repository · Prisma
 │   ├── domain/                   #   순수 계산·타입 (DB 비의존)
-│   ├── fixtures/                 #   Seed 원본·정답셋
+│   ├── fixtures/                 #   화면 데이터 정본(prototype.ts) · Seed 원본 · 정답셋
 │   ├── content/                  #   경계 고지·금지어 사전
 │   └── state/                    #   임시 화면 상태·이벤트 로깅
+├── public/deck.html              # 발표용 스토리텔링 덱 (16:9 · 좌우 방향키)
 ├── e2e/                          # Playwright Happy Path
 └── .github/                      # Issue 템플릿 · PR 템플릿 · CODEOWNERS
 ```
@@ -83,17 +84,26 @@ Node 20 이상과 **Docker**가 필요합니다 (로컬 Supabase 구동용). 비
 
 ```bash
 npm install
-cp .env.example .env      # 로컬 Supabase 접속 정보 (실사용자 데이터 아님)
-npm run db:start          # 로컬 Supabase 기동 — 첫 실행은 이미지 내려받느라 오래 걸립니다
-npm run db:migrate        # Prisma Migration 적용
-npm run db:seed           # 12개월 Mock Seed 적재
 npm run dev               # http://localhost:3000
 ```
+
+`/` 랜딩과 `/app` 데모 흐름은 **DB 없이 그대로 동작합니다** (`ADR-004`). 화면 데이터는
+`src/fixtures/prototype.ts`, 계산은 `src/domain/scenario.ts`가 담당하며 둘 다 순수합니다.
 
 | 경로 | 무엇 |
 | --- | --- |
 | `/` | 랜딩페이지 — 문제·해결·가치·흐름·경계 |
-| `/app` | 앱 데모 시연 시작 (온보딩 → 확정까지 9화면) |
+| `/app` | 앱 데모 시연 시작 (온보딩 → 근거까지 6화면) |
+| `/deck.html` | 발표용 스토리텔링 덱 — 16:9, 좌우 방향키·<kbd>O</kbd> 목차·<kbd>F</kbd> 전체화면 |
+
+실연동 준비용 Prisma 경로(`src/server/**`)를 손보려면 Docker와 로컬 Supabase가 필요합니다.
+
+```bash
+cp .env.example .env      # 로컬 Supabase 접속 정보 (실사용자 데이터 아님)
+npm run db:start          # 로컬 Supabase 기동 — 첫 실행은 이미지 내려받느라 오래 걸립니다
+npm run db:migrate        # Prisma Migration 적용
+npm run db:seed           # 12개월 Mock Seed 적재
+```
 
 DB를 초기 상태로 되돌리려면 `npm run db:reset`, 데이터를 눈으로 보려면 `npm run db:studio`.
 
@@ -115,19 +125,19 @@ npx vercel login
 npx vercel link
 ```
 
-Vercel 프로젝트에 **Supabase 운영 DB의 `DATABASE_URL`·`DIRECT_URL`을 환경변수로 등록**한 뒤 `main`에 푸시하면 자동 배포됩니다 (`C-TEC-007`). 환경변수는 서버에서만 읽히며 `NEXT_PUBLIC_` 접두어를 쓰지 않습니다 — 클라이언트 번들에 비밀값이 들어가지 않아야 합니다 (`NFR-002`·`NFR-005`).
+`main`에 푸시하면 자동 배포됩니다 (`C-TEC-007`). `/`와 `/app/*`는 정적으로 프리렌더되며 **런타임 환경변수가 없어도 동작합니다** (`ADR-004`) — 발표 중 DB 장애가 데모를 멈추지 못합니다. 실연동으로 전환할 때 `DATABASE_URL`·`DIRECT_URL`을 등록하며, 환경변수는 서버에서만 읽고 `NEXT_PUBLIC_` 접두어를 쓰지 않습니다 (`NFR-002`·`NFR-005`).
 
 ### 구조
 
 | 경계 | 책임 |
 | --- | --- |
 | `src/app/page.tsx` | 랜딩페이지 (`/`, 정적) |
-| `src/app/app/**` | 앱 데모 라우트 9개 (`/app/*`, 요청마다 DB 조회) |
-| `src/server` | Server Actions · 서버 전용 Repository · Prisma Client |
-| `src/domain` | 순수 계산 (`calculatePlan`·`diagnose`) — DB를 알지 못함 |
+| `src/app/app/**` | 앱 데모 라우트 6개 (`/app/*`, 정적 · 기준본 s0~s6) |
+| `src/server` | Server Actions · 서버 전용 Repository · Prisma Client — **실연동 전환 지점** (`ADR-001`) |
+| `src/domain` | 순수 계산 (`buildOutcomes`·`calculatePlan`·`diagnose`) — DB를 알지 못함 |
 | `src/components/ui` | shadcn/ui 프리미티브 |
 | `src/components` | CardFit 셸·결과 블록 |
-| `src/fixtures` | Seed 원본과 정답셋 (화면에서 직접 import하지 않음) |
+| `src/fixtures` | 화면 데이터 정본(`prototype.ts`) · Seed 원본 · 계산 정답셋 |
 | `src/content` | 경계 고지·면책·금지어 사전 |
 | `src/state` | 외부 링크 복귀용 임시 상태 · `ClientEvent` 로깅 |
 | `prisma/` | Schema · Migration · Seed |

@@ -1,5 +1,7 @@
 /**
- * ClientEvent 6종 (T30) — 북극성(조합안 확정률) 측정 근거.
+ * ClientEvent 6종 (T30) — 북극성(조합 선호율) 측정 근거.
+ *
+ * `조합좋아요`가 북극성의 분자다 — 별도 확정 화면 없이 결과 화면에서 측정한다 (FR-008 · UI-008).
  * Mock이라 서버로 전송하지 않고 콘솔과 localStorage에만 남긴다.
  */
 export const EVENT_TYPES = [
@@ -7,7 +9,7 @@ export const EVENT_TYPES = [
   '계산요청',
   '결과열람',
   '근거열람',
-  '조합확정',
+  '조합좋아요',
   '아웃링크클릭',
 ] as const
 

@@ -2,36 +2,31 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { ONBOARDING_COPY } from '@/content/copy'
 import { ConsentSheet } from '@/components/consent-sheet'
 import { Actions, Note, PrimaryButton, Screen } from '@/components/shell'
-import { useDemo } from '@/state/store'
+import { useFlow } from '@/state/store'
 
 /**
  * UI-011 온보딩 — 기준본 s0.
  *
- * `카드조합 추천받기`를 누르면 별도 화면으로 넘어가지 않고 마이데이터 동의 바텀시트가
- * 이 화면 위에 올라온다 (`P04-R1` · `P04-R2`). 동의를 마치면 현재 카드 확인으로 간다.
+ * 별도 로고 이미지를 표시하지 않고 이용 가치 3단계를 먼저 보여준다 (`P04-R1`).
+ * `카드조합 추천받기`를 누르면 화면을 넘기지 않고 마이데이터 동의 바텀시트가 위로 올라온다.
  */
 export default function OnboardingScreen() {
   const router = useRouter()
-  const { connect } = useDemo()
+  const { consent } = useFlow()
   const [consentOpen, setConsentOpen] = useState(false)
 
   const accept = () => {
-    // 프로토타입에서는 동의 후 예시 데이터를 로드한다. 실제 인증·전송요구는 하지 않는다
-    connect()
+    // 프로토타입에서는 동의 후 예시 데이터를 쓴다. 실제 인증·전송요구는 하지 않는다 (`T8` · D-001)
+    consent()
     setConsentOpen(false)
     router.push('/app/summary')
   }
 
   return (
-    <Screen>
-      <div className="image-brand">
-        <Image src="/cardfit-brand.png" alt="CardFit" width={170} height={98} priority />
-      </div>
-
+    <Screen screenId="s0">
       <div className="onboarding-kicker">{ONBOARDING_COPY.kicker}</div>
       <h2>
         {ONBOARDING_COPY.title[0]}

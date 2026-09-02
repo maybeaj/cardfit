@@ -41,3 +41,4 @@ supabase/.branches/
 
 # Prisma 생성물 (node_modules로 생성됨)
 src/generated/
+.env*

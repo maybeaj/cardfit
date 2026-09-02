@@ -1,20 +1,19 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import type { CardStatus } from '@/domain/types'
 
 /**
  * 앱 셸과 공통 블록 — `docs/prototype/cardfit-prd-srs-v0.4.html`이 기준본이다 (`D-011`).
  *
  * 클래스 이름과 치수를 기준본 CSS와 1:1로 맞춘다. 구현 화면이 기준본과 다르면 기준본이 옳다.
  * 한 화면 = 흰 패널 하나이고 버튼은 패널 맨 아래(`.actions`)에 붙는다.
- * 다크 영역은 쓰지 않는다 — 결론의 신호값은 명도가 아니라 의미색이 담당한다.
+ * 다크 영역은 결론 배너 하나뿐이며 탭 네비게이션은 그리지 않는다 (`T13` · `T14`).
  */
 
 /** iPhone 17 목업 — 402×900 프레임 안에서 872px 화면이 스크롤된다. */
 export function PhoneShell({ children }: { children: ReactNode }) {
   return (
-    <div className="py-7">
-      <div className="device" aria-label="iPhone 17 목업">
+    <div className="app-shell">
+      <div className="device" aria-label="CardFit 앱 화면">
         <div className="island" aria-hidden />
         <div className="device-screen">
           <div className="statusbar">
@@ -26,7 +25,6 @@ export function PhoneShell({ children }: { children: ReactNode }) {
             </span>
           </div>
           {children}
-          <div className="homebar" aria-hidden />
         </div>
       </div>
       <p className="device-caption">iPhone 17 logical viewport · 402 × 874</p>
@@ -34,37 +32,34 @@ export function PhoneShell({ children }: { children: ReactNode }) {
   )
 }
 
-/** 한 화면. 패널 하나를 담고 세로로 늘어난다. */
-export function Screen({ children }: { children: ReactNode }) {
-  return (
-    <section className="screen">
-      <div className="panel">{children}</div>
-    </section>
-  )
-}
-
-export function ScreenHeader({
-  step,
-  title,
-  lead,
-  backHref,
+/**
+ * 한 화면. 패널 하나를 담고 세로로 늘어난다.
+ *
+ * `screenId`는 기준본의 `#s0`~`#s6`이다 — 화면별 CSS가 이 값을 잡는다.
+ * `back`이 있으면 패널 위에 뒤로가기가 붙는다. 온보딩·동의 화면에는 없다.
+ */
+export function Screen({
+  children,
+  screenId,
+  back,
 }: {
-  step?: string
-  title: ReactNode
-  lead?: ReactNode
-  backHref?: string
+  children: ReactNode
+  screenId?: string
+  back?: string
 }) {
   return (
-    <>
-      {backHref ? (
-        <Link href={backHref} className="mb-1 inline-block text-[11px] text-[var(--color-subtle)]">
-          ← 뒤로
-        </Link>
+    <section className="screen active" data-screen={screenId}>
+      {back ? (
+        <div className="app-nav">
+          <Link className="app-back" href={back} aria-label="이전 화면으로 돌아가기">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15 5 8 12l7 7" />
+            </svg>
+          </Link>
+        </div>
       ) : null}
-      {step ? <span className="badge">{step}</span> : null}
-      <h2>{title}</h2>
-      {lead ? <p className="sub">{lead}</p> : null}
-    </>
+      <div className="panel">{children}</div>
+    </section>
   )
 }
 
@@ -89,17 +84,17 @@ export function PrimaryLink({
   )
 }
 
-export function SecondaryLink({ href, children }: { href: string; children: ReactNode }) {
+export function GhostLink({
+  href,
+  children,
+  onClick,
+}: {
+  href: string
+  children: ReactNode
+  onClick?: () => void
+}) {
   return (
-    <Link href={href} className="secondary">
-      {children}
-    </Link>
-  )
-}
-
-export function GhostLink({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <Link href={href} className="ghost">
+    <Link href={href} className="ghost" onClick={onClick}>
       {children}
     </Link>
   )
@@ -109,21 +104,43 @@ export function PrimaryButton({
   children,
   onClick,
   disabled,
-  type = 'button',
+  className,
+  ...rest
 }: {
   children: ReactNode
   onClick?: () => void
   disabled?: boolean
-  type?: 'button' | 'submit'
+  className?: string
+  'aria-pressed'?: boolean
 }) {
   return (
-    <button type={type} className="primary" onClick={onClick} disabled={disabled}>
+    <button
+      type="button"
+      className={className ? `primary ${className}` : 'primary'}
+      onClick={onClick}
+      disabled={disabled}
+      {...rest}
+    >
       {children}
     </button>
   )
 }
 
 export function SecondaryButton({
+  children,
+  onClick,
+}: {
+  children: ReactNode
+  onClick?: () => void
+}) {
+  return (
+    <button type="button" className="secondary" onClick={onClick}>
+      {children}
+    </button>
+  )
+}
+
+export function GhostButton({
   children,
   onClick,
   disabled,
@@ -133,7 +150,7 @@ export function SecondaryButton({
   disabled?: boolean
 }) {
   return (
-    <button type="button" className="secondary" onClick={onClick} disabled={disabled}>
+    <button type="button" className="ghost" onClick={onClick} disabled={disabled}>
       {children}
     </button>
   )
@@ -165,25 +182,6 @@ export function Metric({
     <div className={className ? `metric ${className}` : 'metric'}>
       <span>{label}</span>
       {children}
-    </div>
-  )
-}
-
-export function StatusChip({ status }: { status: CardStatus }) {
-  return <span className="tag">{status}</span>
-}
-
-export function SampleBadge({ label }: { label: string }) {
-  return <span className="category-tag">{label}</span>
-}
-
-export function KeyValue({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="flex items-baseline justify-between gap-3 border-b border-[var(--color-line)] py-1.5 last:border-b-0">
-      <dt className="m-0 text-[11px] text-[var(--color-subtle)]">{label}</dt>
-      <dd className="m-0 text-[11px] font-semibold text-[var(--color-ink)] tabular-nums">
-        {value}
-      </dd>
     </div>
   )
 }

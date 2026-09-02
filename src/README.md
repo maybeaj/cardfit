@@ -12,17 +12,19 @@
 | 경계 | 책임 | 금지 |
 | --- | --- | --- |
 | `app/page.tsx` | `/` 랜딩페이지 | 앱과 다른 숫자·문구 생성 |
-| `app/app/**` | `/app/*` 앱 데모 라우트 9개 | 계산식 직접 작성 |
+| `app/app/**` | `/app/*` 앱 데모 라우트 6개 (기준본 s0~s6) | 계산식 직접 작성 |
 | `components/` | 재사용 UI와 접근성 | Fixture 직접 참조 |
-| `domain/` | 순수 계산·타입 (`calculatePlan`·`diagnose`) | 브라우저 API·화면 카피 |
-| `fixtures/` | 예시 카드·지출·규칙·정답셋 | 실사용자 데이터 |
+| `domain/` | 순수 계산·타입 (`buildOutcomes`·`calculatePlan`·`diagnose`) | 브라우저 API·화면 카피 |
+| `fixtures/` | 예시 카드·지출·규칙·정답셋. **화면 데이터의 정본은 `prototype.ts`** (`ADR-004`) | 실사용자 데이터 |
 | `content/` | 경계 고지·면책·금지어 사전 | 계산 상수 |
-| `state/` | 세션 상태 직렬화·복원, `ClientEvent` 로깅 | 서버 전송·영구 저장 |
+| `state/` | 흐름 상태 보관·복원, `ClientEvent` 로깅 | 서버 전송·영구 저장 |
 
 ## 바꿀 때 같이 바꿔야 하는 것
 
 | 코드 | 같은 커밋에서 바꿀 문서 |
 | --- | --- |
+| `domain/scenario.ts` 시나리오·게이트 | `docs/prototype/cardfit-prd-srs-v0.4.html` (기준본) · `docs/SRS.md` UI-005 |
+| `fixtures/prototype.ts` 카드·금액 표 | `docs/prototype/cardfit-prd-srs-v0.4.html` (기준본) · `docs/adr/ADR-004-prototype-as-source-of-truth.md` |
 | `domain/calc.ts` 임계·상수 | `docs/specs/CALC_SPEC.md` · `docs/SCOPE.md` 6-1절 (`D-002`) |
 | `fixtures/expected.ts` 기대값 | `docs/specs/FIXTURE_SPEC.md` 2·4절 · `docs/ux/README.md` 4절 |
 | `content/copy.ts` 결론·경계 문구 | `docs/ux/README.md` 2-5·2-6절 · `docs/SRS.md` UI-005·FR-008 |
@@ -33,4 +35,6 @@
 - `src/**` 변경은 **브랜치 + PR 필수** (문서와 달리 main 직접 커밋 금지)
 - 금액은 규칙 엔진이 계산한다. LLM에게 금액을 생성시키지 않는다.
 - 디자인 토큰은 `app/globals.css`의 `@theme`에서만 선언한다. 컴포넌트에 원시 hex를 쓰지 않는다.
-- `.env`는 커밋하지 않습니다. 현재 프로토타입은 환경변수를 쓰지 않습니다.
+- `.env`는 커밋하지 않습니다. `/app` 흐름은 요청 시점에 DB를 읽지 않습니다 (`ADR-004`).
+- **화면이 기준본(`docs/prototype/cardfit-prd-srs-v0.4.html`)과 다르면 기준본이 옳습니다.**
+  `src/server/**`와 `prisma/**`는 실연동 전환 지점으로 남겨 둡니다 (`ADR-001`).

@@ -1,168 +1,153 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { DATA_NOTICE, EVIDENCE_COPY } from '@/content/copy'
-import { percent, won } from '@/domain/format'
-import {
-  Actions,
-  GhostLink,
-  Note,
-  Notice,
-  PrimaryButton,
-  Screen,
-  ScreenHeader,
-} from '@/components/shell'
+import { useEffect, useRef } from 'react'
+import Image from 'next/image'
+import { EVIDENCE_COPY } from '@/content/copy'
+import { krw } from '@/domain/format'
+import { spendEvidenceRows } from '@/domain/scenario'
+import { CARD_RULES, EVIDENCE_SIX } from '@/fixtures/prototype'
+import { Actions, GhostLink, Notice, Screen } from '@/components/shell'
 import { logEvent } from '@/state/events'
-import { useDemo } from '@/state/store'
+import { useFlow } from '@/state/store'
 
 /**
- * UI-007 근거 — 기준본 s6. 결론 화면에서만 진입한다. 6항목 + 미반영 항목.
- * 전문 용어를 바꾸지 않고 괄호 한 줄 풀이만 붙인다 (`T44`).
+ * UI-007 상세 근거 — 기준본 s6. 결론 화면에서만 진입한다.
+ *
+ * 근거 6항목(실적구간·혜택한도·연회비·제외조건·기준일·미반영 항목)을 모두 채운다 (AC-002).
+ * 전문 용어를 쉬운 말로 바꾸지 않는다 — 사용자가 카드사 약관과 대조할 수 있어야 한다 (`T44`).
  */
 export default function EvidenceScreen() {
-  const router = useRouter()
-  const { calculation, error, confirmCombination, pending } = useDemo()
+  const { outcome, ensureOutcomes } = useFlow()
+  const ensured = useRef(false)
 
   useEffect(() => {
-    if (error) {
-      router.replace('/app/result')
-      return
-    }
-    if (!calculation) router.replace('/app/plan')
-  }, [calculation, error, router])
+    if (ensured.current) return
+    ensured.current = true
+    ensureOutcomes()
+  }, [ensureOutcomes])
 
   useEffect(() => {
-    if (calculation) logEvent('근거열람', { cards: calculation.evidence.length })
-  }, [calculation])
+    if (outcome) logEvent('근거열람', { scenario: outcome.key, view: 'full' })
+  }, [outcome])
 
-  if (!calculation) return null
+  if (!outcome) return null
 
-  const shown = calculation.decision === '변경' ? calculation.chosen : calculation.current
-
-  const apply = () => {
-    confirmCombination()
-    logEvent('조합확정', { candidate_id: shown.candidate_id, decision: calculation.decision })
-    router.push('/app/confirm')
-  }
+  const rows = spendEvidenceRows(outcome)
 
   return (
-    <Screen>
-      <ScreenHeader
-        step="07 · 근거 검증"
-        title={EVIDENCE_COPY.title}
-        lead={EVIDENCE_COPY.lead}
-        backHref="/app/result"
-      />
+    <Screen screenId="s6" back="/app/result">
+      <span className="badge">07 · 상세 근거</span>
+      <h2>
+        {EVIDENCE_COPY.title[0]}
+        <br />
+        {EVIDENCE_COPY.title[1]}
+      </h2>
+      <p className="sub">{EVIDENCE_COPY.lead}</p>
 
-      {calculation.stale_as_of_warning ? <Notice>{EVIDENCE_COPY.staleAsOf}</Notice> : null}
-
-      {calculation.evidence.map((row) => (
-        <div key={row.card_id} className="mt-3">
-          <h3>
-            {row.issuer} {row.name}
-          </h3>
-          <div className="grid">
-            <div className="evidence ok">
-              <div>
-                <b>실적구간</b>
-                <small>전월 사용액 단계에 따라 적립·할인율이 달라집니다</small>
-              </div>
-              <em>
-                {row.applied_tier
-                  ? `${won(row.applied_tier.min_monthly_spend)}↑ · ${percent(row.applied_tier.rate)}`
-                  : '—'}
-              </em>
-            </div>
-            <div className="evidence ok">
-              <div>
-                <b>혜택한도</b>
-                <small>월 최대 적립·할인 금액</small>
-              </div>
-              <em>월 {won(row.monthly_cap ?? 0)}</em>
-            </div>
-            <div className="evidence ok">
-              <div>
-                <b>연회비</b>
-                <small>연 단위로 차감합니다</small>
-              </div>
-              <em>−{won(row.annual_fee)}</em>
-            </div>
-            <div className="evidence ok">
-              <div>
-                <b>제외조건</b>
-                <small>{row.excluded.join(' · ')}</small>
-              </div>
-              <em>{EVIDENCE_COPY.checked}</em>
-            </div>
-            <div className="evidence ok">
-              <div>
-                <b>기준일</b>
-                <small>
-                  {row.as_of_date} · rule_version {row.rule_version}
-                </small>
-              </div>
-              <em>{EVIDENCE_COPY.checked}</em>
-            </div>
-            <div className="evidence ok">
-              <div>
-                <b>미반영 항목</b>
-                <small>
-                  {row.unmodeled
-                    .map((item) => `${item.label} 최대 ±${won(item.bound)}`)
-                    .join(' · ')}
-                </small>
-              </div>
-              <em>{EVIDENCE_COPY.checked}</em>
-            </div>
+      {/* 사용자가 확인한 계획을 계산이 어떻게 펼쳤는지 먼저 보여준다 */}
+      <div className="spend-evidence">
+        <h3>{EVIDENCE_COPY.spendHeading(outcome.label)}</h3>
+        {rows.map((row) => (
+          <div key={`${row.label}-${row.months}`} className="spend-evidence-row">
+            <b>
+              {row.label} · {row.periodLabel}
+            </b>
+            <span>
+              {row.months === 1
+                ? krw(row.scenarioAmount)
+                : EVIDENCE_COPY.monthlyAmount(krw(row.monthlyAmount))}
+            </span>
           </div>
+        ))}
+      </div>
 
-          <div className="mt-2 rounded-xl bg-[var(--color-bg)] p-2.5">
-            <b className="text-[10px]">{EVIDENCE_COPY.unmodeledTitle}</b>
-            <ul className="mt-1.5 mb-0 list-none p-0">
-              {row.unmodeled.map((item) => (
-                <li key={item.label} className="text-[9px] leading-[1.5] text-[var(--color-subtle)]">
-                  · {item.label} — 최대 ±{won(item.bound)} · 출처 {item.source.label} (
-                  {item.source.as_of_date})
-                </li>
-              ))}
-            </ul>
-            <p className="mt-1.5 mb-0 text-[9px] leading-[1.45] text-[var(--color-subtle)]">
-              {EVIDENCE_COPY.unmodeledRule}
-            </p>
+      <div className="evidence-six-grid">
+        {EVIDENCE_SIX.map((item) => (
+          <div key={item.no} className="evidence-six-item">
+            <b>
+              {item.no} · {item.title}
+            </b>
+            <span>{item.body}</span>
           </div>
+        ))}
+      </div>
 
-          {row.annual_fee_whole_window_notice ? (
-            <p className="mt-1.5 mb-0 text-[10px] text-[var(--color-warning)]">
-              {EVIDENCE_COPY.annualFeeWholeWindow}
-            </p>
-          ) : null}
-        </div>
-      ))}
+      <div className="card-evidence-list">
+        {outcome.cards.map((card, index) => {
+          const rule = CARD_RULES[card.name]
+          if (!rule) return null
+          return (
+            <details key={card.name} className="card-evidence" open={index === 0}>
+              <summary>
+                <Image src={card.art} alt={card.name} width={52} height={33} unoptimized />
+                <span>
+                  <b>{card.name}</b>
+                  <small>{EVIDENCE_COPY.cardSummary(card.state, krw(card.benefit))}</small>
+                </span>
+                <span className="open-mark" aria-hidden>
+                  ⌃
+                </span>
+              </summary>
 
-      {calculation.excluded_cards.length > 0 ? (
-        <div className="mt-3 rounded-xl bg-[var(--color-bg)] p-2.5">
-          <b className="text-[10px]">{EVIDENCE_COPY.excludedTitle}</b>
-          <ul className="mt-1.5 mb-0 list-none p-0">
-            {calculation.excluded_cards.map((item) => (
-              <li key={item.card_id} className="text-[9px] text-[var(--color-subtle)]">
-                · {item.card_id} — {item.reason}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+              <div className="card-evidence-body">
+                <div className="performance-box">
+                  <span>{EVIDENCE_COPY.performanceLabel}</span>
+                  <strong>{rule.performance}</strong>
+                </div>
+
+                <table className="performance-table">
+                  <tbody>
+                    {rule.bands.map((row, rowIndex) => (
+                      <tr key={row.join('|')}>
+                        {row.map((cell, cellIndex) =>
+                          rowIndex === 0 ? (
+                            <th key={`${cell}-${cellIndex}`}>{cell}</th>
+                          ) : (
+                            <td key={`${cell}-${cellIndex}`}>{cell}</td>
+                          ),
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <div className="benefit-rule-list">
+                  {rule.items.map((item) => (
+                    <div key={item.title} className="benefit-rule">
+                      <span className="rule-icon" aria-hidden>
+                        {item.icon}
+                      </span>
+                      <span>
+                        <b>{item.title}</b>
+                        <small>{item.detail}</small>
+                      </span>
+                      <strong>{item.limit}</strong>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="evidence-caution">
+                  {EVIDENCE_COPY.cautionPrefix}
+                  {rule.caution}
+                </p>
+                <a
+                  className="official-link"
+                  href={rule.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => logEvent('아웃링크클릭', { card: card.name, from: 'evidence' })}
+                >
+                  {EVIDENCE_COPY.officialLink}
+                </a>
+              </div>
+            </details>
+          )
+        })}
+      </div>
 
       <Notice>{EVIDENCE_COPY.notice}</Notice>
-      <Note>{EVIDENCE_COPY.qualifyingModel}</Note>
-      <p className="footer">
-        {EVIDENCE_COPY.disclaimer} · {DATA_NOTICE.sampleFootnote}
-      </p>
 
       <Actions>
-        <PrimaryButton onClick={apply} disabled={pending}>
-          {EVIDENCE_COPY.applyCta}
-        </PrimaryButton>
         <GhostLink href="/app/result">{EVIDENCE_COPY.backToResult}</GhostLink>
       </Actions>
     </Screen>
