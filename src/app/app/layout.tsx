@@ -39,7 +39,7 @@ export default async function AppDemoLayout({ children }: { children: ReactNode 
               {loaded.error.missing.length > 0 ? ` (${loaded.error.missing.join(', ')})` : null}
             </AlertDescription>
           </Alert>
-          <p className="mt-3 text-[12.5px] leading-relaxed text-muted">
+          <p className="mt-3 text-[12.5px] leading-relaxed text-subtle">
             로컬에서는 <code>npm run db:start</code> → <code>npm run db:migrate</code> →{' '}
             <code>npm run db:seed</code> 를 실행하면 복구됩니다.
           </p>

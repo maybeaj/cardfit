@@ -9,7 +9,10 @@ import { Card, CardContent } from '@/components/ui/card'
 
 /**
  * 앱 셸과 공통 블록. 프리미티브는 shadcn/ui를 쓰고(`C-TEC-004`) 여기서는
- * CardFit 고유의 배치 규칙만 얹는다 — 402×874 프레임, 하단 고정 CTA 하나, 다크 영역 1개.
+ * CardFit 고유의 배치 규칙만 얹는다 — 402×874 프레임, 하단 고정 CTA 하나.
+ *
+ * 색과 치수는 `docs/prototype/cardfit-prd-srs-v0.4.html`이 기준본이다 (`D-011`).
+ * 다크 영역은 쓰지 않는다 — 결론의 신호값은 명도가 아니라 의미색이 담당한다.
  */
 
 /** iPhone 17 402×874 프레임. 데스크톱에서는 중앙 정렬만 하고 정보 위계를 바꾸지 않는다. */
@@ -31,7 +34,7 @@ export function ScreenHeader({
   return (
     <header className="px-5 pt-6 pb-4">
       {backHref ? (
-        <Link href={backHref} className="mb-3 inline-block text-sm text-muted">
+        <Link href={backHref} className="mb-3 inline-block text-sm text-subtle">
           ← 뒤로
         </Link>
       ) : null}
@@ -39,7 +42,7 @@ export function ScreenHeader({
       <h1 className="m-0 text-[22px] leading-[1.35] font-extrabold tracking-tight text-ink">
         {title}
       </h1>
-      {lead ? <p className="mt-2 mb-0 text-[14px] leading-relaxed text-muted">{lead}</p> : null}
+      {lead ? <p className="mt-2 mb-0 text-[14px] leading-relaxed text-subtle">{lead}</p> : null}
     </header>
   )
 }
@@ -50,14 +53,15 @@ export function Panel({
   className,
 }: {
   children: ReactNode
-  tone?: 'surface' | 'bg' | 'banner'
+  tone?: 'surface' | 'bg' | 'pass' | 'hold'
   className?: string
 }) {
   const tones = {
     surface: 'bg-surface border-line text-ink',
     bg: 'bg-bg border-line text-ink',
-    // 다크 영역은 결론 배너 하나뿐이다 (T13)
-    banner: 'bg-banner border-banner text-white',
+    // 결론 배너 — 기준본의 `.result` / `.result.hold`. 통과는 민트, 유지는 앰버다
+    pass: 'bg-mint border-mint-line text-ink',
+    hold: 'bg-amber border-amber-line text-ink',
   } as const
   return (
     <Card
@@ -73,12 +77,14 @@ export function Notice({
   tone = 'neutral',
 }: {
   children: ReactNode
-  tone?: 'neutral' | 'warning' | 'positive'
+  tone?: 'neutral' | 'info' | 'warning' | 'positive'
 }) {
   const tones = {
-    neutral: 'bg-bg text-muted border-transparent',
-    warning: 'bg-[#FFF8E8] text-warning border-transparent',
-    positive: 'bg-[#EAF7F1] text-positive border-transparent',
+    neutral: 'bg-bg text-subtle border-transparent',
+    // 기준본의 `.note` — 안내는 파란 계열, 주의는 앰버 계열이다
+    info: 'bg-primary-soft text-primary border-transparent',
+    warning: 'bg-amber text-warning border-transparent',
+    positive: 'bg-mint text-positive border-transparent',
   } as const
   return (
     <Alert className={cn('grid-cols-1 gap-0 rounded-xl px-3 py-2', tones[tone])}>
@@ -92,8 +98,8 @@ export function Notice({
 export function StatusChip({ status }: { status: CardStatus }) {
   const tones: Record<CardStatus, string> = {
     신규: 'bg-primary text-white border-transparent',
-    유지: 'bg-[#E8F0FF] text-primary border-transparent',
-    정리: 'bg-[#F0F2F7] text-muted border-transparent',
+    유지: 'bg-primary-soft text-primary border-transparent',
+    정리: 'bg-bg text-subtle border-transparent',
   }
   return (
     <Badge className={cn('rounded-lg px-2 py-1 text-[11px] font-bold', tones[status])}>
@@ -106,7 +112,7 @@ export function SampleBadge({ label }: { label: string }) {
   return (
     <Badge
       variant="secondary"
-      className="rounded-md bg-[#F0F2F7] px-1.5 py-0.5 text-[10px] font-semibold text-muted"
+      className="rounded-md bg-bg px-1.5 py-0.5 text-[10px] font-semibold text-subtle"
     >
       {label}
     </Badge>
@@ -158,7 +164,7 @@ export function PrimaryButton({
 
 export function SecondaryLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Button asChild variant="outline" size="lg" className={cn(CTA, 'text-[14px] text-muted')}>
+    <Button asChild variant="outline" size="lg" className={cn(CTA, 'text-[14px] text-subtle')}>
       <Link href={href}>{children}</Link>
     </Button>
   )
@@ -167,7 +173,7 @@ export function SecondaryLink({ href, children }: { href: string; children: Reac
 export function KeyValue({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-1.5">
-      <dt className="m-0 text-[13px] text-muted">{label}</dt>
+      <dt className="m-0 text-[13px] text-subtle">{label}</dt>
       <dd className="m-0 text-[14px] font-semibold text-ink tabular-nums">{value}</dd>
     </div>
   )

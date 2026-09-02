@@ -47,7 +47,7 @@ export default function EvidenceScreen() {
         backHref="/app/result"
       />
       <div className="scroll-area flex flex-col gap-3">
-        <p className="m-0 text-[11.5px] leading-relaxed text-muted">{DATA_NOTICE.sampleFootnote}</p>
+        <p className="m-0 text-[11.5px] leading-relaxed text-subtle">{DATA_NOTICE.sampleFootnote}</p>
 
         {calculation.stale_as_of_warning ? (
           <Notice tone="warning">{EVIDENCE_COPY.staleAsOf}</Notice>
@@ -55,7 +55,7 @@ export default function EvidenceScreen() {
 
         {calculation.evidence.map((row) => (
           <Panel key={row.card_id}>
-            <p className="m-0 text-[12px] text-muted">{row.issuer}</p>
+            <p className="m-0 text-[12px] text-subtle">{row.issuer}</p>
             <p className="mt-0.5 mb-3 text-[16px] font-extrabold text-ink">{row.name}</p>
             <dl className="m-0 divide-y divide-line">
               <KeyValue
@@ -76,7 +76,7 @@ export default function EvidenceScreen() {
               <p className="m-0 text-[12.5px] font-bold text-ink">{EVIDENCE_COPY.unmodeledTitle}</p>
               <ul className="mt-2 mb-0 list-none space-y-1.5 p-0">
                 {row.unmodeled.map((item) => (
-                  <li key={item.label} className="text-[12px] text-muted">
+                  <li key={item.label} className="text-[12px] text-subtle">
                     · {item.label} — 최대 ±{won(item.bound)}
                     <span className="block pl-3 text-[11px]">
                       출처 {item.source.label} ({item.source.as_of_date})
@@ -84,7 +84,7 @@ export default function EvidenceScreen() {
                   </li>
                 ))}
               </ul>
-              <p className="mt-2 mb-0 text-[11px] leading-relaxed text-muted">
+              <p className="mt-2 mb-0 text-[11px] leading-relaxed text-subtle">
                 {EVIDENCE_COPY.unmodeledRule}
               </p>
             </div>
@@ -102,7 +102,7 @@ export default function EvidenceScreen() {
             <p className="m-0 text-[12.5px] font-bold text-ink">후보에서 제외한 카드</p>
             <ul className="mt-2 mb-0 list-none space-y-1 p-0">
               {calculation.excluded_cards.map((item) => (
-                <li key={item.card_id} className="text-[12px] text-muted">
+                <li key={item.card_id} className="text-[12px] text-subtle">
                   · {item.card_id} — {item.reason}
                 </li>
               ))}

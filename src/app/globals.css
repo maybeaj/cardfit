@@ -2,23 +2,47 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* 다크 영역은 결론 배너 하나뿐이라 다크 테마를 쓰지 않는다 (T13). shadcn 변형은 남겨두되 .dark를 적용하지 않는다. */
+/* 다크를 쓰지 않는다. shadcn 변형은 남겨두되 .dark를 적용하지 않는다. */
 @custom-variant dark (&:is(.dark *));
 
-/* 디자인 토큰 정본 — docs/ux/README.md 3절. 값을 컴포넌트에 직접 쓰지 않고 토큰으로 참조한다. */
+/*
+ * 디자인 토큰 정본 — `docs/prototype/cardfit-prd-srs-v0.4.html`의 `:root` 값 (D-011).
+ * 구현 색이 기준본과 다르면 기준본이 옳다. 값을 컴포넌트에 직접 쓰지 않고 토큰으로 참조한다.
+ *
+ * 결론 배너는 다크가 아니라 의미색이다 — 통과는 `--color-mint`, 유지는 `--color-amber`.
+ * 결론의 신호값을 명도가 아니라 색의 뜻이 담당한다.
+ */
 @theme {
-  --color-primary: #2878ff;
-  --color-ink: #10182b;
-  --color-muted: #697386;
-  --color-bg: #f6f8fc;
+  --color-primary: #2563eb;
+  --color-primary-soft: #eaf1ff;
+  --color-ink: #152238;
+  --color-bg: #f4f7fa;
   --color-surface: #ffffff;
-  --color-line: #e3e8f2;
-  --color-positive: #087a55;
-  --color-warning: #9a6200;
-  --color-banner: #10182b;
+  --color-line: #dbe4ed;
 
-  --radius-card: 20px;
-  --radius-button: 14px;
+  /*
+   * 보조 텍스트 회색. shadcn이 `--color-muted`를 "옅은 배경"으로 쓰기 때문에
+   * 같은 이름을 쓰면 `text-muted`가 배경색으로 해석돼 흰 배경에 흰 글씨가 된다.
+   * 이름을 나눠 두 쓰임이 서로를 덮지 않게 한다.
+   */
+  --color-subtle: #65748a;
+
+  /* 결론 — 통과 */
+  --color-mint: #e9f8f1;
+  --color-mint-line: #bfe8d6;
+  --color-positive: #087a55;
+
+  /* 결론 — 현재 조합 유지 */
+  --color-amber: #fff5dc;
+  --color-amber-line: #f0d897;
+  --color-warning: #8a5a00;
+
+  /* 입력을 되돌리라고 안내할 때만 쓴다. 내부 오류 코드를 먼저 말하지 않는다 */
+  --color-danger-soft: #fff0f0;
+  --color-danger: #ae3b3b;
+
+  --radius-card: 22px;
+  --radius-button: 12px;
 
   --font-sans:
     'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR',
@@ -38,10 +62,10 @@
   --secondary: var(--color-bg);
   --secondary-foreground: var(--color-ink);
   --muted: var(--color-bg);
-  --muted-foreground: var(--color-muted);
-  --accent: #e8f0ff;
+  --muted-foreground: var(--color-subtle);
+  --accent: var(--color-primary-soft);
   --accent-foreground: var(--color-primary);
-  --destructive: var(--color-warning);
+  --destructive: var(--color-danger);
   --border: var(--color-line);
   --input: var(--color-line);
   --ring: var(--color-primary);

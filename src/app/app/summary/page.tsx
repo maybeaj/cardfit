@@ -24,11 +24,11 @@ export default function SummaryScreen() {
       />
       <div className="scroll-area flex flex-col gap-3">
         <Panel>
-          <p className="m-0 text-[13px] text-muted">{CURRENT_STATE_NOTICE.basis} 예상 연 혜택</p>
+          <p className="m-0 text-[13px] text-subtle">{CURRENT_STATE_NOTICE.basis} 예상 연 혜택</p>
           <p className="mt-1 mb-0 text-[32px] font-extrabold tracking-tight text-ink tabular-nums">
             {won(d.currentAnnualBenefit)}
           </p>
-          <p className="mt-3 mb-0 text-[13px] text-muted">
+          <p className="mt-3 mb-0 text-[13px] text-subtle">
             한도를 다 쓰지 못한 금액 <strong className="text-ink">{won(d.unusedCapAnnual)}</strong>
           </p>
         </Panel>
@@ -43,7 +43,7 @@ export default function SummaryScreen() {
               { label: '실적 최저 구간', value: `${d.underQualifiedCards}장` },
             ].map((item) => (
               <div key={item.label}>
-                <dt className="m-0 text-[11.5px] text-muted">{item.label}</dt>
+                <dt className="m-0 text-[11.5px] text-subtle">{item.label}</dt>
                 <dd className="m-0 mt-1 text-[16px] font-extrabold text-ink tabular-nums">
                   {item.value}
                 </dd>
@@ -52,7 +52,7 @@ export default function SummaryScreen() {
           </dl>
         </Panel>
 
-        <p className="m-0 text-[11.5px] leading-relaxed text-muted">
+        <p className="m-0 text-[11.5px] leading-relaxed text-subtle">
           {DATA_NOTICE.sampleFootnote}
         </p>
       </div>

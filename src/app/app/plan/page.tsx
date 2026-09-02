@@ -89,7 +89,7 @@ export default function PlanScreen() {
                 variant="outline"
                 onClick={() => removeItem(item.plan_id)}
                 aria-label={`${item.category} 항목 삭제`}
-                className="text-[13px] text-muted"
+                className="text-[13px] text-subtle"
               >
                 삭제
               </Button>
@@ -151,9 +151,9 @@ export default function PlanScreen() {
                 }
                 className="flex-1 text-right text-[17px] font-extrabold text-ink tabular-nums"
               />
-              <span className="text-[14px] font-semibold text-muted">원</span>
+              <span className="text-[14px] font-semibold text-subtle">원</span>
             </div>
-            <p className="mt-2 mb-0 text-[12px] text-muted">
+            <p className="mt-2 mb-0 text-[12px] text-subtle">
               {item.direction === 'increase' ? '늘어나는' : '줄어드는'} 금액 {manwon(item.amount)} ·
               출처 {item.source === 'suggested' ? '최근 소비 패턴 제안값' : '직접 입력'}
             </p>

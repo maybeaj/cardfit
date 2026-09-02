@@ -71,7 +71,7 @@ export default function LandingPage() {
           <br />
           앞으로 쓸 돈으로 카드 조합을 다시 계산합니다
         </h1>
-        <p className="mt-5 mb-0 max-w-[640px] text-[16px] leading-relaxed text-muted">
+        <p className="mt-5 mb-0 max-w-[640px] text-[16px] leading-relaxed text-subtle">
           결혼·이사처럼 예정된 고액 지출을 앞둔 다장 카드 사용자가, 현재 카드를 유지할지 더 유리한
           조합으로 바꿀지와 결제 배분을 근거와 함께 5분 안에 결정하도록 돕습니다.
         </p>
@@ -82,7 +82,7 @@ export default function LandingPage() {
           >
             앱 데모 시연하기
           </Link>
-          <span className="rounded-[var(--radius-button)] border border-line bg-surface px-4 py-3 text-[13px] font-semibold text-muted">
+          <span className="rounded-[var(--radius-button)] border border-line bg-surface px-4 py-3 text-[13px] font-semibold text-subtle">
             {DATA_NOTICE.mockOnly} · 실제 마이데이터를 연동하지 않습니다
           </span>
         </div>
@@ -94,13 +94,13 @@ export default function LandingPage() {
             key={item.label}
             className={`rounded-[var(--radius-card)] p-6 ${
               item.label === 'CardFit'
-                ? 'bg-banner text-white'
+                ? 'bg-ink text-white'
                 : 'border border-line bg-surface text-ink'
             }`}
           >
             <p
               className={`m-0 text-[12px] font-bold tracking-wide ${
-                item.label === 'CardFit' ? 'text-[#8FB6FF]' : 'text-muted'
+                item.label === 'CardFit' ? 'text-white/70' : 'text-subtle'
               }`}
             >
               {item.label}
@@ -109,7 +109,7 @@ export default function LandingPage() {
           </article>
         ))}
       </section>
-      <p className="mt-4 mb-0 text-[13px] text-muted">
+      <p className="mt-4 mb-0 text-[13px] text-subtle">
         차이는 발급 연결이 아니라, 그 전에 &lsquo;미래 입력&rsquo;과 &lsquo;조합 계산&rsquo;을 거친다는
         점입니다.
       </p>
@@ -125,8 +125,8 @@ export default function LandingPage() {
               className="rounded-[var(--radius-card)] border border-line bg-surface p-5"
             >
               <h3 className="m-0 text-[17px] font-extrabold text-ink">{value.title}</h3>
-              <p className="mt-2 mb-3 text-[14px] leading-relaxed text-muted">{value.body}</p>
-              <span className="inline-flex rounded-lg bg-[#E8F0FF] px-2 py-1 text-[11.5px] font-bold text-primary">
+              <p className="mt-2 mb-3 text-[14px] leading-relaxed text-subtle">{value.body}</p>
+              <span className="inline-flex rounded-lg bg-primary-soft px-2 py-1 text-[11.5px] font-bold text-primary">
                 {value.tag}
               </span>
             </article>
@@ -151,7 +151,7 @@ export default function LandingPage() {
             </li>
           ))}
         </ol>
-        <p className="mt-4 mb-0 text-[13px] text-muted">
+        <p className="mt-4 mb-0 text-[13px] text-subtle">
           바꿀 가치가 없으면 <strong className="text-ink">&ldquo;현재 조합 유지&rdquo;</strong>도 정상
           결과입니다. 실패 화면이 아닙니다.
         </p>
@@ -169,8 +169,8 @@ export default function LandingPage() {
             >
               <span className="text-[20px] font-extrabold text-primary">{screen.no}</span>
               <h3 className="mt-2 mb-2 text-[16px] font-extrabold text-ink">{screen.title}</h3>
-              <p className="m-0 text-[13.5px] leading-relaxed text-muted">{screen.body}</p>
-              <p className="mt-3 mb-0 text-[11.5px] font-semibold text-muted">{screen.tag}</p>
+              <p className="m-0 text-[13.5px] leading-relaxed text-subtle">{screen.body}</p>
+              <p className="mt-3 mb-0 text-[11.5px] font-semibold text-subtle">{screen.tag}</p>
             </article>
           ))}
         </div>
@@ -190,20 +190,20 @@ export default function LandingPage() {
           </ul>
           <dl className="mt-5 mb-0 grid gap-3 md:grid-cols-2">
             <div className="rounded-xl bg-bg px-4 py-3">
-              <dt className="m-0 text-[12px] font-bold text-muted">변경을 권하는 조건</dt>
+              <dt className="m-0 text-[12px] font-bold text-subtle">변경을 권하는 조건</dt>
               <dd className="m-0 mt-1 text-[14px] font-semibold text-ink">
                 순혜택 ≥ {won(NET_BENEFIT_FLOOR)} <span className="text-primary">AND</span> 추가 혜택의{' '}
                 {Math.round(NET_BENEFIT_RATIO * 100)}% 이상
               </dd>
             </div>
             <div className="rounded-xl bg-bg px-4 py-3">
-              <dt className="m-0 text-[12px] font-bold text-muted">결론 표기</dt>
+              <dt className="m-0 text-[12px] font-bold text-subtle">결론 표기</dt>
               <dd className="m-0 mt-1 text-[14px] font-semibold text-ink">
                 {CONCLUSION_COPY.boundedOptimum}
               </dd>
             </div>
           </dl>
-          <p className="mt-4 mb-0 text-[12.5px] leading-relaxed text-muted">
+          <p className="mt-4 mb-0 text-[12.5px] leading-relaxed text-subtle">
             임계값은 실측이 아니라 과잉 추천을 막기 위한 팀 합의 상수입니다. 시장의 보편 기준으로
             인용하지 않습니다.
           </p>
@@ -211,14 +211,14 @@ export default function LandingPage() {
       </section>
 
       <section className="pt-16">
-        <div className="rounded-[var(--radius-card)] bg-banner p-6 text-white">
+        <div className="rounded-[var(--radius-card)] bg-ink p-6 text-white">
           <h2 className="m-0 text-[20px] font-extrabold tracking-tight">
             {BOUNDARY_COPY.headline}
           </h2>
-          <p className="mt-3 mb-0 text-[15px] leading-relaxed text-[#C9D6F2]">
+          <p className="mt-3 mb-0 text-[15px] leading-relaxed text-white/75">
             {BOUNDARY_COPY.direct} — {BOUNDARY_COPY.outlinkNote}
           </p>
-          <p className="mt-4 mb-0 text-[12.5px] leading-relaxed text-[#8FB6FF]">
+          <p className="mt-4 mb-0 text-[12.5px] leading-relaxed text-white/70">
             {DATA_NOTICE.sampleFootnote} · 실제 결제·인증·민감정보를 다루지 않습니다.
           </p>
         </div>

@@ -55,12 +55,12 @@ export default function CalculatingScreen() {
                 <span
                   aria-hidden
                   className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                    index < step ? 'bg-primary text-white' : 'bg-bg text-muted'
+                    index < step ? 'bg-primary text-white' : 'bg-bg text-subtle'
                   }`}
                 >
                   {index < step ? '✓' : index + 1}
                 </span>
-                <span className={index < step ? 'text-ink' : 'text-muted'}>{label}</span>
+                <span className={index < step ? 'text-ink' : 'text-subtle'}>{label}</span>
               </li>
             ))}
           </ol>

@@ -42,15 +42,15 @@ export default function ConstraintScreen() {
                 onClick={() => updateConstraint({ max_cards: count })}
                 className={`flex-1 rounded-xl border py-3 text-[15px] font-bold ${
                   constraint.max_cards === count
-                    ? 'border-primary bg-[#E8F0FF] text-primary'
-                    : 'border-line text-muted'
+                    ? 'border-primary bg-primary-soft text-primary'
+                    : 'border-line text-subtle'
                 }`}
               >
                 {count}장
               </button>
             ))}
           </div>
-          <p className="mt-2 mb-0 text-[12px] text-muted">
+          <p className="mt-2 mb-0 text-[12px] text-subtle">
             상한은 화면 복잡도 때문에 2장으로 정했습니다. 그 이상 조합은 계산하지 않습니다.
           </p>
         </Panel>
@@ -69,8 +69,8 @@ export default function ConstraintScreen() {
                 onClick={() => updateConstraint({ allow_new_card: option.value })}
                 className={`flex-1 rounded-xl border py-3 text-[14px] font-bold ${
                   constraint.allow_new_card === option.value
-                    ? 'border-primary bg-[#E8F0FF] text-primary'
-                    : 'border-line text-muted'
+                    ? 'border-primary bg-primary-soft text-primary'
+                    : 'border-line text-subtle'
                 }`}
               >
                 {option.label}
@@ -80,7 +80,7 @@ export default function ConstraintScreen() {
         </Panel>
 
         <Panel tone="bg">
-          <p className="m-0 text-[13px] text-muted">확인할 앞으로 12개월 계획</p>
+          <p className="m-0 text-[13px] text-subtle">확인할 앞으로 12개월 계획</p>
           <p className="mt-1 mb-0 text-[20px] font-extrabold text-ink tabular-nums">
             {plan.length}건 · 순증 {manwon(planTotal(plan))}
           </p>

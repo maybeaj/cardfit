@@ -20,12 +20,12 @@ export default function OnboardingScreen() {
           <br />
           카드 조합을 다시 계산합니다
         </h1>
-        <p className="mt-3 mb-0 text-center text-[14px] leading-relaxed text-muted">
+        <p className="mt-3 mb-0 text-center text-[14px] leading-relaxed text-subtle">
           결혼·이사처럼 큰 지출이 예정돼 있다면
           <br />
           지금 조합이 앞으로도 맞는지 확인해 보세요.
         </p>
-        <p className="mt-8 mb-0 rounded-xl bg-bg px-4 py-3 text-center text-[13px] font-semibold text-muted">
+        <p className="mt-8 mb-0 rounded-xl bg-bg px-4 py-3 text-center text-[13px] font-semibold text-subtle">
           {DATA_NOTICE.mockOnly}
         </p>
       </div>

@@ -85,19 +85,19 @@ export default function ResultScreen() {
           <Panel tone="bg">
             <dl className="m-0 grid grid-cols-3 gap-2">
               <div>
-                <dt className="m-0 text-[11px] text-muted">추가 혜택</dt>
+                <dt className="m-0 text-[11px] text-subtle">추가 혜택</dt>
                 <dd className="m-0 mt-0.5 text-[14px] font-extrabold text-positive tabular-nums">
                   +{won(calculation.chosen.gross_benefit)}
                 </dd>
               </div>
               <div>
-                <dt className="m-0 text-[11px] text-muted">전환비용</dt>
+                <dt className="m-0 text-[11px] text-subtle">전환비용</dt>
                 <dd className="m-0 mt-0.5 text-[14px] font-extrabold text-warning tabular-nums">
                   −{won(calculation.chosen.switching_cost.total)}
                 </dd>
               </div>
               <div>
-                <dt className="m-0 text-[11px] text-muted">순혜택</dt>
+                <dt className="m-0 text-[11px] text-subtle">순혜택</dt>
                 <dd className="m-0 mt-0.5 text-[14px] font-extrabold text-ink tabular-nums">
                   {won(calculation.chosen.net_benefit)}
                 </dd>
@@ -113,7 +113,7 @@ export default function ResultScreen() {
         <Link href="/app/plan" className="text-center text-[13px] font-semibold text-primary">
           계획을 수정하고 다시 계산하기
         </Link>
-        <p className="m-0 text-[11.5px] leading-relaxed text-muted">{DATA_NOTICE.sampleFootnote}</p>
+        <p className="m-0 text-[11.5px] leading-relaxed text-subtle">{DATA_NOTICE.sampleFootnote}</p>
       </div>
       <CtaBar>
         <PrimaryLink href="/app/evidence">왜 이런 결과인지 보기</PrimaryLink>

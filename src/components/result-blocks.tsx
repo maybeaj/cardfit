@@ -1,6 +1,7 @@
 import { CONCLUSION_COPY, DATA_NOTICE, STATUS_COPY } from '@/content/copy'
 import { manwon, won } from '@/domain/format'
 import type { Calculation, CardProduct, PlanCandidate } from '@/domain/types'
+import { cn } from '@/lib/utils'
 import {
   Table,
   TableBody,
@@ -11,7 +12,10 @@ import {
 } from '@/components/ui/table'
 import { Panel, SampleBadge, StatusChip } from './shell'
 
-/** UI-005 결론 배너 — 좁게. 다크 영역은 이 배너 하나뿐이다 (T2 · T13). */
+/**
+ * UI-005 결론 배너 — 좁게. 본문은 배분표가 차지한다 (`T2`).
+ * 색은 기준본의 `.result`(민트) / `.result.hold`(앰버)를 따른다 (`D-011`).
+ */
 export function ConclusionBanner({ calculation }: { calculation: Calculation }) {
   const { decision, chosen, reviewed, current_card_count, hold_reason } = calculation
   const best = reviewed[0]
@@ -31,11 +35,21 @@ export function ConclusionBanner({ calculation }: { calculation: Calculation }) 
       : CONCLUSION_COPY.hold.caption()
 
   return (
-    <Panel tone="banner">
-      <p className="m-0 text-[19px] leading-[1.4] font-extrabold tracking-tight">{body}</p>
-      <p className="mt-2 mb-0 text-[11.5px] leading-relaxed text-[#9FB4DD]">{caption}</p>
+    <Panel tone={decision === '변경' ? 'pass' : 'hold'}>
+      <p
+        className={cn(
+          'm-0 text-[12px] font-extrabold',
+          decision === '변경' ? 'text-positive' : 'text-warning',
+        )}
+      >
+        {decision === '변경' ? '✓ 바꿀 가치가 충분해요' : '✓ 지금은 바꾸지 않아도 돼요'}
+      </p>
+      <p className="mt-1.5 mb-0 text-[19px] leading-[1.4] font-extrabold tracking-tight text-ink">
+        {body}
+      </p>
+      <p className="mt-2 mb-0 text-[11.5px] leading-relaxed text-subtle">{caption}</p>
       {decision === '유지' && hold_reason === '제약과다' ? (
-        <p className="mt-3 mb-0 rounded-lg bg-white/10 px-3 py-2 text-[12px] font-semibold">
+        <p className="mt-3 mb-0 rounded-lg bg-surface/70 px-3 py-2 text-[12px] font-semibold text-ink">
           {CONCLUSION_COPY.relaxHint}
         </p>
       ) : null}
@@ -67,9 +81,9 @@ export function CombinationList({
               className="flex items-start justify-between gap-2 rounded-xl bg-bg px-3 py-2.5"
             >
               <div>
-                <p className="m-0 text-[11.5px] text-muted">{card.issuer}</p>
+                <p className="m-0 text-[11.5px] text-subtle">{card.issuer}</p>
                 <p className="mt-0.5 mb-0 text-[14.5px] font-bold text-ink">{card.name}</p>
-                <p className="mt-1 mb-0 text-[11.5px] text-muted">{STATUS_COPY[status].note}</p>
+                <p className="mt-1 mb-0 text-[11.5px] text-subtle">{STATUS_COPY[status].note}</p>
               </div>
               <div className="flex flex-col items-end gap-1">
                 <StatusChip status={status} />
@@ -79,7 +93,7 @@ export function CombinationList({
           )
         })}
       </ul>
-      <p className="mt-3 mb-0 text-[11.5px] text-muted">{CONCLUSION_COPY.boundedOptimum}</p>
+      <p className="mt-3 mb-0 text-[11.5px] text-subtle">{CONCLUSION_COPY.boundedOptimum}</p>
     </Panel>
   )
 }
@@ -105,17 +119,17 @@ export function AllocationTable({
   return (
     <Panel>
       <h2 className="m-0 text-[15px] font-extrabold text-ink">이렇게 나눠 쓰세요</h2>
-      <p className="mt-1 mb-0 text-[11.5px] text-muted">
+      <p className="mt-1 mb-0 text-[11.5px] text-subtle">
         앞으로 12개월 합계 기준 · 총 {manwon(total)}
       </p>
       <Table className="mt-3">
         <TableHeader>
           <TableRow className="border-line">
-            <TableHead className="h-auto pb-2 text-[11.5px] font-semibold text-muted">카드</TableHead>
-            <TableHead className="h-auto pb-2 text-right text-[11.5px] font-semibold text-muted">
+            <TableHead className="h-auto pb-2 text-[11.5px] font-semibold text-subtle">카드</TableHead>
+            <TableHead className="h-auto pb-2 text-right text-[11.5px] font-semibold text-subtle">
               결제 금액
             </TableHead>
-            <TableHead className="h-auto pb-2 text-right text-[11.5px] font-semibold text-muted">
+            <TableHead className="h-auto pb-2 text-right text-[11.5px] font-semibold text-subtle">
               혜택
             </TableHead>
           </TableRow>
@@ -131,7 +145,7 @@ export function AllocationTable({
                     <span className="block text-[13.5px] font-bold text-ink">
                       {card?.name ?? cardId}
                     </span>
-                    <span className="block text-[11px] text-muted">
+                    <span className="block text-[11px] text-subtle">
                       {entry.categories.join(' · ')}
                     </span>
                   </TableCell>
@@ -172,19 +186,19 @@ export function ReviewedAlternatives({
             </p>
             <dl className="mt-2 mb-0 grid grid-cols-3 gap-1">
               <div>
-                <dt className="m-0 text-[10.5px] text-muted">추가 혜택</dt>
+                <dt className="m-0 text-[10.5px] text-subtle">추가 혜택</dt>
                 <dd className="m-0 text-[12.5px] font-bold text-ink tabular-nums">
                   {won(candidate.gross_benefit)}
                 </dd>
               </div>
               <div>
-                <dt className="m-0 text-[10.5px] text-muted">전환비용</dt>
+                <dt className="m-0 text-[10.5px] text-subtle">전환비용</dt>
                 <dd className="m-0 text-[12.5px] font-bold text-ink tabular-nums">
                   −{won(candidate.switching_cost.total)}
                 </dd>
               </div>
               <div>
-                <dt className="m-0 text-[10.5px] text-muted">순손익</dt>
+                <dt className="m-0 text-[10.5px] text-subtle">순손익</dt>
                 <dd
                   className={`m-0 text-[12.5px] font-bold tabular-nums ${
                     candidate.net_benefit >= 0 ? 'text-positive' : 'text-warning'
