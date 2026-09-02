@@ -63,9 +63,14 @@ export function Screen({
   )
 }
 
-/** 버튼 묶음. 패널 맨 아래에 붙는다 — 탭 네비게이션을 그리지 않는다 (`T14`). */
-export function Actions({ children }: { children: ReactNode }) {
-  return <div className="actions">{children}</div>
+/**
+ * 버튼 묶음. 패널 맨 아래에 붙는다 — 탭 네비게이션을 그리지 않는다 (`T14`).
+ *
+ * `sticky`는 내용이 한 화면을 넘는 입력·근거 화면에서 쓴다. 진행 버튼이 접힘선 아래로
+ * 밀려나면 사용자가 스크롤을 끝까지 내려야 다음으로 갈 수 있다.
+ */
+export function Actions({ children, sticky }: { children: ReactNode; sticky?: boolean }) {
+  return <div className={sticky ? 'actions is-sticky' : 'actions'}>{children}</div>
 }
 
 export function PrimaryLink({

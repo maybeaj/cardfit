@@ -147,7 +147,8 @@ export default function EvidenceScreen() {
 
       <Notice>{EVIDENCE_COPY.notice}</Notice>
 
-      <Actions>
+      {/* 근거 화면은 길다 — 결과로 돌아가는 길이 스크롤 끝에만 있으면 안 된다 */}
+      <Actions sticky>
         <GhostLink href="/app/result">{EVIDENCE_COPY.backToResult}</GhostLink>
       </Actions>
     </Screen>

@@ -8,6 +8,7 @@
  * 탭을 바꾸면 Net Benefit·카드 조합·상태가 함께 교체된다.
  */
 import {
+  CARD_CATEGORY_AFFINITY,
   CURRENT_STATE,
   HOLD_CARDS,
   SCENARIO_VARIANTS,
@@ -181,6 +182,102 @@ export function buildOutcomes(
     acc[option.key] = buildScenario(option.key, option.multiplier, spends, maxCards, includeNew)
     return acc
   }, {} as Outcomes)
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   FR-004 결제수단 배분 — 결과 화면의 본문 (UI-006 · `T2`)
+   핵심 산출물은 카드 순위가 아니라 결제 계획이다.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+export interface AllocationRow {
+  planId: string
+  category: string
+  months: number
+  periodLabel: string
+  /** 이 항목에 배분된 금액 (원) */
+  amount: number
+  cardName: string
+  cardArt: string
+  /** 왜 이 카드인가 — 근거 화면과 대조할 수 있는 한 줄 */
+  reason: '주 혜택 업종' | '월 한도 분산'
+}
+
+export interface CardAllocation {
+  name: string
+  art: string
+  state: OutcomeCard['state']
+  /** 이 카드로 결제할 금액 합계 */
+  amount: number
+  /** 예상 연간 혜택 — 시나리오 표의 값이다 */
+  benefit: number
+}
+
+export interface Allocation {
+  rows: AllocationRow[]
+  byCard: CardAllocation[]
+  /** 배분 합. 확인한 계획 총액과 오차 0이어야 한다 (NFR-001) */
+  total: number
+}
+
+/**
+ * 확인한 미래 지출을 사용 카드에 배분한다.
+ *
+ * **규칙 (결정론적)**
+ * 1. 카테고리의 주 혜택 카드가 사용 카드에 있으면 그 카드
+ * 2. 없으면 지금까지 배분된 금액이 가장 적은 카드 — 한 카드에 몰면 월 한도에 걸려
+ *    혜택이 사라지기 때문이다 (근거 화면 `02 · 혜택한도`와 같은 이유)
+ * 3. 동률이면 예상 연간 혜택이 큰 카드
+ *
+ * **`정리` 카드에는 배분하지 않는다.** 앞으로의 조합에서 빠지는 카드이므로 결제 계획에
+ * 넣으면 사용자가 계속 쓰라는 뜻으로 오해한다.
+ *
+ * 금액을 새로 만들지 않는다 — 사용자가 확인한 계획을 나누기만 하므로 합은 항상 같다.
+ */
+export function allocate(outcome: Outcome): Allocation {
+  const used = outcome.cards.filter((card) => card.state !== '정리')
+  // 사용 카드가 하나도 없는 조합은 만들지 않지만, 만들어졌다면 배분표를 비우지 않는다 (`T21`)
+  const targets = used.length > 0 ? used : outcome.cards
+
+  const assigned = new Map<string, number>(targets.map((card) => [card.name, 0]))
+
+  const rows: AllocationRow[] = outcome.spends
+    .filter((item) => item.amount > 0)
+    .map((item) => {
+      const months = item.spendingMonths || 1
+      const amount = Math.round(item.amount * 10_000 * outcome.multiplier)
+
+      const affine = targets.find((card) =>
+        (CARD_CATEGORY_AFFINITY[card.name] ?? []).includes(item.label),
+      )
+      const spread = [...targets].sort(
+        (a, b) =>
+          (assigned.get(a.name) ?? 0) - (assigned.get(b.name) ?? 0) || b.benefit - a.benefit,
+      )[0]
+      const card = affine ?? spread ?? targets[0]!
+
+      assigned.set(card.name, (assigned.get(card.name) ?? 0) + amount)
+
+      return {
+        planId: item.id,
+        category: item.label,
+        months,
+        periodLabel: months === 1 ? '한 번에' : `${months}개월`,
+        amount,
+        cardName: card.name,
+        cardArt: card.art,
+        reason: affine ? '주 혜택 업종' : '월 한도 분산',
+      }
+    })
+
+  const byCard: CardAllocation[] = outcome.cards.map((card) => ({
+    name: card.name,
+    art: card.art,
+    state: card.state,
+    amount: assigned.get(card.name) ?? 0,
+    benefit: card.benefit,
+  }))
+
+  return { rows, byCard, total: rows.reduce((sum, row) => sum + row.amount, 0) }
 }
 
 /** 근거 화면의 지출 반영 표 — 한 번에 쓰면 총액, 나눠 쓰면 월 금액으로 보여준다 */

@@ -44,6 +44,8 @@ interface FlowState {
   /** 계산 결과. 계산 전에는 `null`이다 */
   outcomes: Outcomes | null
   liked: boolean
+  /** 방금 지운 항목 — 되돌리기용. 삭제는 확인 없이 되지만 되돌릴 수 있어야 한다 */
+  lastRemoved: { index: number; item: SpendItem } | null
 }
 
 function initialState(): FlowState {
@@ -56,6 +58,7 @@ function initialState(): FlowState {
     scenario: 'expected',
     outcomes: null,
     liked: false,
+    lastRemoved: null,
   }
 }
 
@@ -70,6 +73,8 @@ interface FlowContextValue extends FlowState {
   setSpendingMonths: (index: number, months: number) => void
   addSpend: () => void
   removeSpend: (index: number) => void
+  undoRemove: () => void
+  dismissRemoved: () => void
   changeMaxCards: (delta: number) => void
   setIncludeNew: (value: boolean) => void
   /** 기준본 `calculate()` — 세 시나리오를 한 번에 만들고 `예상대로`를 선택한다 */
@@ -178,7 +183,27 @@ export function FlowProvider({ children }: { children: ReactNode }) {
           { id: `custom${Date.now()}`, label: '기타', amount: 0, spendingMonths: 1 },
         ]),
 
-      removeSpend: (index) => patchSpends((spends) => spends.filter((_, i) => i !== index)),
+      removeSpend: (index) => {
+        const item = state.spends[index]
+        if (!item) return
+        setState((prev) => ({
+          ...prev,
+          spends: prev.spends.filter((_, i) => i !== index),
+          lastRemoved: { index, item },
+          outcomes: null,
+          liked: false,
+        }))
+      },
+
+      undoRemove: () =>
+        setState((prev) => {
+          if (!prev.lastRemoved) return prev
+          const spends = [...prev.spends]
+          spends.splice(prev.lastRemoved.index, 0, prev.lastRemoved.item)
+          return { ...prev, spends, lastRemoved: null, outcomes: null, liked: false }
+        }),
+
+      dismissRemoved: () => setState((prev) => ({ ...prev, lastRemoved: null })),
 
       changeMaxCards: (delta) =>
         setState((prev) => ({

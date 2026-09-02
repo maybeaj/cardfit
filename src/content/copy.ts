@@ -85,6 +85,8 @@ export const CONSENT_COPY = {
   legalNote:
     '이번 화면은 프로토타입용 예시입니다. 실제 서비스에서는 사업자 자격, 전송기관, 정확한 정보 항목·보유기간·약관 전문을 준법/법무 검토 후 확정해야 합니다.',
   detailLink: '전문 보기',
+  /** 실연동 전까지는 열 수 있는 문서가 없다. 링크처럼 보이게 두지 않는다 */
+  detailPending: '전문 준비 중',
   submit: '마이데이터 이용 동의하기',
   close: '닫기',
 } as const
@@ -118,7 +120,13 @@ export const PLAN_NOTICE = {
   lead: '앞으로 늘어날 지출만 확인해 주세요.',
   amountLabel: '추가로 예상되는 금액',
   amountUnit: '만원',
+  /** 만원 단위 입력을 원으로 되읽어 준다 — 자릿수 오입력을 막는다 */
+  amountZero: '금액을 입력해 주세요',
   durationQuestion: '얼마 동안 지출할 예정인가요?',
+  /** 두 번째 항목부터는 질문을 반복하지 않는다 */
+  durationShort: '지출 기간',
+  removed: (category: string) => `${category} 항목을 지웠어요`,
+  undo: '되돌리기',
   once: '한 번에',
   months: (n: number) => `${n}개월`,
   addItem: '＋ 지출 항목 추가',
@@ -151,6 +159,8 @@ export const CONSTRAINT_COPY = {
  */
 export const RESULT_COPY = {
   scenarioLabel: '앞으로 12개월 지출이',
+  /** 탭이 무엇을 뜻하는지 금액으로 밝힌다 — `적게`가 얼마인지 사용자가 알 수 있어야 한다 */
+  scenarioAmount: (amount: string) => `${amount} 기준`,
   benefitLabel: '이 조합으로 받을 수 있는 연간 혜택',
   benefitUnit: '연',
   benefitDelta: (amount: string) => `현재 카드 조합보다 ${amount} 더 받아요`,
@@ -159,13 +169,39 @@ export const RESULT_COPY = {
   holdValue: '현재 조합 유지',
   holdDelta: '바꾸는 비용보다 추가 혜택이 작아요',
   holdEvidenceTrigger: '유지 이유와 계산 근거 보기',
-  cardsHeading: '이렇게 사용해 보세요',
-  cardsSub: '카드별 예상 연간 혜택',
+
+  /**
+   * FR-004 결제수단 배분 — 결과 화면의 본문이다 (UI-006 · `T2`).
+   * 카드 순위가 아니라 "무엇을 어느 카드로 결제할지"가 핵심 산출물이다.
+   */
+  allocationHeading: '이렇게 나눠 쓰세요',
+  allocationSub: '확인한 지출 · 담당 카드',
+  allocationTotal: '배분 합계',
+  allocationTotalNote: '확인한 계획과 같은 금액입니다',
+  reasonAffinity: '주 혜택 업종',
+  reasonSpread: '월 한도 분산',
+  reasonHint: {
+    '주 혜택 업종': '이 카드의 혜택 업종이라 배분했어요',
+    '월 한도 분산': '한 카드에 몰면 월 한도를 넘겨 혜택이 사라져요',
+  } as Record<string, string>,
+
+  cardsHeading: '카드별 역할',
+  cardsSub: '결제 금액 · 예상 연간 혜택',
   cardBenefitLabel: '예상 연간 혜택',
+  /** `정리` 카드의 금액은 앞으로 받을 혜택이 아니라 지금까지 받던 값이다 */
+  cardPastBenefitLabel: '지금까지 받던 혜택',
+  cardAmountLabel: '이 카드로 결제',
+  cardNoAmount: '앞으로의 결제 없음',
   issuerLink: '카드사 페이지 ›',
   like: '이 조합 좋아요',
   liked: '좋아요를 반영했어요',
   editPlan: '계획 수정하기',
+
+  /** 좋아요 다음에 무엇을 하면 되는지 — 대행하지 않고 안내만 한다 (AC-003 · `T27`) */
+  nextHeading: '다음에 하면 되는 일',
+  nextNew: '카드사 공식 페이지에서 직접 신청하세요',
+  nextOrganize: '해지 전에 연회비 환급·포인트 소멸을 카드사에 확인하세요',
+  nextKeep: '그대로 계속 사용하세요',
 } as const
 
 /** UI-007 요약 근거 — 기준본 `#resultEvidenceModal`. 결과 화면에서만 연다 */

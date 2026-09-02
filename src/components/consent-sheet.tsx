@@ -118,8 +118,11 @@ export function ConsentSheet({
                 <b>{item.title}</b>
                 <small>{item.body}</small>
               </span>
-              {/* 약관 전문은 실연동 범위다. 없는 문서를 있는 것처럼 열지 않는다 */}
-              <span className="detail-link">{CONSENT_COPY.detailLink}</span>
+              {/*
+                약관 전문은 실연동 범위다. 없는 문서를 있는 것처럼 열지 않는다 —
+                누를 수 있어 보이는데 아무 일도 없으면 그게 가짜 요소다. 준비 중임을 밝힌다.
+              */}
+              <span className="detail-link is-pending">{CONSENT_COPY.detailPending}</span>
             </label>
           ))}
         </div>

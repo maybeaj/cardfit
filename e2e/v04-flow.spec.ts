@@ -66,6 +66,10 @@ test('기준본 s0~s6 플로우를 순서대로 통과한다', async ({ page }) 
   await expect(page.getByText('줄어요')).toHaveCount(0)
   // 지출 기간 선택지는 `한 번에 / 3개월 / 6개월 / 12개월`이다 (UI-002)
   await expect(page.getByRole('group', { name: '가전/가구 지출 기간' }).getByRole('button')).toHaveCount(4)
+  // 만원 단위를 원으로 되읽어 준다 — 자릿수 오입력을 막는다
+  await expect(page.getByText('₩8,400,000')).toBeVisible()
+  // 진행 버튼이 스크롤 없이 보인다 (고정 CTA)
+  await expect(page.getByRole('button', { name: '다음', exact: true })).toBeInViewport()
   await page.getByRole('button', { name: '다음', exact: true }).click()
 
   // s4 계산 조건 — 기본값 2장·신규 포함 `예`
@@ -86,10 +90,17 @@ test('기준본 s0~s6 플로우를 순서대로 통과한다', async ({ page }) 
   // `정리` 카드에는 실행 버튼을 두지 않는다 (AC-003)
   await expect(page.locator('.result-card.status-organize a')).toHaveCount(0)
 
+  // 배분표가 본문이고 배분 합은 확인한 계획과 같다 (FR-004 · NFR-001)
+  await expect(page.getByRole('heading', { name: '이렇게 나눠 쓰세요' })).toBeVisible()
+  await expect(page.locator('.allocation-row')).toHaveCount(3)
+  await expect(page.getByText('₩16,400,000')).toBeVisible()
+  // `정리` 카드에는 배분하지 않는다
+  await expect(page.locator('.allocation-card').getByText('삼성카드 taptap O')).toHaveCount(0)
+
   // 시나리오를 바꾸면 조합과 금액이 함께 교체된다 (AC-014)
-  await page.getByRole('button', { name: '적게' }).click()
+  await page.getByRole('button', { name: /적게/ }).click()
   await expect(page.getByText('₩1,646,000')).toBeVisible()
-  await page.getByRole('button', { name: '예상대로' }).click()
+  await page.getByRole('button', { name: /예상대로/ }).click()
   await expect(page.getByText('₩2,143,000').first()).toBeVisible()
 
   // 요약 근거 바텀시트 → 상세 근거
@@ -145,4 +156,18 @@ test('임계 미달이면 현재 조합 유지를 정상 결과로 돌려준다 
   // 유지 결론에서도 배분을 비우지 않는다 (`T21`) — 카드 3장이 모두 `유지`다
   await expect(page.locator('.state-pill.keep')).toHaveCount(3)
   await expect(page.locator('.state-pill.new')).toHaveCount(0)
+})
+
+test('지운 항목을 되돌릴 수 있다', async ({ page }) => {
+  await page.goto('/app/plan')
+  await expect(page.locator('input[type=number]')).toHaveCount(3)
+
+  await page.getByRole('button', { name: '여행 항목 삭제' }).click()
+  await expect(page.locator('input[type=number]')).toHaveCount(2)
+  await expect(page.getByText('여행 항목을 지웠어요')).toBeVisible()
+
+  await page.getByRole('button', { name: '되돌리기' }).click()
+  await expect(page.locator('input[type=number]')).toHaveCount(3)
+  // 지운 자리에 그대로 돌아온다
+  await expect(page.locator('.spend').nth(1).getByRole('combobox')).toHaveValue('여행')
 })

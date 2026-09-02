@@ -38,7 +38,11 @@ test('랜딩에서 앱으로 들어가 조합 결과와 근거까지 확인한�
   // s5 결과 — 결론 + 카드별 역할
   await expect(page).toHaveURL(/\/app\/result$/)
   await expect(page.getByText('이 조합으로 받을 수 있는 연간 혜택')).toBeVisible()
-  await expect(page.getByText('이렇게 사용해 보세요')).toBeVisible()
+  // FR-004 — 본문은 배분표다. 카드 순위 목록이 아니다 (`T2` · UI-006)
+  await expect(page.getByRole('heading', { name: '이렇게 나눠 쓰세요' })).toBeVisible()
+  await expect(page.locator('.allocation-row')).toHaveCount(3)
+  await expect(page.getByText('₩16,400,000')).toBeVisible()
+  await expect(page.getByText('사용 카드 3장 · 신규 1장 이내에서의 최선')).toBeVisible()
   await expect(page.locator('.result-card')).toHaveCount(3)
 
   // 금지어 0건 (QA-01-04 · `T26`)
@@ -50,6 +54,14 @@ test('랜딩에서 앱으로 들어가 조합 결과와 근거까지 확인한�
   // 신규 발급 1장만 아웃링크, 해지 실행 버튼은 0개다 (AC-003 · `T25`)
   await expect(page.locator('.result-card a[target=_blank]')).toHaveCount(1)
   await expect(page.locator('.result-card.status-organize a')).toHaveCount(0)
+
+  // 좋아요 다음에 무엇을 하면 되는지와 실행 경계가 함께 나온다 (AC-003 · `T27`)
+  await page.getByRole('button', { name: '이 조합 좋아요' }).click()
+  const next = page.locator('.next-actions')
+  await expect(next.getByRole('heading', { name: '다음에 하면 되는 일' })).toBeVisible()
+  await expect(next.getByText('신청·해지는 카드사에서 직접 진행하셔야 합니다')).toBeVisible()
+  await expect(next.getByText('해지 실행 버튼 0개')).toBeVisible()
+  await expect(next.locator('a[target=_blank]')).toHaveCount(1)
 
   // s6 상세 근거 — 결론 화면에서만 진입한다
   await page.getByRole('button', { name: /왜 이 금액인가요/ }).click()

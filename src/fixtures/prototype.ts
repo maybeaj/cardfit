@@ -169,6 +169,19 @@ export const HOLD_CARDS: OutcomeCard[] = [
   { name: '신한 Deep Oil', state: '유지', art: '/cards/shinhan-deepoil.gif', benefit: 112_000 },
 ]
 
+/**
+ * 카테고리별 주 혜택 카드 (FR-004 배분의 1순위 규칙).
+ *
+ * 카드의 `주요 혜택`·`상세 근거`에 적힌 업종을 그대로 옮긴 것이라, 사용자가 근거 화면과
+ * 대조하면 왜 그 카드에 배분됐는지 확인할 수 있다. 여기 없는 카테고리(`예식`·`기타` 등)는
+ * 특정 카드의 혜택 업종이 아니므로 2순위 규칙(월 한도 분산)으로 넘긴다.
+ */
+export const CARD_CATEGORY_AFFINITY: Record<string, string[]> = {
+  '신한 Mr.Life': ['편의점', '마트', '생활', '통신', '음식/배달', '카페', '구독', '전 가맹점'],
+  '삼성카드 taptap O': ['쇼핑', '백화점', '가전/가구', '간편결제'],
+  '신한 Deep Oil': ['주유', '교통', '여행'],
+}
+
 /** 신규 발급은 카드사 공식 페이지로 이동만 시킨다 — 대행하지 않는다 (`T25` · AC-003) */
 export const ISSUER_URLS = {
   신한: 'https://www.shinhancard.com/pconts/html/card/apply/credit/1188274_2207.html',

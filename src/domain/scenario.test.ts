@@ -3,6 +3,7 @@ import { BASE_SPENDS, HOLD_CARDS, type SpendItem } from '@/fixtures/prototype'
 import {
   NET_BENEFIT_FLOOR,
   NET_BENEFIT_RATIO,
+  allocate,
   buildOutcomes,
   buildScenario,
   isPlanEmpty,
@@ -122,5 +123,63 @@ describe('buildScenario', () => {
 
   it('같은 입력이면 같은 결과가 나온다 (NFR-001)', () => {
     expect(buildOutcomes(clone(), 2, true)).toEqual(buildOutcomes(clone(), 2, true))
+  })
+})
+
+describe('allocate — FR-004 결제수단 배분', () => {
+  it('배분 합이 확인한 계획 총액과 정확히 같다 (NFR-001)', () => {
+    for (const outcome of Object.values(buildOutcomes(clone(), 2, true))) {
+      expect(allocate(outcome).total).toBe(outcome.total)
+    }
+  })
+
+  it('`정리` 카드에는 배분하지 않는다 (AC-005)', () => {
+    const outcome = buildScenario('expected', 1, clone(), 2, true)
+    const allocation = allocate(outcome)
+
+    expect(outcome.cards.find((c) => c.name === '삼성카드 taptap O')?.state).toBe('정리')
+    expect(allocation.rows.some((row) => row.cardName === '삼성카드 taptap O')).toBe(false)
+    expect(allocation.byCard.find((c) => c.name === '삼성카드 taptap O')?.amount).toBe(0)
+  })
+
+  it('주 혜택 업종이면 그 카드로, 아니면 월 한도를 분산한다', () => {
+    const rows = allocate(buildScenario('expected', 1, clone(), 2, true)).rows
+
+    // 여행은 Deep Oil의 주 혜택 업종이다
+    expect(rows.find((r) => r.category === '여행')).toMatchObject({
+      cardName: '신한 Deep Oil',
+      reason: '주 혜택 업종',
+    })
+    // 예식은 어느 카드의 혜택 업종도 아니라 덜 쓰는 카드로 간다
+    expect(rows.find((r) => r.category === '예식')).toMatchObject({
+      cardName: '신한 Mr.Life',
+      reason: '월 한도 분산',
+    })
+    // 한 카드에 전부 몰지 않는다
+    expect(new Set(rows.map((r) => r.cardName)).size).toBeGreaterThan(1)
+  })
+
+  it('유지 결론에서도 배분표를 비우지 않는다 (T21)', () => {
+    const tiny: SpendItem[] = [{ id: 'x', label: '마트', amount: 3, spendingMonths: 1 }]
+    const outcome = buildScenario('expected', 1, tiny, 2, true)
+    const allocation = allocate(outcome)
+
+    expect(outcome.pass).toBe(false)
+    expect(allocation.rows).toHaveLength(1)
+    expect(allocation.rows[0]!.cardName).toBe('신한 Mr.Life')
+    expect(allocation.total).toBe(30_000)
+  })
+
+  it('금액이 0인 항목은 배분표에 넣지 않는다', () => {
+    const mixed: SpendItem[] = [
+      { id: 'a', label: '여행', amount: 300, spendingMonths: 1 },
+      { id: 'b', label: '기타', amount: 0, spendingMonths: 1 },
+    ]
+    expect(allocate(buildScenario('expected', 1, mixed, 2, true)).rows).toHaveLength(1)
+  })
+
+  it('같은 입력이면 같은 배분이 나온다 (NFR-001)', () => {
+    const outcome = buildScenario('expected', 1, clone(), 2, true)
+    expect(allocate(outcome)).toEqual(allocate(outcome))
   })
 })
