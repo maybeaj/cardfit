@@ -1,12 +1,19 @@
 'use client'
 
 import { useEffect } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BOUNDARY_COPY, EVIDENCE_COPY, STATUS_COPY } from '@/content/copy'
 import { won } from '@/domain/format'
 import type { CardStatus } from '@/domain/types'
-import { CtaBar, Notice, Panel, SecondaryLink, StatusChip, ScreenHeader } from '@/components/shell'
+import {
+  CtaBar,
+  Notice,
+  Panel,
+  PrimaryLink,
+  ScreenHeader,
+  SecondaryLink,
+  StatusChip,
+} from '@/components/shell'
 import { logEvent } from '@/state/events'
 import { useDemo } from '@/state/store'
 
@@ -36,17 +43,18 @@ export default function ConfirmScreen() {
   return (
     <>
       <ScreenHeader
-        step="조합 확정"
-        title={
-          calculation.decision === '변경' ? '이 조합을 적용하려면' : '현재 조합을 그대로 확정했어요'
-        }
-        lead={confirmed ? `확정 시각 ${new Date(confirmed.confirmed_at).toLocaleString('ko-KR')}` : '확정 중…'}
+        step="확정 및 실행 경계"
+        title={BOUNDARY_COPY.title}
+        lead={BOUNDARY_COPY.lead}
         backHref="/app/evidence"
       />
       <div className="scroll-area flex flex-col gap-3">
-        <Panel>
-          <p className="m-0 text-[12.5px] font-bold text-subtle">확정한 조합</p>
-          <p className="mt-1 mb-0 text-[15px] font-extrabold text-ink">
+        {/* 확정 요약 — 결론과 같은 의미색을 쓴다 (기준본 s7의 `.result`) */}
+        <Panel tone={calculation.decision === '변경' ? 'pass' : 'hold'}>
+          <p className="m-0 text-[15px] font-extrabold text-ink">
+            {calculation.decision === '변경' ? '추천 조합' : '현재 카드 조합 유지'}
+          </p>
+          <p className="mt-1 mb-0 text-[14px] font-extrabold text-ink">
             {shownCandidate.card_ids
               .map((id: string) => profile.cards.find((card) => card.card_id === id)?.name ?? id)
               .join(' + ')}
@@ -54,12 +62,15 @@ export default function ConfirmScreen() {
           <p className="mt-2 mb-0 text-[12px] text-subtle tabular-nums">
             순혜택 {won(confirmed?.net_benefit ?? shownCandidate.net_benefit)} · 기준일{' '}
             {confirmed?.as_of_date ?? calculation.as_of_date}
+            {confirmed
+              ? ` · 확정 ${new Date(confirmed.confirmed_at).toLocaleString('ko-KR')}`
+              : null}
           </p>
           <p className="mt-2 mb-0 text-[11.5px] leading-relaxed text-subtle">{BOUNDARY_COPY.frozen}</p>
         </Panel>
 
         <Panel>
-          <p className="m-0 text-[12.5px] font-bold text-subtle">카드별 다음 행동</p>
+          <p className="m-0 text-[12.5px] font-bold text-subtle">{BOUNDARY_COPY.actionsHeading}</p>
           <ul className="mt-3 mb-0 list-none space-y-2 p-0">
             {entries.map(([cardId, status], index) => {
               const card = profile.cards.find((item) => item.card_id === cardId)
@@ -88,7 +99,7 @@ export default function ConfirmScreen() {
                       onClick={() => logEvent('아웃링크클릭', { card_id: cardId })}
                       className="mt-3 block rounded-[var(--radius-button)] bg-primary px-4 py-3 text-center text-[14px] font-bold text-white"
                     >
-                      {card.issuer} 공식 신청 페이지로 이동 ↗
+                      {BOUNDARY_COPY.outlinkCta} ↗
                     </a>
                   ) : (
                     <p className="mt-2 mb-0 text-[11.5px] font-semibold text-subtle">
@@ -114,12 +125,13 @@ export default function ConfirmScreen() {
         </Panel>
 
         <Notice>{EVIDENCE_COPY.disclaimer}</Notice>
-        <Link href="/app/plan" className="text-center text-[13px] font-semibold text-primary">
-          계획을 수정하고 다시 계산하기
-        </Link>
+        <p className="m-0 text-[10px] leading-[1.45] text-subtle">{BOUNDARY_COPY.footer}</p>
       </div>
       <CtaBar>
-        <SecondaryLink href="/">랜딩으로 돌아가기</SecondaryLink>
+        <div className="flex flex-col gap-2">
+          <PrimaryLink href="/">{BOUNDARY_COPY.confirmCta}</PrimaryLink>
+          <SecondaryLink href="/app/result">{BOUNDARY_COPY.reviewAgainCta}</SecondaryLink>
+        </div>
       </CtaBar>
     </>
   )

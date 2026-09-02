@@ -1,11 +1,19 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { PLAN_NOTICE } from '@/content/copy'
 import { manwon, monthLabel } from '@/domain/format'
 import { isPlanEmpty } from '@/domain/plan'
 import type { FutureSpendPlan } from '@/domain/types'
-import { CtaBar, Notice, Panel, PrimaryLink, ScreenHeader } from '@/components/shell'
+import { APP_CATEGORIES } from '@/fixtures/mydata/categories'
+import {
+  CtaBar,
+  Notice,
+  Panel,
+  PrimaryLink,
+  ScreenHeader,
+  SecondaryLink,
+} from '@/components/shell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,7 +28,8 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { logEvent } from '@/state/events'
 import { useDemo } from '@/state/store'
 
-const CATEGORY_OPTIONS = ['가전·가구', '여행', '예식', '식비', '쇼핑', '생활', '교통', '기타']
+/** 기준본 s3의 카테고리 선택지. 결과 배분표의 행 이름과 같아야 사용자가 대조할 수 있다 */
+const CATEGORY_OPTIONS = APP_CATEGORIES
 
 /**
  * UI-002 미래지출 입력 — 빈 폼으로 열지 않는다 (T3 · FR-006).
@@ -30,6 +39,9 @@ const CATEGORY_OPTIONS = ['가전·가구', '여행', '예식', '식비', '쇼�
 export default function PlanScreen() {
   const { profile, plan, updatePlan, refillPlan } = useDemo()
   const empty = useMemo(() => isPlanEmpty(plan), [plan])
+  // 기준본 s3의 `#categoryPicker` — 항목 추가 버튼이 선택지를 펼친다
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [newCategory, setNewCategory] = useState<string>(CATEGORY_OPTIONS[0] as string)
 
   const patchItem = (planId: string, next: Partial<FutureSpendPlan>) => {
     updatePlan(
@@ -39,25 +51,27 @@ export default function PlanScreen() {
 
   const removeItem = (planId: string) => updatePlan(plan.filter((item) => item.plan_id !== planId))
 
-  const addItem = () =>
+  const addSelectedCategory = () => {
     updatePlan([
       ...plan,
       {
         plan_id: `u${Date.now()}`,
-        category: '기타',
+        category: newCategory,
         amount: 0,
         direction: 'increase',
-        month_offset: 1,
+        month_offset: 3,
         source: 'user',
       },
     ])
+    setPickerOpen(false)
+  }
 
   return (
     <>
       <ScreenHeader
-        step="앞으로 12개월"
-        title="앞으로 쓸 돈을 알려주세요"
-        lead="이벤트 이름은 묻지 않아요. 카테고리·금액·시점만 있으면 됩니다."
+        step="미래 지출 확인"
+        title={PLAN_NOTICE.title}
+        lead={PLAN_NOTICE.lead}
         backHref="/app/summary"
       />
       <div className="scroll-area flex flex-col gap-3">
@@ -163,15 +177,49 @@ export default function PlanScreen() {
         <Button
           type="button"
           variant="outline"
-          onClick={addItem}
+          onClick={() => setPickerOpen((prev) => !prev)}
+          aria-expanded={pickerOpen}
           className="border-dashed py-3 text-[14px] font-semibold text-primary"
         >
-          + 지출 추가
+          {PLAN_NOTICE.addItem}
         </Button>
+
+        {pickerOpen ? (
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2 rounded-[13px] border border-primary/30 bg-primary-soft/40 p-3">
+            <div className="min-w-0">
+              <Label htmlFor="new-category" className="mb-1.5 block text-[10px] font-bold text-ink">
+                {PLAN_NOTICE.addCategoryTitle}
+              </Label>
+              <Select value={newCategory} onValueChange={setNewCategory}>
+                <SelectTrigger id="new-category" className="w-full text-[11px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORY_OPTIONS.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={addSelectedCategory}
+              className="text-[10px] whitespace-nowrap"
+            >
+              {PLAN_NOTICE.addCategoryCta}
+            </Button>
+            <small className="col-span-2 text-[9px] leading-[1.4] text-subtle">
+              {PLAN_NOTICE.addCategoryNote}
+            </small>
+          </div>
+        ) : null}
 
         {empty ? (
           <>
-            <Notice tone="warning">{PLAN_NOTICE.emptyBlocked}</Notice>
+            <Notice tone="warning">{PLAN_NOTICE.emptyMessage}</Notice>
             <Button type="button" variant="outline" onClick={refillPlan} className="text-[14px]">
               {PLAN_NOTICE.refill}
             </Button>
@@ -179,15 +227,33 @@ export default function PlanScreen() {
         ) : null}
       </div>
       <CtaBar>
-        {empty ? (
-          <Button type="button" size="lg" disabled className="w-full min-h-[52px] rounded-[var(--radius-button)] text-[16px] font-bold">
-            다음
-          </Button>
-        ) : (
-          <PrimaryLink href="/app/constraint" onClick={() => logEvent('입력완료', { items: plan.length })}>
-            다음
-          </PrimaryLink>
-        )}
+        <div className="flex flex-col gap-2">
+          {empty ? (
+            <Button
+              type="button"
+              size="lg"
+              disabled
+              className="min-h-[52px] w-full rounded-[var(--radius-button)] text-[16px] font-bold"
+            >
+              {PLAN_NOTICE.next}
+            </Button>
+          ) : (
+            <PrimaryLink
+              href="/app/constraint"
+              onClick={() => logEvent('입력완료', { items: plan.length })}
+            >
+              {PLAN_NOTICE.next}
+            </PrimaryLink>
+          )}
+          {/*
+            기준본 s3의 `이 단계 건너뛰기` — 제안값을 지우지 않고 그대로 둔 채 조건 화면으로 간다.
+            수정 없이 넘어가는 것이므로 화면의 전체 값이 확인된 계획이 된다 (`T37`).
+            계획이 0건이면 계산 자체가 막히므로 이때는 건너뛰기도 숨긴다 (`AC-001`).
+          */}
+          {empty ? null : (
+            <SecondaryLink href="/app/constraint">{PLAN_NOTICE.skip}</SecondaryLink>
+          )}
+        </div>
       </CtaBar>
     </>
   )

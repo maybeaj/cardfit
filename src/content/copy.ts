@@ -125,6 +125,8 @@ export const PLAN_NOTICE = {
   increase: '늘어요',
   decrease: '줄어요',
   remove: '삭제',
+  next: '다음',
+  skip: '이 단계 건너뛰기',
 } as const
 
 /** UI-003 변경 조건 — 기준본 s4. 상한은 T6(사용 카드 2장·신규 1장)을 따른다. */
@@ -168,6 +170,28 @@ export const CONCLUSION_COPY = {
   /** T38 — `제약과다`일 때만 노출한다 */
   relaxHint: '제약을 풀면 더 나은 조합이 있어요',
   reviewedTitle: '검토했던 대안',
+  /** UI-005 결과 — 기준본 s5 */
+  title: '확인한 앞으로 12개월 계획 기준 결과',
+  passStatus: '✓ 바꿀 가치가 충분해요',
+  holdStatus: '✓ 지금은 바꾸지 않아도 돼요',
+  cardStatusHeading: '카드별 상태',
+  baselineTitle: '비교 기준선',
+  evidenceCta: '계산 근거 보기',
+  editPlanCta: '계획 수정하기',
+  /**
+   * 지출 탐색 — 참고용이며 공식 결론은 `예상대로` 기준이다.
+   * 계산을 다시 돌리지 않고 확인한 계획의 배수로 폭만 보여준다.
+   */
+  scenario: {
+    label: '참고용 지출 탐색 · 공식 결론은 ‘예상대로’ 기준',
+    valueLabel: '참고 예상 실질 차이',
+    options: [
+      { key: 'low', label: '적게', multiplier: 0.72 },
+      { key: 'expected', label: '예상대로', multiplier: 1 },
+      { key: 'high', label: '많이', multiplier: 1.28 },
+    ],
+    suffix: '(참고용)',
+  },
 } as const
 
 export const EVIDENCE_COPY = {
@@ -180,7 +204,15 @@ export const EVIDENCE_COPY = {
   annualFeeWholeWindow: '연회비는 안분하지 않고 12개월 창에 통째로 반영했습니다',
   staleAsOf: '적용 기준일이 오래되어 약관이 변경되었을 수 있습니다',
   disclaimer: '계산 결과는 참고용이며 실제 혜택은 카드사 약관·심사에 따릅니다',
-  applyCta: '이 조합 적용하기',
+  applyCta: '이 조합 확정하기',
+  /** UI-007 근거 — 기준본 s6 */
+  title: '이 결과가 나온 이유',
+  lead: '결론 카드마다 다음 6개 근거를 확인합니다. 수치는 예시이며 실제 혜택은 카드사 약관·심사에 따릅니다.',
+  notice:
+    '미반영 항목은 결론 차액에 합산하지 않습니다. 기준일이 3개월을 초과하면 경고를 표시하되 결과를 자동 무효화하지 않습니다.',
+  backToResult: '결과로 돌아가기',
+  excludedTitle: '후보에서 제외한 카드',
+  checked: '확인',
 } as const
 
 /** AC-003 · T27 — 실행 경계. 대행하지 않고 고지만 한다 */
@@ -193,6 +225,17 @@ export const BOUNDARY_COPY = {
   keepNote: '그대로 계속 사용하세요',
   frozen: '확정한 조합은 확정 시점의 규칙 버전·기준일·금액으로 얼려 보관합니다',
   expired: '약관이 변경되었을 수 있습니다 · 다시 계산하기',
+  /** UI-008 확정 — 기준본 s7 */
+  title: '확정한 조합과 다음 행동',
+  lead: '확정 시점의 금액·기준일·규칙 버전을 기록합니다.',
+  actionsHeading: '카드별 다음 행동',
+  confirmCta: '조합 확정 완료',
+  reviewAgainCta: '다시 검토하기',
+  outlinkCta: '공식 페이지로 이동',
+  noActionTag: '실행 버튼 없음',
+  keepTag: '계속 사용',
+  footer:
+    '확정 조합은 rule_version·기준일·금액과 함께 동결됩니다. 카드사 공식 링크에서 돌아오면 입력값과 확정 조합을 복원합니다.',
 } as const
 
 export const STATUS_COPY = {

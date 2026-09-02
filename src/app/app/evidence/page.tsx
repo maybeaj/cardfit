@@ -4,7 +4,15 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { DATA_NOTICE, EVIDENCE_COPY } from '@/content/copy'
 import { percent, won } from '@/domain/format'
-import { CtaBar, KeyValue, Notice, Panel, PrimaryButton, ScreenHeader } from '@/components/shell'
+import {
+  CtaBar,
+  KeyValue,
+  Notice,
+  Panel,
+  PrimaryButton,
+  ScreenHeader,
+  SecondaryLink,
+} from '@/components/shell'
 import { logEvent } from '@/state/events'
 import { useDemo } from '@/state/store'
 
@@ -41,13 +49,15 @@ export default function EvidenceScreen() {
   return (
     <>
       <ScreenHeader
-        step="계산 근거"
-        title="카드별로 어떤 규칙이 적용됐는지 보세요"
-        lead={`적용 기준일 ${calculation.as_of_date}`}
+        step="근거 검증"
+        title={EVIDENCE_COPY.title}
+        lead={EVIDENCE_COPY.lead}
         backHref="/app/result"
       />
       <div className="scroll-area flex flex-col gap-3">
-        <p className="m-0 text-[11.5px] leading-relaxed text-subtle">{DATA_NOTICE.sampleFootnote}</p>
+        <p className="m-0 text-[11.5px] leading-relaxed text-subtle">
+          적용 기준일 {calculation.as_of_date} · {DATA_NOTICE.sampleFootnote}
+        </p>
 
         {calculation.stale_as_of_warning ? (
           <Notice tone="warning">{EVIDENCE_COPY.staleAsOf}</Notice>
@@ -99,7 +109,7 @@ export default function EvidenceScreen() {
 
         {calculation.excluded_cards.length > 0 ? (
           <Panel tone="bg">
-            <p className="m-0 text-[12.5px] font-bold text-ink">후보에서 제외한 카드</p>
+            <p className="m-0 text-[12.5px] font-bold text-ink">{EVIDENCE_COPY.excludedTitle}</p>
             <ul className="mt-2 mb-0 list-none space-y-1 p-0">
               {calculation.excluded_cards.map((item) => (
                 <li key={item.card_id} className="text-[12px] text-subtle">
@@ -110,13 +120,17 @@ export default function EvidenceScreen() {
           </Panel>
         ) : null}
 
+        <Notice tone="warning">{EVIDENCE_COPY.notice}</Notice>
         <Notice>{EVIDENCE_COPY.qualifyingModel}</Notice>
         <Notice>{EVIDENCE_COPY.disclaimer}</Notice>
       </div>
       <CtaBar>
-        <PrimaryButton onClick={apply} disabled={pending}>
-          {EVIDENCE_COPY.applyCta}
-        </PrimaryButton>
+        <div className="flex flex-col gap-2">
+          <PrimaryButton onClick={apply} disabled={pending}>
+            {EVIDENCE_COPY.applyCta}
+          </PrimaryButton>
+          <SecondaryLink href="/app/result">{EVIDENCE_COPY.backToResult}</SecondaryLink>
+        </div>
       </CtaBar>
     </>
   )

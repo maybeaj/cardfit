@@ -57,7 +57,7 @@ export function ConclusionBanner({ calculation }: { calculation: Calculation }) 
   )
 }
 
-/** 카드별 역할 — 신규·유지·정리 중 정확히 하나 (AC-005). 카드 순위 목록을 만들지 않는다. */
+/** 카드별 상태 — 신규·유지·정리 중 정확히 하나 (AC-005). 카드 순위 목록을 만들지 않는다. */
 export function CombinationList({
   calculation,
   cards,
@@ -70,7 +70,7 @@ export function CombinationList({
 
   return (
     <Panel>
-      <h2 className="m-0 text-[15px] font-extrabold text-ink">카드별 역할</h2>
+      <h2 className="m-0 text-[15px] font-extrabold text-ink">카드별 상태</h2>
       <ul className="mt-3 mb-0 list-none space-y-2 p-0">
         {entries.map(([cardId, status]) => {
           const card = cards.find((item) => item.card_id === cardId)
