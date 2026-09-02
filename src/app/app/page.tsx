@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ONBOARDING_COPY } from '@/content/copy'
 import { ConsentSheet } from '@/components/consent-sheet'
@@ -18,8 +18,12 @@ export default function OnboardingScreen() {
   const { connect } = useDemo()
   const [consentOpen, setConsentOpen] = useState(false)
 
+  useEffect(() => {
+    router.prefetch('/app/summary')
+  }, [router])
+
   const accept = () => {
-    // 프로토타입에서는 동의 후 예시 데이터를 로드한다. 실제 인증·전송요구는 하지 않는다
+    // 예시 데이터는 레이아웃에서 이미 로드됐다. 여기서는 동의 상태만 즉시 반영한다.
     connect()
     setConsentOpen(false)
     router.push('/app/summary')

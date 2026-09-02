@@ -12,7 +12,7 @@ import {
 } from 'react'
 import type { Calculation, Constraint, FutureSpendPlan, Profile } from '@/domain/types'
 import type { ActionError } from '@/server/errors'
-import { calculateAction, confirmPlanAction, savePlanAction, startSessionAction } from '@/server/actions'
+import { calculateAction, confirmPlanAction, savePlanAction } from '@/server/actions'
 import { clearSession, loadSession, saveSession, type SessionState } from './session'
 
 /**
@@ -108,10 +108,6 @@ export function DemoProvider({ children, profile }: { children: ReactNode; profi
       connect: () => {
         const sessionId = state.sessionId || newSessionId()
         patch({ connected: true, sessionId })
-        startTransition(async () => {
-          const result = await startSessionAction(profile.fixture_id, sessionId)
-          if (!result.ok) setError(result.error)
-        })
       },
 
       updatePlan: (plan) => {
