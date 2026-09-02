@@ -121,8 +121,8 @@ erDiagram
     string planId PK
     string sessionId FK
     string category
-    int monthlyAmount
-    string direction
+    int amount
+    int spendingMonths
     string source
     boolean confirmed
   }
@@ -177,7 +177,7 @@ erDiagram
 
 | 엔터티 | 필수 필드 | 규칙 |
 |---|---|---|
-| `FutureSpendPlan` | `category`, `monthlyAmount`, `direction`, `confirmed` | 금액은 0 이상 정수. 최종 계산은 `confirmed=true`만 사용 |
+| `FutureSpendPlan` | `category`, `amount`, `spendingMonths`, `confirmed` | 금액은 앞으로 늘어날 총지출을 나타내는 0 이상 정수이고 기간은 `1·3·6·12` 중 하나. 최종 계산은 `confirmed=true`만 사용 |
 | `CalculationRun` | `basisPeriod`, `status`, `grossBenefit`, `netBenefit`, `holdReason` | `basisPeriod`는 MVP에서 최근 12개월. 계산 실패와 게이트 보류를 구분 |
 | `PlanCandidate` | `decision`, `grossBenefit`, `netBenefit` | `NEW`, `KEEP`, `ORGANIZE` 중 정확히 하나의 결론 상태 |
 | `EvidenceItem` | `type`, `value`, `verified` | 여섯 유형을 모두 갖추지 못하면 공개 불가 |
@@ -197,8 +197,8 @@ classDiagram
   }
   class FutureSpendPlan {
     +category: string
-    +monthlyAmount: number
-    +direction: INCREASE|DECREASE
+    +amount: number
+    +spendingMonths: 1|3|6|12
     +confirmed: boolean
   }
   class CalculationService {
@@ -452,7 +452,7 @@ MVP에서는 별도 백엔드 서버나 공개 REST API를 만들지 않는다. 
 | 인터페이스 | 입력 | 출력 | 제약 |
 |---|---|---|---|
 | `getMockData()` Server Action | 단일 Mock 사용자 | 보유카드, 과거 지출 12개월, 규칙 | Prisma Seed 조회 |
-| `saveFuturePlan()` Server Action | confirmed plans | normalized plans, validation | 금액 정수·0 이상, 기준일 +1~12개월 |
+| `saveFuturePlan()` Server Action | confirmed plans | normalized plans, validation | 추가 지출 금액 정수·0 이상, 지출 기간 1·3·6·12개월 |
 | `calculatePlan()` Server Action | confirmedPlan, cards, rules, constraints | calculation, candidate, allocation, evidence | 미확정 계획·근거 누락은 거부 |
 | `confirmPlan()` Server Action | candidateId | confirmation summary | 검증 완료 결과만 확정 가능 |
 
