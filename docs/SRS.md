@@ -205,7 +205,7 @@
 | --- | --- |
 | **Requirement** | 사용자는 결과 화면에서 선택한 시나리오의 조합에 `이 조합 좋아요`로 선호를 표시할 수 있어야 한다 |
 | **Rationale** | 결과를 다시 설명하는 별도 확정 화면을 제거해 이탈 지점을 줄이고, 결과 화면에서 최소한의 선호 행동을 측정한다 |
-| **Rule** | ① `이 조합 좋아요`와 `계획 수정하기`를 결과 화면 하단에 함께 둔다.<br>② 좋아요를 선택해도 별도 화면으로 이동하지 않으며 현재 시나리오와 조합 식별자를 이벤트에 기록한다.<br>③ 시나리오를 바꾸면 좋아요 상태는 새 조합 기준으로 초기화한다.<br>④ 프로토타입에서는 카드 신청·해지와 외부 이동을 수행하지 않는다 |
+| **Rule** | ① `이 조합 좋아요`와 `계획 수정하기`를 결과 화면 하단에 함께 둔다.<br>② 좋아요를 선택해도 별도 화면으로 이동하지 않으며 현재 시나리오와 조합 식별자를 이벤트에 기록한다.<br>③ 시나리오를 바꾸면 좋아요 상태는 새 조합 기준으로 초기화한다.<br>④ `신규` 카드에는 카드사 공식 페이지로 이동하는 링크만 제공하며, 프로토타입에서 신청·심사·해지 처리는 수행하지 않는다 |
 | **AC** | **AC-008** · **AC-014** |
 | **Source** | 2차 F-12 · KB 05 금지어 사전 · `T25` |
 | **Priority** | Should |
@@ -326,7 +326,7 @@ v0.3의 화면·인터랙션과 v0.4의 UX 원칙을 기준으로 활성 UI 10�
 | **PlanCandidate** | 시나리오 키, 조합 구성, Gross Benefit, **전환비용 3항목**, **Net Benefit**, **임계 통과 여부**, 선택 여부 | 규칙 엔진 (FR-003). 시나리오마다 단일 후보를 생성한다 |
 | Allocation | 배정 카테고리, 배분 금액 | 규칙 엔진 (FR-004) |
 | ~~OutcomeLog~~ | 선택 여부·일시, 30일 후 완주 응답 | **폐기** — F-13(30일 후 완주 집계)이 시간축 밖 |
-| **ClientEvent** (`T30` 신설) | `event_type`, `timestamp`, `payload`(조합 요약 등) | **클라이언트 로깅** — 북극성 측정 근거. 이벤트 5종: `입력완료` · `계산요청` · `결과열람` · `근거열람` · **`조합좋아요`**. Mock이라 서버 전송 없이 콘솔/`localStorage`로만 남긴다 |
+| **ClientEvent** (`T30` 신설) | `event_type`, `timestamp`, `payload`(조합 요약 등) | **클라이언트 로깅** — 북극성 측정 근거. 이벤트 5종: `입력완료` · `계산요청` · `결과열람` · `근거열람` · **`조합좋아요`**. 프로토타입은 각 이벤트를 `localStorage`의 `cardfit-events` 배열에 즉시 저장한다. `근거열람`은 요약 바텀시트와 상세 근거 화면 진입을 각각 기록할 수 있다 |
 
 ### 6-2. 인터페이스
 
@@ -336,9 +336,9 @@ v0.3의 화면·인터랙션과 v0.4의 UX 원칙을 기준으로 활성 UI 10�
 | --- | --- | --- |
 | `calculatePlan()` | 확인된 `FutureSpendPlan`, `PastSpend`, `HeldCard`, `BenefitRule`, `Constraint`, 시나리오 배율 | 시나리오별 `Calculation` 3건과 각 시나리오의 단일 `PlanCandidate`; 미래 입력 0건·미확정 계획·필수 근거 누락이면 결과를 반환하지 않는다. 선택한 시나리오의 후보만 근거와 좋아요 이벤트로 전달한다 |
 | `buildEvidence()` | `Calculation`, `BenefitRule` | 지출 기간별 분배 내역과 실적구간·혜택한도·연회비·제외조건·기준일·미반영 항목 6개; 출처 없는 미반영 상한은 제외 |
-| `sessionStorage` 어댑터 | 입력 스냅샷, 결과, 확정 조합 | 외부 링크 복귀용 임시 복원; 정본 데이터는 Server Actions를 통해 DB에 저장 |
+| `sessionStorage` 어댑터 | 입력 스냅샷, 선택 시나리오, 현재 결과 | 카드사 링크 복귀용 임시 복원; 정본 데이터는 Server Actions를 통해 DB에 저장 |
 | `Server Actions` | 미래지출 저장, 계산 요청, 조합 선호 기록 | 서버에서 Prisma와 결정론적 엔진을 호출; 클라이언트에 DB 자격증명을 노출하지 않음 |
-| 카드사 공식 링크 | 확정 `PlanCandidate`의 신규 카드 목록 | 신규 카드 최대 1개를 새 탭으로 이동; 신청·심사·해지 제출은 하지 않음 |
+| 카드사 공식 링크 | 결과 화면의 신규 카드 목록 | 신규 카드 최대 1개를 새 탭으로 이동; 신청·심사·해지 제출은 하지 않음 |
 
 기존 2차 API와의 대응은 다음과 같다.
 
@@ -346,7 +346,7 @@ v0.3의 화면·인터랙션과 v0.4의 UX 원칙을 기준으로 활성 UI 10�
 | --- | --- | --- |
 | `POST /calculate` | `calculatePlan()` | 유지 |
 | `GET /calculations/{id}/evidence` | `buildEvidence()` 및 근거 UI | 유지 |
-| ~~`POST /outcomes/{id}/completion`~~ | `ClientEvent`의 `조합확정` | F-13 완주 집계는 폐기 |
+| ~~`POST /outcomes/{id}/completion`~~ | 대응 없음 | 확정 화면·완주 집계와 함께 폐기. 현재는 `ClientEvent`의 `조합좋아요`를 사용 |
 
 ### 6-3. Appendix — 엔터티 스키마
 
@@ -373,7 +373,7 @@ v0.3의 화면·인터랙션과 v0.4의 UX 원칙을 기준으로 활성 UI 10�
 | `PlanCandidate` | `scenario_key`, `composition`, `decision`, `gross_benefit`, `switching_cost`, `net_benefit`, `threshold_passed`, `selected` | enum, object, enum, integer, object, integer, boolean, boolean | Y | 시나리오마다 단일 후보를 생성한다. `decision`: `NEW`/`KEEP`/`ORGANIZE`; 순이익은 연 단위; 근거와 좋아요 이벤트에는 `selected=true` 후보만 전달 |
 | `Allocation` | `allocation_id`, `candidate_id` | string, string | Y | PK, FK(`PlanCandidate.candidate_id`) |
 | `Allocation` | `category`, `held_card_id`, `amount` | string, string, integer | Y | 배분 합계와 계획 총액 오차 ≤1원 |
-| `ClientEvent` | `event_id`, `event_type`, `timestamp`, `payload` | string, enum, datetime, object | Y | PK; 입력완료·계산요청·결과열람·근거열람·조합좋아요 |
+| `ClientEvent` | `event_id`, `event_type`, `timestamp`, `payload` | string, enum, datetime, object | Y | PK; 입력완료·계산요청·결과열람·근거열람·조합좋아요. Mock 저장 위치는 `localStorage.cardfit-events` |
 
 **관계 요약:** `User 1:N HeldCard/PastSpend/FutureSpendPlan/Constraint/Calculation`, `Calculation 1:1 PlanCandidate`, `PlanCandidate 1:N Allocation` 및 `BenefitRule` 근거 참조. 한 번의 계산 요청은 시나리오별 `Calculation` 3건을 생성한다. `ClientEvent`는 세션 내 측정용이며 서버 영구 저장 대상이 아니다.
 
@@ -479,8 +479,8 @@ SRS의 요구사항을 구현 구조로 연결하기 위한 전체 기술 설계
 
 독자가 구현 배경지식 없이도 정책을 확인할 수 있도록 정상 흐름은 [`BUSINESS_SEQUENCE.md`](diagrams/BUSINESS_SEQUENCE.md), 예외 흐름은 [`TECHNICAL_DESIGN.md`](diagrams/TECHNICAL_DESIGN.md)의 6장을 참조한다.
 
-- 정상 상태: 근거 6개가 모두 확인되면 추천 결과와 적용 CTA를 표시한다.
-- 차단 상태: 근거 하나라도 누락되면 추천 결과와 적용 CTA를 숨기고 누락 항목·사유를 표시한다.
+- 정상 상태: 근거 6개가 모두 확인되면 추천 결과와 `이 조합 좋아요`·신규 카드사 링크를 표시한다.
+- 차단 상태: 근거 하나라도 누락되면 추천 결과와 좋아요·카드사 링크를 숨기고 누락 항목·사유를 표시한다.
 - 복구 상태: 누락 근거를 보완한 뒤 동일 입력으로 재검증하고, 검증 완료 시 정상 결과로 전환한다.
 
 SRS Light에서는 위 다이어그램을 본문에 복사하지 않고 참조 링크로 유지한다. 정상 흐름은 [`BUSINESS_SEQUENCE.md`](diagrams/BUSINESS_SEQUENCE.md), 예외·오류·복구 흐름은 [`TECHNICAL_DESIGN.md`](diagrams/TECHNICAL_DESIGN.md)의 6장, 데이터 구조는 같은 문서의 3~5장을 기준으로 한다. 이 링크들은 SRS의 요구사항·우선순위·수용 기준을 대체하지 않는다.
