@@ -10,8 +10,14 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
  */
 export const dynamic = 'force-dynamic'
 
-/** 기본 흐름은 변경형 1세트를 이름 없이 로드한다. 프로필 선택 UI를 만들지 않는다 (T17 · P03). */
-const DEFAULT_FIXTURE = 'change_case'
+/**
+ * 기본 흐름은 마이데이터 CSV 1세트를 이름 없이 로드한다.
+ * 프로필 선택 UI를 만들지 않는다 (T17 · P03).
+ *
+ * `change_case`·`maintain_case`는 계산 정답셋을 고정한 내부 테스트 Fixture로 남기고,
+ * 화면은 `transactions.csv`·`cards.csv`·`card_performance.csv`에서 온 실데이터를 쓴다.
+ */
+const DEFAULT_FIXTURE = 'mydata_csv'
 
 /**
  * 서버 컴포넌트가 Repository로 Profile을 조립해 클라이언트에 내려준다 (TEC-06).
