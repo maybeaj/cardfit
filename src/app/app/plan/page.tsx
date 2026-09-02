@@ -58,7 +58,7 @@ export default function PlanScreen() {
         step="앞으로 12개월"
         title="앞으로 쓸 돈을 알려주세요"
         lead="이벤트 이름은 묻지 않아요. 카테고리·금액·시점만 있으면 됩니다."
-        backHref="/app/diagnosis"
+        backHref="/app/summary"
       />
       <div className="scroll-area flex flex-col gap-3">
         <Notice>{PLAN_NOTICE.prefilled}</Notice>

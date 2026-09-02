@@ -16,9 +16,97 @@ export const DATA_NOTICE = {
   sampleFootnote: '※ 수치는 예시이며 실제 약관과 다를 수 있습니다',
 } as const
 
+/** UI-011 온보딩 — 기준본 s0. 이용 과정 3단계로 무엇을 하는 서비스인지 먼저 알린다. */
+export const ONBOARDING_COPY = {
+  kicker: '카드 선택이 어려운 순간',
+  title: ['앞으로 쓸 돈을 입력하고', '내게 맞는 카드 조합을 찾아보세요.'],
+  lead: '앞으로의 지출 계획을 입력해 내게 맞는 신용카드 조합을 찾아보세요.',
+  steps: [
+    {
+      icon: '📊',
+      title: '받아온 혜택을 확인해요',
+      body: '최근 12개월 소비와 카드 혜택을 한눈에 살펴봅니다.',
+    },
+    {
+      icon: '🗓️',
+      title: '앞으로의 지출을 반영해요',
+      body: '여행, 예식처럼 예정된 큰 지출을 카드 계산에 더합니다.',
+    },
+    {
+      icon: '✨',
+      title: '바꿀 가치가 있을 때만 추천해요',
+      body: '현재 조합과 비교한 실질 혜택과 근거를 함께 보여드립니다.',
+    },
+  ],
+  noteTitle: '카드 조합 추천은 1분이면 충분해요.',
+  noteBody: '복잡한 카드 조건을 직접 계산하지 않아도 됩니다.',
+  cta: '카드조합 추천받기',
+} as const
+
+/**
+ * UI-012 마이데이터 이용 동의 — 기준본의 바텀시트.
+ *
+ * 실제 서비스와 같은 이름을 쓰되(`P04-R2`), 화면 안에 프로토타입임을 함께 고지한다.
+ * 실제 본인인증·전송요구는 구현하지 않는다 — 체크박스는 동의 구조를 검증하는 UI다.
+ */
+export const CONSENT_COPY = {
+  eyebrow: 'CARDFIT · MYDATA',
+  title: '마이데이터 이용 동의하기',
+  lead: '카드 조합을 계산하기 위해 필요한 정보만 이용합니다.',
+  purpose: {
+    label: '이용 목적',
+    body: '현재 카드와 최근 소비를 확인하고, 앞으로의 지출 계획에 맞는 카드 조합을 계산합니다.',
+  },
+  scope: {
+    label: '이용 범위',
+    body: '보유 카드 정보 · 최근 12개월 결제 내역 · 카드 혜택 조건',
+  },
+  allLabel: '전체 동의',
+  allBody: '아래 필수 항목을 한 번에 선택합니다.',
+  items: [
+    {
+      id: 'collect',
+      title: '[필수] 개인정보 수집·이용',
+      body: '카드·결제 관련 개인신용정보를 목적 범위에서 이용합니다.',
+    },
+    {
+      id: 'transfer',
+      title: '[필수] 개인신용정보 전송요구',
+      body: '정보 제공기관에서 CardFit으로 필요한 정보를 전송하도록 요구합니다.',
+    },
+    {
+      id: 'thirdparty',
+      title: '[필수] 제3자 제공·처리위탁',
+      body: '계산에 필요한 제공받는 자와 처리 범위를 확인합니다.',
+    },
+  ],
+  termLabel: '동의 기간',
+  termBody: '1년 · 언제든지 철회할 수 있어요',
+  legalNote:
+    '이번 화면은 프로토타입용 예시입니다. 실제 서비스에서는 사업자 자격, 전송기관, 정확한 정보 항목·보유기간·약관 전문을 준법/법무 검토 후 확정해야 합니다.',
+  detailLink: '전문 보기',
+  submit: '마이데이터 이용 동의하기',
+  close: '닫기',
+} as const
+
 export const CURRENT_STATE_NOTICE = {
   basis: '최근 12개월 소비 기준',
   futureNotIncluded: '앞으로의 지출은 아직 반영되지 않았어요',
+  /** UI-001 현재 카드와 혜택 확인 — 기준본 s2 */
+  title: '지금 가지고 있는 카드부터 살펴볼게요.',
+  lead: '최근 12개월 동안의 카드 사용 흐름을 한눈에 확인해보세요.',
+  spendLabel: '최근 12개월 지출액',
+  benefitLabel: '최근 12개월 받은 혜택',
+  benefitCaption: '결제내역과 카드 혜택 기준을 대조한 계산값',
+  cardsHeading: '보유 카드',
+  cardsLead: '카드를 누르면 주요 혜택을 자세히 확인할 수 있어요.',
+  benefitNotice:
+    '받은 혜택은 결제내역과 카드 혜택 기준을 대조한 예시 계산값입니다. 카드사가 확정한 실적·청구 할인액과 다를 수 있어요.',
+  cta: '앞으로 쓸 돈 반영하기',
+  hide: '숨기기',
+  show: '보기',
+  masked: '••••••••',
+  lowestTier: '실적 구간이 최저 단계에 머물러 있습니다',
 } as const
 
 export const PLAN_NOTICE = {
@@ -26,6 +114,33 @@ export const PLAN_NOTICE = {
   emptyBlocked: '확인할 앞으로의 지출이 0건이라 계산하지 않습니다',
   refill: '과거 패턴으로 다시 채우기',
   confirmCta: '이 계획대로 계산하기',
+  /** UI-002 미래지출 입력 — 기준본 s3 */
+  title: '예상되는 지출액을 입력해주세요.',
+  lead: '달라질 항목만 수정해 주세요. 금액을 입력한 뒤 지출 방향을 선택합니다.',
+  addItem: '＋ 지출 항목 추가',
+  addCategoryTitle: '추가할 지출 카테고리',
+  addCategoryCta: '이 항목 추가',
+  addCategoryNote: '마일리지는 카드별 적립 기준이 달라 이번 프로토타입에서는 제외했습니다.',
+  emptyMessage: '앞으로 쓸 돈을 입력하면 카드 조합을 확인할 수 있어요.',
+  increase: '늘어요',
+  decrease: '줄어요',
+  remove: '삭제',
+} as const
+
+/** UI-003 변경 조건 — 기준본 s4. 상한은 T6(사용 카드 2장·신규 1장)을 따른다. */
+export const CONSTRAINT_COPY = {
+  title: '어느 정도까지 바꿔도 괜찮나요?',
+  lead: '불필요하게 카드를 늘리지 않도록 계산 조건을 확인합니다.',
+  maxCardsLabel: '사용 카드 최대 수',
+  maxCardsHint: '결과 조합에 포함할 보유 카드 수 · 최대 2장',
+  newCardLabel: '신규 카드 포함',
+  newCardHint: '더 유리할 때 신규 카드 최대 1장',
+  yes: '예',
+  no: '아니오',
+  gate: (floor: string, ratio: number) =>
+    `변경 제안 기준: Net Benefit이 연 ${floor} 이상이고 Gross Benefit의 ${ratio}% 이상일 때만 제안합니다.`,
+  confirmNote:
+    '여기서 누르면 화면의 전체 값을 앞으로 12개월 지출 계획으로 확인한 것으로 봅니다. 계산 엔진이 이 값을 임의로 늘리거나 줄이지 않습니다.',
 } as const
 
 /**
