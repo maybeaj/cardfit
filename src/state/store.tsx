@@ -7,22 +7,20 @@ import {
   useEffect,
   useMemo,
   useState,
-  useTransition,
   type ReactNode,
 } from 'react'
 import type { Calculation, Constraint, FutureSpendPlan, Profile } from '@/domain/types'
 import type { ActionError } from '@/server/errors'
-import { calculateAction, confirmPlanAction, savePlanAction } from '@/server/actions'
+import { calculatePlan } from '@/domain/calc'
 import { clearSession, loadSession, saveSession, type SessionState } from './session'
 
 /**
- * 화면 상태. 계산은 Server Action이 수행하고 여기서는 결과만 들고 있는다 (TEC-05).
+ * 화면 상태. 결정론적 계산은 즉시 수행하고 DB 기록은 화면 전환과 분리한다 (TEC-05).
  * `src/fixtures`를 직접 import하지 않는다 — Mock의 정본은 DB다 (TECH_SPEC 4절).
  */
 interface DemoContextValue extends SessionState {
   profile: Profile
   calculation: Calculation | null
-  calculationId: string | null
   error: ActionError | null
   pending: boolean
   connect: () => void
@@ -56,10 +54,8 @@ function initialState(profile: Profile): SessionState {
 export function DemoProvider({ children, profile }: { children: ReactNode; profile: Profile }) {
   const [state, setState] = useState<SessionState>(() => initialState(profile))
   const [calculation, setCalculation] = useState<Calculation | null>(null)
-  const [calculationId, setCalculationId] = useState<string | null>(null)
   const [error, setError] = useState<ActionError | null>(null)
   const [hydrated, setHydrated] = useState(false)
-  const [pending, startTransition] = useTransition()
 
   useEffect(() => {
     /*
@@ -91,7 +87,6 @@ export function DemoProvider({ children, profile }: { children: ReactNode; profi
 
   const invalidate = useCallback(() => {
     setCalculation(null)
-    setCalculationId(null)
     setError(null)
   }, [])
 
@@ -100,9 +95,8 @@ export function DemoProvider({ children, profile }: { children: ReactNode; profi
       ...state,
       profile,
       calculation,
-      calculationId,
       error,
-      pending,
+      pending: false,
       clearError: () => setError(null),
 
       connect: () => {
@@ -113,14 +107,7 @@ export function DemoProvider({ children, profile }: { children: ReactNode; profi
       updatePlan: (plan) => {
         patch({ plan, planConfirmed: false, confirmed: null })
         invalidate()
-        {
-          const sessionId = state.sessionId || newSessionId()
-          if (!state.sessionId) patch({ sessionId })
-          startTransition(async () => {
-            const result = await savePlanAction(profile.fixture_id, sessionId, plan)
-            if (!result.ok) setError(result.error)
-          })
-        }
+        if (!state.sessionId) patch({ sessionId: newSessionId() })
       },
 
       refillPlan: () => {
@@ -136,46 +123,54 @@ export function DemoProvider({ children, profile }: { children: ReactNode; profi
 
       requestCalculation: () => {
         setError(null)
-        startTransition(async () => {
-          const result = await calculateAction(
-            profile.fixture_id,
-            state.sessionId || newSessionId(),
-            state.plan,
-            state.constraint,
-          )
-          if (!result.ok) {
-            setError(result.error)
-            patch({ planConfirmed: false })
-            return
-          }
-          setCalculation(result.data.calculation)
-          setCalculationId(result.data.calculationId)
-          patch({ planConfirmed: true })
-        })
+        const result = calculatePlan({ profile, plan: state.plan, constraint: state.constraint })
+        if (!result.ok) {
+          setError({
+            code: result.code === 'EMPTY_PLAN' ? 'INVALID_PLAN' : 'EVIDENCE_INCOMPLETE',
+            message: result.reason,
+            missing: [],
+            retryable: true,
+          })
+          patch({ planConfirmed: false })
+          return
+        }
+        setCalculation(result.calculation)
+        patch({ planConfirmed: true })
       },
 
       confirmCombination: () => {
-        if (!calculationId || !calculation) return
+        if (!calculation) return
         const shown = calculation.decision === '변경' ? calculation.chosen : calculation.current
-        startTransition(async () => {
-          const result = await confirmPlanAction(calculationId, shown.candidate_id)
-          if (!result.ok) {
-            setError(result.error)
-            return
-          }
-          patch({
-            confirmed: {
-              candidate_id: shown.candidate_id,
-              rule_versions: calculation.rule_versions,
-              as_of_date: calculation.as_of_date,
-              net_benefit: result.data.netBenefit,
-              confirmed_at: result.data.confirmedAt,
-            },
-          })
+        const sessionId = state.sessionId || newSessionId()
+        patch({
+          sessionId,
+          confirmed: {
+            candidate_id: shown.candidate_id,
+            rule_versions: calculation.rule_versions,
+            as_of_date: calculation.as_of_date,
+            net_benefit: shown.net_benefit,
+            confirmed_at: new Date().toISOString(),
+          },
+        })
+        void fetch('/api/calculations/confirm', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            fixtureId: profile.fixture_id,
+            sessionId,
+            plan: state.plan,
+            constraint: state.constraint,
+            candidateKey: shown.candidate_id,
+          }),
+          keepalive: true,
+        }).then(async (response) => {
+          if (response.ok) return
+          const result = (await response.json()) as { error?: ActionError }
+          if (result.error && typeof result.error !== 'string') setError(result.error)
         })
       },
     }
-  }, [state, profile, calculation, calculationId, error, pending, patch, invalidate])
+  }, [state, profile, calculation, error, patch, invalidate])
 
   return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>
 }

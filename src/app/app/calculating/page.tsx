@@ -29,7 +29,7 @@ export default function CalculatingScreen() {
   useEffect(() => {
     const timer = window.setInterval(() => {
       setStep((prev) => Math.min(prev + 1, CALC_NOTICE.steps.length))
-    }, 320)
+    }, 50)
     return () => window.clearInterval(timer)
   }, [])
 
