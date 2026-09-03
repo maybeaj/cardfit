@@ -16,31 +16,22 @@ export const DATA_NOTICE = {
   sampleFootnote: '※ 수치는 예시이며 실제 약관과 다를 수 있습니다',
 } as const
 
-/** UI-011 온보딩 — 기준본 s0. 이용 과정 3단계로 무엇을 하는 서비스인지 먼저 알린다. */
+/**
+ * UI-011 온보딩 — v0.5 기준본 s0의 최종 렌더 상태.
+ *
+ * 아이콘과 부연 문단, 하단 안내 문구를 두지 않는다. 기준본의 `UX review`가 전부
+ * 걷어냈고(`.onboarding-copy`와 `.note`는 넣었다가 도로 지운다), 남은 것은
+ * 제목·3단계·CTA뿐이다. 첫 화면에서 읽을 것을 줄이는 게 이 화면의 목적이다.
+ */
 export const ONBOARDING_COPY = {
-  kicker: '카드 선택이 어려운 순간',
-  title: ['앞으로 쓸 돈을 입력하고', '내게 맞는 카드 조합을 찾아보세요.'],
-  lead: '앞으로의 지출 계획을 입력해 내게 맞는 신용카드 조합을 찾아보세요.',
+  kicker: '앞으로의 소비까지 맞춤 계산',
+  title: ['예정된 지출에 맞는', '카드 조합을 추천해 드려요'],
   steps: [
-    {
-      icon: '📊',
-      title: '받아온 혜택을 확인해요',
-      body: '최근 12개월 소비와 카드 혜택을 한눈에 살펴봅니다.',
-    },
-    {
-      icon: '🗓️',
-      title: '앞으로의 지출을 반영해요',
-      body: '여행, 예식처럼 예정된 큰 지출을 카드 계산에 더합니다.',
-    },
-    {
-      icon: '✨',
-      title: '바꿀 가치가 있을 때만 추천해요',
-      body: '현재 조합과 비교한 실질 혜택과 근거를 함께 보여드립니다.',
-    },
+    { title: '지금 받은 혜택 확인', body: '최근 소비와 카드 혜택을 살펴봐요.' },
+    { title: '예정된 지출 반영', body: '여행이나 예식처럼 큰 지출을 더해요.' },
+    { title: '더 나을 때만 추천', body: '바꿨을 때 늘어나는 혜택을 비교해요.' },
   ],
-  noteTitle: '카드 조합 추천은 1분이면 충분해요.',
-  noteBody: '복잡한 카드 조건을 직접 계산하지 않아도 됩니다.',
-  cta: '카드조합 추천받기',
+  cta: '내 카드 조합 찾기',
 } as const
 
 /**
@@ -50,43 +41,48 @@ export const ONBOARDING_COPY = {
  * 실제 본인인증·전송요구는 구현하지 않는다 — 체크박스는 동의 구조를 검증하는 UI다.
  */
 export const CONSENT_COPY = {
-  eyebrow: 'CARDFIT · MYDATA',
-  title: '마이데이터 이용 동의하기',
-  lead: '카드 조합을 계산하기 위해 필요한 정보만 이용합니다.',
-  purpose: {
-    label: '이용 목적',
-    body: '현재 카드와 최근 소비를 확인하고, 앞으로의 지출 계획에 맞는 카드 조합을 계산합니다.',
-  },
-  scope: {
-    label: '이용 범위',
-    body: '보유 카드 정보 · 최근 12개월 결제 내역 · 카드 혜택 조건',
-  },
+  /**
+   * UI-012 마이데이터 이용 동의 — v0.5 기준본 `#consentModal`의 최종 렌더 상태.
+   * 필수 2항목이고 각각 펼침 상세를 가진다. 약관 전문 링크는 두지 않는다 —
+   * 없는 문서를 있는 것처럼 열지 않는다.
+   */
+  eyebrow: '마이데이터 연결',
+  title: ['내 카드 정보를', '불러올까요?'],
+  lead: '카드와 결제 내역을 불러와 내게 맞는 카드 조합을 계산해요.',
   allLabel: '전체 동의',
-  allBody: '아래 필수 항목을 한 번에 선택합니다.',
+  required: '필수',
   items: [
     {
       id: 'collect',
-      title: '[필수] 개인정보 수집·이용',
-      body: '카드·결제 관련 개인신용정보를 목적 범위에서 이용합니다.',
+      title: '개인신용정보 수집·이용',
+      detailTitle: '수집·이용 안내',
+      rows: [
+        ['이용 목적', '보유 카드와 결제 내역을 분석해 카드 조합을 계산합니다.'],
+        ['이용 항목', '보유 카드 정보, 최근 12개월 결제 내역, 카드 혜택 조건'],
+        ['보유 기간', '서비스 연결을 해제하거나 동의를 철회할 때까지'],
+      ],
     },
     {
       id: 'transfer',
-      title: '[필수] 개인신용정보 전송요구',
-      body: '정보 제공기관에서 CardFit으로 필요한 정보를 전송하도록 요구합니다.',
-    },
-    {
-      id: 'thirdparty',
-      title: '[필수] 제3자 제공·처리위탁',
-      body: '계산에 필요한 제공받는 자와 처리 범위를 확인합니다.',
+      title: '개인신용정보 전송요구',
+      detailTitle: '전송요구 안내',
+      rows: [
+        ['전송받는 자', 'CardFit'],
+        ['전송 정보', '보유 카드와 결제 내역 등 카드 조합 계산에 필요한 정보'],
+        ['전송 방식', '연결한 금융회사에서 CardFit으로 전송'],
+        ['철회 방법', '설정에서 언제든지 연결을 해제할 수 있습니다.'],
+      ],
     },
   ],
-  termLabel: '동의 기간',
-  termBody: '1년 · 언제든지 철회할 수 있어요',
+  reassurance: '언제든지 마이데이터 연결을 해제할 수 있어요.',
+  legalNoteLabel: '안내',
   legalNote:
-    '이번 화면은 프로토타입용 예시입니다. 실제 서비스에서는 사업자 자격, 전송기관, 정확한 정보 항목·보유기간·약관 전문을 준법/법무 검토 후 확정해야 합니다.',
-  detailLink: '전문 보기',
-  submit: '마이데이터 이용 동의하기',
+    '프로토타입 예시입니다. 실제 전송기관, 정보 항목, 전송 주기와 보유 기간은 서비스 정책 및 준법 검토 후 확정해야 합니다.',
+  detailLabel: (title: string) => `${title} 상세보기`,
+  submit: '동의하고 계속하기',
   close: '닫기',
+  /** 머리의 × — 바닥의 `닫기` 버튼과 이름이 겹치면 무엇을 누르는지 알 수 없다 */
+  closeSheet: '시트 닫기',
 } as const
 
 export const CURRENT_STATE_NOTICE = {
@@ -114,6 +110,7 @@ export const PLAN_NOTICE = {
   emptyBlocked: '확인할 앞으로의 지출이 0건이라 계산하지 않습니다',
   refill: '과거 패턴으로 다시 채우기',
   confirmCta: '이 계획대로 계산하기',
+  calculating: '계산하고 있어요',
   /** UI-002 미래지출 입력 — 기준본 s3 */
   title: '예상되는 지출액을 입력해주세요.',
   lead: '앞으로 늘어날 지출만 확인해 주세요.',
@@ -186,8 +183,16 @@ export const CONCLUSION_COPY = {
   holdStatus: '✓ 지금은 바꾸지 않아도 돼요',
   cardStatusHeading: '카드별 상태',
   baselineTitle: '비교 기준선',
-  evidenceCta: '계산 근거 보기',
-  editPlanCta: '계획 수정하기',
+  /**
+   * 종착 행동 — 누르면 같은 화면에서 `다음에 하면 되는 일`이 펼쳐진다.
+   * 별도 확정 화면으로 넘기지 않는다 (SRS UI-008 · FR-008).
+   */
+  likeCta: '이 조합 선택하기',
+  likedCta: '좋아요를 반영했어요',
+  editPlanCta: '계획 수정',
+  /** 캡션의 카드 장수를 하드코딩하지 않는다 (`T26`) */
+  constraintCaption: (maxCards: number, allowNew: boolean) =>
+    `최대 ${maxCards}장 · ${allowNew ? '신규 카드 포함' : '보유 카드만'} 조건의 추천 결과`,
   /**
    * 지출 탐색 — 참고용이며 공식 결론은 `예상대로` 기준이다.
    * 계산을 다시 돌리지 않고 확인한 계획의 배수로 폭만 보여준다.
@@ -209,17 +214,43 @@ export const CONCLUSION_COPY = {
   },
   /** 결론 상자 — 조합이 받을 절대 혜택을 앞세우고, 현재 조합 대비 증가분을 뱃지로 붙인다 */
   benefit: {
-    label: '이 조합으로 받을 수 있는 연간 혜택',
-    unit: '연',
-    delta: (amount: string) => `현재 카드 조합보다 ${amount} 더 받아요`,
+    /** 결론 카드는 **늘어나는 금액**을 크게 세우고 총액을 보조로 둔다 (v0.5) */
+    label: '현재보다 늘어나는 연간 혜택',
+    unit: '+',
+    delta: (amount: string) => `총 예상 혜택 ${amount}`,
     holdLabel: (scenarioLabel: string) => `${scenarioLabel} 지출하면`,
     holdValue: '현재 조합 유지',
     holdDelta: '바꾸는 비용보다 추가 혜택이 작아요',
-    evidenceTrigger: '왜 이 금액인가요? · 근거 보기',
+    evidenceTrigger: '계산 기준 보기',
     holdEvidenceTrigger: '유지 이유와 계산 근거 보기',
-    sheetTitle: (scenarioLabel: string) => `${scenarioLabel} 지출 시 받을 수 있는 연간 혜택`,
     close: '닫기',
   },
+} as const
+
+/**
+ * UI-007 계산 기준 요약 바텀시트 — 기준본 `#resultEvidenceModal`.
+ *
+ * **전체 근거 화면(`/app/evidence`)과 다른 화면이다.** 여기에는 금액이 어떻게 만들어졌는지
+ * 한 눈에 보이는 몇 줄만 둔다. 카드별 실적구간 표까지 넣으면 결과를 보다 말고 약관을
+ * 읽게 되고, 그럴 거면 상세 화면이 따로 있을 이유가 없다.
+ */
+export const BASIS_COPY = {
+  eyebrow: '계산 근거',
+  title: '혜택을 이렇게 계산했어요',
+  lead: '선택한 지출 시나리오와 카드 조건을 함께 반영했습니다.',
+  summaryLabel: (scenarioLabel: string) => `${scenarioLabel} 지출 시 받을 수 있는 연간 혜택`,
+  holdSummaryLabel: (scenarioLabel: string) => `${scenarioLabel} 지출 시 현재 조합의 연간 혜택`,
+  lines: {
+    increase: '현재 조합 대비 추가 혜택',
+    annualFee: '연회비',
+    requalificationLoss: '실적 재적립 손실',
+    issuanceWaitCost: '발급 대기 비용',
+    horizon: '계산 기준',
+  },
+  horizonValue: '앞으로 12개월',
+  close: '닫기',
+  closeSheet: '시트 닫기',
+  full: '전체 근거 보기',
 } as const
 
 export const EVIDENCE_COPY = {
@@ -253,17 +284,23 @@ export const BOUNDARY_COPY = {
   keepNote: '그대로 계속 사용하세요',
   frozen: '고른 조합은 고른 시점의 규칙 버전·기준일·금액으로 얼려 보관합니다',
   expired: '약관이 변경되었을 수 있습니다 · 다시 계산하기',
-  /** UI-008 조합 선택 — 기준본 s7. `확정`은 신청 대행으로 읽혀 `좋아요`로 바꿨다 (T12) */
-  title: '고른 조합과 다음 행동',
-  lead: '고른 시점의 금액·기준일·규칙 버전을 기록합니다.',
-  actionsHeading: '카드별 다음 행동',
-  confirmCta: '이 조합으로 정했어요',
-  reviewAgainCta: '다시 검토하기',
-  outlinkCta: '공식 페이지로 이동',
-  noActionTag: '실행 버튼 없음',
-  keepTag: '계속 사용',
-  footer:
-    '고른 조합은 rule_version·기준일·금액과 함께 동결됩니다. 카드사 공식 링크에서 돌아오면 입력값과 고른 조합을 복원합니다.',
+  /**
+   * UI-008 다음에 하면 되는 일 — 결과 화면 안에서 펼쳐진다. 별도 확정 화면은 없다.
+   * `확정`이라는 단계가 신청·해지 대행으로 읽혀 종착 행동을 선택으로 바꿨다 (`T12`).
+   */
+  actionsHeading: '다음에 하면 되는 일',
+  nextAction: {
+    신규: '카드사 공식 페이지에서 직접 신청하세요',
+    정리: '해지 전에 연회비 환급·포인트 소멸을 카드사에 확인하세요',
+    유지: '그대로 계속 사용하세요',
+  },
+  outlinkCta: '카드사 페이지 ›',
+  /**
+   * 경계 고지 (`AC-003`). 아웃링크 수와 해지 실행 버튼 수를 세어 보여준다 —
+   * *"해지 버튼을 두지 않는다"*는 약속을 화면이 스스로 증명하게 한다.
+   */
+  boundary: (outlinks: number) =>
+    `신청·해지는 카드사에서 직접 진행하셔야 합니다 · 아웃링크 ${outlinks}개 · 해지 실행 버튼 0개`,
 } as const
 
 export const STATUS_COPY = {

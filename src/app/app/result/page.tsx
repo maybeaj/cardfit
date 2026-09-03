@@ -1,14 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CONCLUSION_COPY, DATA_NOTICE, PLAN_NOTICE } from '@/content/copy'
-import { calculateForMultiplier } from '@/domain/recommendation'
-import type { Calculation } from '@/domain/types'
-import { EvidenceSheet } from '@/components/evidence-sheet'
+import { CalculationBasisSheet } from '@/features/cardfit/result/calculation-basis-sheet'
 import { BenefitSummary } from '@/features/cardfit/result/benefit-summary'
 import { CardRoleList } from '@/features/cardfit/result/card-role-list'
 import { PaymentAllocation } from '@/features/cardfit/result/payment-allocation'
+import { NextActions } from '@/features/cardfit/result/next-actions'
 import { ResultActions } from '@/features/cardfit/result/result-actions'
 import { ReviewedAlternatives } from '@/features/cardfit/result/reviewed-alternatives'
 import { ScenarioTabs } from '@/features/cardfit/result/scenario-tabs'
@@ -26,38 +25,24 @@ import { useDemo } from '@/state/store'
 /** UI-005 + UI-006 — 기준본 s5. 결론 배너는 좁게, 결제 배분표가 본문 (`T2`). */
 export default function ResultScreen() {
   const router = useRouter()
-  const { calculation, error, profile, plan, constraint, clearError, confirmCombination } =
-    useDemo()
+  const {
+    calculation,
+    scenarios,
+    error,
+    pending,
+    profile,
+    constraint,
+    clearError,
+    confirmCombination,
+  } = useDemo()
   const [scenario, setScenario] = useState('expected')
-  const [evidenceOpen, setEvidenceOpen] = useState(false)
+  const [basisOpen, setBasisOpen] = useState(false)
   const [liked, setLiked] = useState(false)
 
-  /*
-   * 시나리오별 결과를 규칙 엔진으로 다시 계산한다.
-   * 출력값에 배수를 곱하지 않는 이유 — 실적구간·혜택한도·연회비는 금액에 비례하지 않아
-   * 곱셈으로는 틀린 금액이 나온다. 계획을 바꿔 엔진을 다시 돌려야 맞는 값이 된다.
-   *
-   * 엔진은 순수 함수라 같은 입력에 항상 같은 결과를 준다 (NFR-001). 서버를 다시 부르지 않아도
-   * 서버가 계산한 값과 어긋나지 않는다.
-   */
-  const scenarios = useMemo(() => {
-    const out: Record<string, Calculation | null> = {}
-    for (const option of CONCLUSION_COPY.scenario.options) {
-      if (option.multiplier === 1) {
-        // `예상대로`는 사용자가 확인한 계획 그대로다. 서버가 계산한 결과를 그대로 쓴다
-        out[option.key] = calculation
-        continue
-      }
-      const result = calculateForMultiplier({ profile, plan, constraint }, option.multiplier)
-      out[option.key] = result.ok ? result.calculation : null
-    }
-    return out
-  }, [calculation, plan, constraint, profile])
-
-
   useEffect(() => {
-    if (!calculation && !error) router.replace('/app/plan')
-  }, [calculation, error, router])
+    // 계산이 도는 동안은 기다린다. 결과가 오기 전에 되돌리면 흐름이 끊긴다
+    if (!calculation && !error && !pending) router.replace('/app/plan')
+  }, [calculation, error, pending, router])
 
   useEffect(() => {
     if (calculation) {
@@ -146,7 +131,7 @@ export default function ResultScreen() {
         <BenefitSummary
           calculation={shownCalculation}
           scenarioLabel={scenarioOption.label}
-          onOpenEvidence={() => setEvidenceOpen(true)}
+          onOpenEvidence={() => setBasisOpen(true)}
         />
       </div>
 
@@ -171,16 +156,25 @@ export default function ResultScreen() {
       <CardRoleList calculation={shownCalculation} cards={profile.cards} />
       <ReviewedAlternatives reviewed={shownCalculation.reviewed} cards={profile.cards} />
 
+      <p className="footer">
+        {CONCLUSION_COPY.constraintCaption(constraint.max_cards, constraint.allow_new_card)}
+      </p>
       <p className="footer">{DATA_NOTICE.sampleFootnote}</p>
 
       <ResultActions liked={liked} onLike={likeCombination} />
 
-      <EvidenceSheet
-        open={evidenceOpen}
-        onClose={() => setEvidenceOpen(false)}
-        calculation={shownCalculation}
-        profile={profile}
+      {/*
+        선택하면 같은 화면에서 다음 행동이 펼쳐진다. 별도 확정 화면을 두지 않는다 —
+        `확정` 단계가 신청·해지를 대행하는 것으로 읽힌다 (SRS UI-008 · `T12`).
+      */}
+      {liked ? <NextActions candidate={shown} cards={profile.cards} /> : null}
+
+      <CalculationBasisSheet
+        open={basisOpen}
+        onClose={() => setBasisOpen(false)}
+        candidate={shown}
         scenarioLabel={scenarioOption.label}
+        pass={shownCalculation.decision === '변경'}
       />
     </Screen>
   )

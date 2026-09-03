@@ -10,24 +10,20 @@ import { expect, test } from '@playwright/test'
 test('기준본 s0~s7 플로우를 순서대로 통과한다', async ({ page }) => {
   // s0 온보딩
   await page.goto('/app')
-  await expect(page.getByText('카드 선택이 어려운 순간')).toBeVisible()
-  await expect(page.getByRole('heading', { name: /앞으로 쓸 돈을 입력하고/ })).toBeVisible()
-  for (const step of [
-    '받아온 혜택을 확인해요',
-    '앞으로의 지출을 반영해요',
-    '바꿀 가치가 있을 때만 추천해요',
-  ]) {
-    await expect(page.getByText(step)).toBeVisible()
+  await expect(page.getByText('앞으로의 소비까지 맞춤 계산')).toBeVisible()
+  await expect(page.getByRole('heading', { name: /예정된 지출에 맞는/ })).toBeVisible()
+  for (const step of ['지금 받은 혜택 확인', '예정된 지출 반영', '더 나을 때만 추천']) {
+    await expect(page.getByText(step, { exact: true })).toBeVisible()
   }
 
   // s1 마이데이터 동의 바텀시트 — 별도 화면이 아니라 온보딩 위에 올라온다
-  await page.getByRole('button', { name: '카드조합 추천받기' }).click()
+  await page.getByRole('button', { name: '내 카드 조합 찾기' }).click()
   const sheet = page.getByRole('dialog')
   await expect(sheet).toBeVisible()
-  await expect(sheet.getByRole('heading', { name: '마이데이터 이용 동의하기' })).toBeVisible()
+  await expect(sheet.getByRole('heading', { name: /내 카드 정보를/ })).toBeVisible()
 
   // 필수 3항목을 모두 선택해야 CTA가 열린다
-  const submit = sheet.getByRole('button', { name: '마이데이터 이용 동의하기' })
+  const submit = sheet.getByRole('button', { name: '동의하고 계속하기' })
   await expect(submit).toBeDisabled()
   await sheet.getByRole('checkbox').first().check() // 전체 동의
   await expect(submit).toBeEnabled()
@@ -76,11 +72,28 @@ test('기준본 s0~s7 플로우를 순서대로 통과한다', async ({ page }) 
     await expect(page.getByRole('button', { name: label })).toBeVisible()
   }
   await expect(page.getByText('카드별 상태')).toBeVisible()
-  const like = page.getByRole('button', { name: '이 조합 좋아요' })
+  const like = page.getByRole('button', { name: '이 조합 선택하기' })
   await like.click()
   const liked = page.getByRole('button', { name: '좋아요를 반영했어요' })
   await expect(liked).toHaveAttribute('aria-pressed', 'true')
-  await page.getByRole('link', { name: '계산 근거 보기' }).click()
+
+  /*
+   * 선택하면 **같은 화면에서** 다음 행동이 펼쳐진다. 별도 확정 화면으로 넘어가지 않는다
+   * (SRS UI-008 · `T12`). 갈 곳이 없어진 `AC-003`의 경계 고지가 여기 있다.
+   */
+  await expect(page).toHaveURL(/\/app\/result$/)
+  await expect(page.getByRole('heading', { name: '다음에 하면 되는 일' })).toBeVisible()
+  await expect(page.getByText(/신청·해지는 카드사에서 직접 진행하셔야 합니다/)).toBeVisible()
+  await expect(page.getByText(/해지 실행 버튼 0개/)).toBeVisible()
+
+  // 근거는 결론 카드의 `계산 기준 보기`가 시트로 연다 — 화면을 떠나지 않는다
+  await page.getByRole('button', { name: /계산 기준 보기/ }).click()
+  const basis = page.getByRole('dialog')
+  await expect(basis.getByRole('heading', { name: '혜택을 이렇게 계산했어요' })).toBeVisible()
+  await expect(basis.getByText('현재 조합 대비 추가 혜택')).toBeVisible()
+  // 상세 근거를 요약 시트에 넣지 않는다 — 더 볼 사람만 전체 근거로 넘어간다
+  await expect(basis.getByText('실적구간')).toHaveCount(0)
+  await basis.getByRole('link', { name: '전체 근거 보기' }).click()
 
   // s6 근거 검증 — 6항목
   await expect(page).toHaveURL(/\/app\/evidence$/)
@@ -90,13 +103,11 @@ test('기준본 s0~s7 플로우를 순서대로 통과한다', async ({ page }) 
   }
   await expect(page.locator('details')).not.toHaveCount(0)
   await expect(page.getByRole('link', { name: /카드사 공식 혜택 확인/ }).first()).toBeVisible()
-  await page.getByRole('button', { name: '다음 행동 보기' }).click()
+})
 
-  // s7 확정 및 실행 경계 — 해지 항목에 실행 버튼을 두지 않는다
-  await expect(page).toHaveURL(/\/app\/confirm$/)
-  await expect(page.getByRole('heading', { name: '고른 조합과 다음 행동' })).toBeVisible()
-  await expect(page.getByText('카드별 다음 행동')).toBeVisible()
-  await expect(page.getByText('CardFit의 실행 경계')).toBeVisible()
+test('별도 확정 화면을 만들지 않는다 (SRS UI-008)', async ({ page }) => {
+  const response = await page.goto('/app/confirm')
+  expect(response?.status()).toBe(404)
 })
 
 test('하드웨어 목업 없이 모바일 웹 셸로 렌더된다', async ({ page }) => {
@@ -116,24 +127,25 @@ test('결과에서 뒤로 가는 버튼들이 기준본과 같은 곳으로 간�
   await page.getByRole('button', { name: '이 계획대로 계산하기' }).click()
   await expect(page).toHaveURL(/\/app\/result$/, { timeout: 15_000 })
 
-  // s5 `계획 수정하기` → s3
-  await page.getByRole('link', { name: '계획 수정하기' }).click()
+  // s5 `계획 수정` → s3
+  await page.getByRole('link', { name: '계획 수정' }).click()
   await expect(page).toHaveURL(/\/app\/plan$/)
 
   await page.goBack()
   await expect(page).toHaveURL(/\/app\/result$/)
 
-  // s6 `결과로 돌아가기` → s5
-  await page.getByRole('link', { name: '계산 근거 보기' }).click()
+  // s6 `결과로 돌아가기` → s5. 근거는 요약 시트를 거쳐 들어간다
+  await page.getByRole('button', { name: /계산 기준 보기/ }).click()
+  await page.getByRole('link', { name: '전체 근거 보기' }).click()
   await expect(page).toHaveURL(/\/app\/evidence$/)
   await page.getByRole('link', { name: '결과로 돌아가기' }).click()
   await expect(page).toHaveURL(/\/app\/result$/)
 
-  // s7 `다시 검토하기` → s5
-  await page.getByRole('link', { name: '계산 근거 보기' }).click()
-  await page.getByRole('button', { name: '다음 행동 보기' }).click()
-  await expect(page).toHaveURL(/\/app\/confirm$/)
-  await page.getByRole('link', { name: '다시 검토하기' }).click()
+  // 시트는 브라우저 뒤로가기로도 닫힌다 — 열어 둔 채 이전 화면으로 나가지 않는다
+  await page.getByRole('button', { name: /계산 기준 보기/ }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await page.goBack()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page).toHaveURL(/\/app\/result$/)
 })
 

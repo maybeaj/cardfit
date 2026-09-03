@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { CONSTRAINT_COPY, PLAN_NOTICE } from '@/content/copy'
 import { manwon, won } from '@/domain/format'
 import { planTotal } from '@/domain/plan'
-import { NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO } from '@/domain/recommendation'
+import { NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO } from '@/domain/constants'
 import { CardCountStepper } from '@/features/cardfit/constraint/card-count-stepper'
 import { NewCardChoice } from '@/features/cardfit/constraint/new-card-choice'
 import { Actions, Note, PrimaryButton, Screen, ScreenHeader } from '@/components/shell'
@@ -19,7 +19,7 @@ import { useDemo } from '@/state/store'
  */
 export default function ConstraintScreen() {
   const router = useRouter()
-  const { plan, constraint, updateConstraint, requestCalculation } = useDemo()
+  const { plan, constraint, pending, updateConstraint, requestCalculation } = useDemo()
 
   /*
    * 계산하고 결과로 바로 간다. 중간에 대기 화면을 두지 않는 이유 —
@@ -32,8 +32,11 @@ export default function ConstraintScreen() {
       max_cards: constraint.max_cards,
       allow_new_card: constraint.allow_new_card,
     })
-    requestCalculation()
-    router.push('/app/result')
+    /*
+     * 계산이 끝난 뒤에 옮긴다. 먼저 옮기면 결과 화면이 빈 상태로 열려 입력으로 되튕긴다 —
+     * 금액을 만드는 곳이 서버라 결과가 즉시 있지 않다.
+     */
+    void requestCalculation().then(() => router.push('/app/result'))
   }
 
   return (
@@ -66,7 +69,9 @@ export default function ConstraintScreen() {
       <p className="footer">{CONSTRAINT_COPY.confirmNote}</p>
 
       <Actions>
-        <PrimaryButton onClick={confirm}>{PLAN_NOTICE.confirmCta}</PrimaryButton>
+        <PrimaryButton onClick={confirm} disabled={pending}>
+          {pending ? PLAN_NOTICE.calculating : PLAN_NOTICE.confirmCta}
+        </PrimaryButton>
       </Actions>
     </Screen>
   )

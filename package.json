@@ -18,7 +18,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force --skip-seed && npm run db:seed",
     "db:studio": "prisma studio",
-    "test:db": "vitest run --config vitest.db.config.ts"
+    "test:db": "vitest run --config vitest.db.config.ts",
+    "ux:contract": "node scripts/extract-v05-contract.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

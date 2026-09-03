@@ -5,7 +5,7 @@ import { PLAN_NOTICE } from '@/content/copy'
 import { manwon } from '@/domain/format'
 import { isPlanEmpty, planTotal } from '@/domain/plan'
 import type { FutureSpendPlan } from '@/domain/types'
-import { CategorySheet } from '@/features/cardfit/plan/category-sheet'
+import { CategoryPickerSheet } from '@/features/cardfit/plan/category-picker-sheet'
 import { SpendItem } from '@/features/cardfit/plan/spend-item'
 import {
   Actions,
@@ -103,13 +103,12 @@ export default function PlanScreen() {
         {PLAN_NOTICE.addItem}
       </button>
 
-      {picking ? (
-        <CategorySheet
-          selected={plan.find((item) => item.plan_id === picking)?.category}
-          onSelect={pickCategory}
-          onClose={() => setPicking(null)}
-        />
-      ) : null}
+      <CategoryPickerSheet
+        open={picking !== null}
+        selected={plan.find((item) => item.plan_id === picking)?.category}
+        onSelect={pickCategory}
+        onClose={() => setPicking(null)}
+      />
 
       {removed ? (
         <div className="undo-bar" role="status">

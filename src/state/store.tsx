@@ -11,12 +11,17 @@ import {
 } from 'react'
 import type { Calculation, Constraint, FutureSpendPlan, Profile } from '@/domain/types'
 import type { ActionError } from '@/server/errors'
-import { engine } from '@/domain/recommendation'
+import { calculateAction, confirmPlanAction } from '@/server/actions'
 import { clearSession, loadSession, saveSession, type SessionState } from './session'
 
 /**
- * 화면 상태. 결정론적 계산은 즉시 수행하고 DB 기록은 화면 전환과 분리한다 (TEC-05).
- * `src/fixtures`를 직접 import하지 않는다 — Mock의 정본은 DB다 (TECH_SPEC 4절).
+ * 화면 상태.
+ *
+ * **계산 엔진을 여기서 부르지 않는다.** 금액을 만드는 경로는 Server Action 하나뿐이고,
+ * 화면은 그 결과를 받아 그릴 뿐이다 — 클라이언트에도 엔진이 있으면 같은 입력에 두 개의
+ * 계산 경로가 생기고, 어느 쪽 금액이 정본인지 말할 수 없게 된다 (`NFR-001`).
+ *
+ * `src/fixtures`도 직접 import하지 않는다 — Mock의 정본은 DB다 (`ADR-004`).
  */
 interface DemoContextValue extends SessionState {
   profile: Profile
@@ -27,9 +32,11 @@ interface DemoContextValue extends SessionState {
   updatePlan: (plan: FutureSpendPlan[]) => void
   refillPlan: () => void
   updateConstraint: (patch: Partial<Constraint>) => void
-  requestCalculation: () => void
+  requestCalculation: () => Promise<void>
   confirmCombination: () => void
   clearError: () => void
+  /** 지출 탐색 시나리오별 결과. 서버가 한 번에 만들어 내려준다 */
+  scenarios: Record<string, Calculation | null>
 }
 
 const DemoContext = createContext<DemoContextValue | null>(null)
@@ -54,7 +61,10 @@ function initialState(profile: Profile): SessionState {
 export function DemoProvider({ children, profile }: { children: ReactNode; profile: Profile }) {
   const [state, setState] = useState<SessionState>(() => initialState(profile))
   const [calculation, setCalculation] = useState<Calculation | null>(null)
+  const [scenarios, setScenarios] = useState<Record<string, Calculation | null>>({})
+  const [calculationId, setCalculationId] = useState<string | null>(null)
   const [error, setError] = useState<ActionError | null>(null)
+  const [pending, setPending] = useState(false)
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
@@ -87,6 +97,8 @@ export function DemoProvider({ children, profile }: { children: ReactNode; profi
 
   const invalidate = useCallback(() => {
     setCalculation(null)
+    setScenarios({})
+    setCalculationId(null)
     setError(null)
   }, [])
 
@@ -95,8 +107,9 @@ export function DemoProvider({ children, profile }: { children: ReactNode; profi
       ...state,
       profile,
       calculation,
+      scenarios,
       error,
-      pending: false,
+      pending,
       clearError: () => setError(null),
 
       connect: () => {
@@ -123,19 +136,21 @@ export function DemoProvider({ children, profile }: { children: ReactNode; profi
 
       requestCalculation: () => {
         setError(null)
-        const result = engine.calculate({ profile, plan: state.plan, constraint: state.constraint })
-        if (!result.ok) {
-          setError({
-            code: result.code === 'EMPTY_PLAN' ? 'INVALID_PLAN' : 'EVIDENCE_INCOMPLETE',
-            message: result.reason,
-            missing: [],
-            retryable: true,
+        setPending(true)
+        const sessionId = state.sessionId || newSessionId()
+        return calculateAction(profile.fixture_id, sessionId, state.plan, state.constraint)
+          .then((result) => {
+            if (!result.ok) {
+              setError(result.error)
+              patch({ sessionId, planConfirmed: false })
+              return
+            }
+            setCalculation(result.data.calculation)
+            setScenarios(result.data.scenarios)
+            setCalculationId(result.data.calculationId)
+            patch({ sessionId, planConfirmed: true })
           })
-          patch({ planConfirmed: false })
-          return
-        }
-        setCalculation(result.calculation)
-        patch({ planConfirmed: true })
+          .finally(() => setPending(false))
       },
 
       confirmCombination: () => {
@@ -152,25 +167,11 @@ export function DemoProvider({ children, profile }: { children: ReactNode; profi
             confirmed_at: new Date().toISOString(),
           },
         })
-        void fetch('/api/calculations/confirm', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            fixtureId: profile.fixture_id,
-            sessionId,
-            plan: state.plan,
-            constraint: state.constraint,
-            candidateKey: shown.candidate_id,
-          }),
-          keepalive: true,
-        }).then(async (response) => {
-          if (response.ok) return
-          const result = (await response.json()) as { error?: ActionError }
-          if (result.error && typeof result.error !== 'string') setError(result.error)
-        })
+        // 기록 실패가 결과 확인 흐름을 막지 않는다 — 화면은 이미 선택을 반영했다
+        if (calculationId) void confirmPlanAction(calculationId, shown.candidate_id)
       },
     }
-  }, [state, profile, calculation, error, patch, invalidate])
+  }, [state, profile, calculation, scenarios, calculationId, error, pending, patch, invalidate])
 
   return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>
 }

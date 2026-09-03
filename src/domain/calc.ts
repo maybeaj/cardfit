@@ -14,14 +14,19 @@ import type {
   Profile,
   SwitchingCost,
 } from './types'
+import {
+  ANNUAL_FEE_NOTICE_MONTH,
+  NET_BENEFIT_FLOOR,
+  NET_BENEFIT_RATIO,
+  STALE_AS_OF_MONTHS,
+} from './constants'
 
-/** D-002 — 실측이 아니라 과잉 추천을 막는 팀 합의 상수 🟡 */
-export const NET_BENEFIT_FLOOR = 50_000
-export const NET_BENEFIT_RATIO = 0.15
-/** T41 — 기준일 경고 임계 (팀 상수 🟡) */
-export const STALE_AS_OF_MONTHS = 3
-/** T40 — 12개월 창의 7개월 이후 발급이면 연회비 통째 반영을 고지한다 */
-export const ANNUAL_FEE_NOTICE_MONTH = 7
+export {
+  ANNUAL_FEE_NOTICE_MONTH,
+  NET_BENEFIT_FLOOR,
+  NET_BENEFIT_RATIO,
+  STALE_AS_OF_MONTHS,
+} from './constants'
 
 const EVIDENCE_FIELDS = ['실적구간', '혜택한도', '연회비', '제외조건', '기준일', '미반영 항목'] as const
 
