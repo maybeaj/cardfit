@@ -188,3 +188,22 @@ test('지출 탐색 탭이 결론 금액을 다시 계산한다', async ({ page 
   await page.getByRole('button', { name: '예상대로' }).click()
   await expect(amount).toHaveText(expected)
 })
+
+test('결제 배분표가 카드 역할보다 위에 있다 (T2)', async ({ page }) => {
+  await page.goto('/app/constraint')
+  await page.getByRole('button', { name: '이 계획대로 계산하기' }).click()
+  await expect(page).toHaveURL(/\/app\/result$/, { timeout: 15_000 })
+
+  const allocation = page.getByText('이렇게 나눠 쓰세요')
+  const roles = page.getByText('카드별 상태')
+  await expect(allocation).toBeVisible({ timeout: 15_000 })
+  await expect(roles).toBeVisible()
+
+  /*
+   * 결과 화면의 주인공은 결제 배분표다 (`T2`). 사용자가 결정할 것은
+   * "어느 카드를 쓰냐"가 아니라 "어디에 어느 카드로 결제하냐"라서 위에 와야 한다.
+   */
+  const allocationTop = (await allocation.boundingBox())?.y ?? 0
+  const rolesTop = (await roles.boundingBox())?.y ?? 0
+  expect(allocationTop).toBeLessThan(rolesTop)
+})

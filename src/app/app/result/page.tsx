@@ -167,8 +167,12 @@ export default function ResultScreen() {
           : CONCLUSION_COPY.hold.caption()}
       </Note>
 
-      <CardRoleList calculation={shownCalculation} cards={profile.cards} />
+      {/*
+        결제 배분표가 결과 화면의 주인공이다 (`T2`). 카드 역할보다 위에 둔다 —
+        사용자가 결정할 것은 "어느 카드를 쓰냐"가 아니라 "어디에 어느 카드로 결제하냐"다.
+      */}
       <PaymentAllocation candidate={shown} cards={profile.cards} />
+      <CardRoleList calculation={shownCalculation} cards={profile.cards} />
       <ReviewedAlternatives reviewed={shownCalculation.reviewed} cards={profile.cards} />
 
       <p className="footer">{DATA_NOTICE.sampleFootnote}</p>
