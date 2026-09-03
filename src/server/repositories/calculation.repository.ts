@@ -2,6 +2,7 @@ import 'server-only'
 import type { Calculation } from '@/domain/cardfit/types'
 import { prisma } from '../db/prisma'
 import { toJson } from '../action-guard'
+import { replacePlan } from './plan.repository'
 
 /**
  * 계산 결과 적재 — `TEC-06`. Prisma는 이 경계 밖으로 나가지 않는다.
@@ -20,6 +21,14 @@ await prisma.session.upsert({
   create: { id: sessionId, fixtureId },
   update: {},
 })
+/*
+ * 확인한 계획을 실제로 적재한 뒤 확정 표시를 한다.
+ *
+ * 전에는 `updateMany`만 돌렸는데 그 세션에 행이 하나도 없어 **아무것도 확정하지 않으면서
+ * 확정한 것처럼 보이는 호출**이었다. 계획을 만드는 액션이 흐름에서 빠지면서 생긴 구멍이다.
+ * 계산과 같은 트랜잭션 경로에서 함께 남겨 결과와 입력이 어긋나지 않게 한다.
+ */
+await replacePlan(fixtureId, sessionId, calculation.plan_snapshot)
 await prisma.futureSpendPlan.updateMany({ where: { sessionId }, data: { confirmed: true } })
 
 return prisma.calculation.create({
