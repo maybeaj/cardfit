@@ -174,11 +174,11 @@ body {
   }
 }
 .panel h2 {
-  margin: 8px 0 6px;
-  font-size: 21px;
-  line-height: 1.28;
+  margin: 10px 0 28px;
+  font-size: 28px;
+  line-height: 1.29;
   letter-spacing: -0.035em;
-  font-weight: 800;
+  font-weight: 700;
 }
 .panel h3 {
   margin: 16px 0 8px;
@@ -533,37 +533,48 @@ body {
 }
 
 /* ── 온보딩 ────────────────────────────────────────────────── */
+/*
+ * UI-011 온보딩 — v0.5 최종 렌더 상태.
+ *
+ * 기준본은 단계를 카드로 만들었다가 마지막 오버라이드에서 **구분선만 남긴 목록**으로
+ * 바꾼다. 아이콘도 DOM에는 두되 `display:none`으로 감춘다 — 첫 화면에서 눈이 붙잡을
+ * 것을 줄이려는 것이고, 마크업을 지우지 않아 다른 폭에서 되살릴 수 있다.
+ */
 .onboarding-kicker {
-  color: var(--color-blue);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
   margin-bottom: 8px;
+  color: var(--color-blue);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 .onboarding-steps {
   display: grid;
-  gap: 8px;
-  margin: 22px 0 4px;
+  gap: 0;
+  margin: 20px 0;
+  border-top: 1px solid var(--color-line);
 }
 .onboarding-step {
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
-  padding: 10px 11px;
-  border: 1px solid #dfe8f2;
-  border-radius: 13px;
-  background: #fbfdff;
+  display: block;
+  padding: 18px 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-line);
+  border-radius: 0;
+  background: var(--color-surface);
+}
+/* 마크업은 남기고 이 폭에서만 감춘다 */
+.onboarding-step .step-icon {
+  display: none;
 }
 .onboarding-step b {
   display: block;
-  font-size: 11px;
+  font-size: 17px;
+  font-weight: 600;
 }
 .onboarding-step small {
   display: block;
-  margin-top: 1px;
+  margin-top: 4px;
   color: var(--color-subtle);
-  font-size: 9px;
+  font-size: 14px;
   line-height: 1.4;
 }
 /* ── 현재 카드와 혜택 확인 ─────────────────────────────────── */
