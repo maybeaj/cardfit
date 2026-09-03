@@ -2,18 +2,17 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { DATA_NOTICE, EVIDENCE_COPY } from '@/content/copy'
-import { EvidenceDetails } from '@/components/evidence-details'
+import { CALC_NOTICE, DATA_NOTICE, EVIDENCE_COPY } from '@/content/cardfit-copy'
+import { EvidenceDetails } from '@/features/cardfit/result/evidence-details'
 import {
   Actions,
-  GhostLink,
   Note,
   Notice,
-  PrimaryButton,
+  GhostLink,
   Screen,
   ScreenHeader,
 } from '@/components/shell'
-import { logEvent } from '@/state/events'
+import { logEvent } from '@/state/client-events'
 import { useDemo } from '@/state/store'
 
 /**
@@ -22,7 +21,7 @@ import { useDemo } from '@/state/store'
  */
 export default function EvidenceScreen() {
   const router = useRouter()
-  const { calculation, error, confirmCombination, pending, profile } = useDemo()
+  const { calculation, error, profile } = useDemo()
 
   useEffect(() => {
     if (error) {
@@ -40,16 +39,9 @@ export default function EvidenceScreen() {
 
   const shown = calculation.decision === '변경' ? calculation.chosen : calculation.current
 
-  const apply = () => {
-    confirmCombination()
-    logEvent('조합확정', { candidate_id: shown.candidate_id, decision: calculation.decision })
-    router.push('/app/confirm')
-  }
-
   return (
     <Screen>
       <ScreenHeader
-        step="07 · 근거 검증"
         title={EVIDENCE_COPY.title}
         lead={EVIDENCE_COPY.lead}
         backHref="/app/result"
@@ -59,29 +51,31 @@ export default function EvidenceScreen() {
 
       <EvidenceDetails calculation={calculation} profile={profile} candidate={shown} />
 
+      {/* 6항목 미달로 후보에서 뺀 카드와 사유 (`T41`) — 조용히 감추지 않는다 */}
       {calculation.excluded_cards.length > 0 ? (
-        <div className="mt-3 rounded-xl bg-[var(--color-bg)] p-2.5">
-          <b className="text-[10px]">{EVIDENCE_COPY.excludedTitle}</b>
-          <ul className="mt-1.5 mb-0 list-none p-0">
-            {calculation.excluded_cards.map((item) => (
-              <li key={item.card_id} className="text-[9px] text-[var(--color-subtle)]">
-                · {item.card_id} — {item.reason}
-              </li>
-            ))}
-          </ul>
+        <div className="spend-evidence">
+          <h3>{EVIDENCE_COPY.excludedTitle}</h3>
+          {calculation.excluded_cards.map((item) => (
+            <div key={item.card_id} className="spend-evidence-row">
+              <b>{item.card_id}</b>
+              <span>{item.reason}</span>
+            </div>
+          ))}
         </div>
       ) : null}
 
       <Notice>{EVIDENCE_COPY.notice}</Notice>
       <Note>{EVIDENCE_COPY.qualifyingModel}</Note>
+      <Note>{CALC_NOTICE.engine}</Note>
       <p className="footer">
         {EVIDENCE_COPY.disclaimer} · {DATA_NOTICE.sampleFootnote}
       </p>
 
+      {/*
+        여기서 끝내지 않는다 — 종착 행동은 결과 화면의 `이 조합 선택하기`다 (`T12` · UI-008).
+        근거는 확인하러 들어왔다 돌아가는 곳이라 나가는 문 하나만 둔다.
+      */}
       <Actions>
-        <PrimaryButton onClick={apply} disabled={pending}>
-          {EVIDENCE_COPY.applyCta}
-        </PrimaryButton>
         <GhostLink href="/app/result">{EVIDENCE_COPY.backToResult}</GhostLink>
       </Actions>
     </Screen>

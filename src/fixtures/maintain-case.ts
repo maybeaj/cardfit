@@ -1,4 +1,4 @@
-import type { Profile } from '@/domain/types'
+import type { Profile } from '@/domain/cardfit/types'
 
 const AS_OF = '2026-08-20'
 
@@ -126,24 +126,21 @@ export const maintainCase: Profile = {
       plan_id: 'p1',
       category: '가전·가구',
       amount: 5_600_000,
-      direction: 'increase',
-      month_offset: 2,
+      spending_months: 1,
       source: 'suggested',
     },
     {
       plan_id: 'p2',
       category: '여행',
       amount: 2_400_000,
-      direction: 'increase',
-      month_offset: 3,
+      spending_months: 3,
       source: 'suggested',
     },
     {
       plan_id: 'p3',
       category: '예식',
       amount: 3_600_000,
-      direction: 'increase',
-      month_offset: 4,
+      spending_months: 3,
       source: 'suggested',
     },
   ],

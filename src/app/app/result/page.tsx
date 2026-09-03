@@ -2,37 +2,53 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CONCLUSION_COPY, DATA_NOTICE, PLAN_NOTICE } from '@/content/copy'
-import { won } from '@/domain/format'
 import {
-  AllocationTable,
-  CombinationList,
-  ConclusionBanner,
-  ReviewedAlternatives,
-} from '@/components/result-blocks'
+  ALLOCATION_COPY,
+  CARD_ROLE_COPY,
+  CONCLUSION_COPY,
+  DATA_NOTICE,
+  PLAN_NOTICE,
+} from '@/content/cardfit-copy'
+import { CalculationBasisSheet } from '@/features/cardfit/result/calculation-basis-sheet'
+import { BenefitSummary } from '@/features/cardfit/result/benefit-summary'
+import { CardRoleList } from '@/features/cardfit/result/card-role-list'
+import { PaymentAllocation } from '@/features/cardfit/result/payment-allocation'
+import { NextActions } from '@/features/cardfit/result/next-actions'
+import { ResultActions } from '@/features/cardfit/result/result-actions'
+import { ScenarioTabs } from '@/features/cardfit/result/scenario-tabs'
 import {
   Actions,
   ErrorNote,
-  GhostLink,
   Note,
   PrimaryLink,
   Screen,
   ScreenHeader,
-  SecondaryLink,
 } from '@/components/shell'
-import { logEvent } from '@/state/events'
+import { logEvent } from '@/state/client-events'
 import { useDemo } from '@/state/store'
 
 /** UI-005 + UI-006 — 기준본 s5. 결론 배너는 좁게, 결제 배분표가 본문 (`T2`). */
 export default function ResultScreen() {
   const router = useRouter()
-  const { calculation, error, profile, clearError } = useDemo()
+  const {
+    calculation,
+    scenarios,
+    error,
+    pending,
+    profile,
+    plan,
+    constraint,
+    clearError,
+    confirmCombination,
+  } = useDemo()
   const [scenario, setScenario] = useState('expected')
+  const [basisOpen, setBasisOpen] = useState(false)
   const [liked, setLiked] = useState(false)
 
   useEffect(() => {
-    if (!calculation && !error) router.replace('/app/plan')
-  }, [calculation, error, router])
+    // 계산이 도는 동안은 기다린다. 결과가 오기 전에 되돌리면 흐름이 끊긴다
+    if (!calculation && !error && !pending) router.replace('/app/plan')
+  }, [calculation, error, pending, router])
 
   useEffect(() => {
     if (calculation) {
@@ -48,7 +64,6 @@ export default function ResultScreen() {
     return (
       <Screen>
         <ScreenHeader
-          step="계산 결과"
           title={
             error.code === 'INVALID_PLAN'
               ? '아직 계산할 수 없어요'
@@ -79,12 +94,26 @@ export default function ResultScreen() {
   }
 
   if (!calculation) return null
-  const shown = calculation.decision === '변경' ? calculation.chosen : calculation.current
-  const multiplier =
-    CONCLUSION_COPY.scenario.options.find((item) => item.key === scenario)?.multiplier ?? 1
 
+  const scenarioOption =
+    CONCLUSION_COPY.scenario.options.find((item) => item.key === scenario) ??
+    CONCLUSION_COPY.scenario.options[1]!
+  // 시나리오 계산이 결과를 못 만들면(예: 근거 미달) 확인한 계획 결과로 되돌린다
+  const shownCalculation = scenarios[scenario] ?? calculation
+  const shown =
+    shownCalculation.decision === '변경' ? shownCalculation.chosen : shownCalculation.current
+  /*
+   * 종착 행동 — 북극성(조합안 선택률)의 측정 지점이다 (`T12`).
+   * 고른 시점의 규칙 버전·기준일·금액을 함께 얼린다 (`T43`).
+   */
   const likeCombination = () => {
     setLiked(true)
+    confirmCombination()
+    logEvent('조합좋아요', {
+      candidate_id: shown.candidate_id,
+      decision: shownCalculation.decision,
+      scenario,
+    })
     try {
       window.localStorage.setItem(
         'cardfit.liked-combination',
@@ -101,65 +130,68 @@ export default function ResultScreen() {
 
   return (
     <Screen>
-      <ScreenHeader step="06 · 계산 결과" title={CONCLUSION_COPY.title} backHref="/app/constraint" />
+      {/* 결과 화면에는 제목을 두지 않는다 — 결론 배너가 그 자리다 (v0.5) */}
+      <ScreenHeader backHref="/app/constraint" />
 
-      {/*
-        지출 탐색 — 계획이 예상보다 적거나 많을 때 폭이 어느 정도인지 가늠하는 참고값이다.
-        계산을 다시 돌리지 않고 확인한 계획의 배수로만 보여주며, 공식 결론은 `예상대로` 기준이다.
-      */}
       <div className="result-shell">
-        <div className="scenario-explorer">
-          <span className="label">{CONCLUSION_COPY.scenario.label}</span>
-          <div className="scenario-tabs" role="group" aria-label="지출 탐색">
-            {CONCLUSION_COPY.scenario.options.map((option) => (
-              <button
-                key={option.key}
-                type="button"
-                className={scenario === option.key ? 'active' : ''}
-                aria-pressed={scenario === option.key}
-                onClick={() => setScenario(option.key)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-          <div className="scenario-value">
-            {CONCLUSION_COPY.scenario.valueLabel}
-            <b className="tabular-nums">
-              연 {won(Math.round(shown.net_benefit * multiplier))}
-            </b>{' '}
-            {CONCLUSION_COPY.scenario.suffix}
-          </div>
-        </div>
-        <ConclusionBanner calculation={calculation} />
+        <ScenarioTabs selected={scenario} onSelect={setScenario} />
+        <BenefitSummary
+          calculation={shownCalculation}
+          scenarioLabel={scenarioOption.label}
+          onOpenEvidence={() => setBasisOpen(true)}
+        />
       </div>
+
+      {/* 어떤 가정의 결과인지 밝힌다 — 시나리오를 바꾸면 결론이 뒤집힐 수 있다 */}
+      {scenario === 'expected' ? null : (
+        <p className="footer">{CONCLUSION_COPY.scenario.assumption(scenarioOption.label)}</p>
+      )}
 
       <Note>
         <b>{CONCLUSION_COPY.baselineTitle}</b>
         <br />
-        {calculation.decision === '변경'
-          ? CONCLUSION_COPY.change.caption(calculation.current_card_count)
+        {shownCalculation.decision === '변경'
+          ? CONCLUSION_COPY.change.caption(shownCalculation.current_card_count)
           : CONCLUSION_COPY.hold.caption()}
       </Note>
 
-      <CombinationList calculation={calculation} cards={profile.cards} />
-      <AllocationTable candidate={shown} cards={profile.cards} />
-      <ReviewedAlternatives reviewed={calculation.reviewed} cards={profile.cards} />
+      {/*
+        결제 배분표가 결과 화면의 주인공이다 (`T2`). 카드 역할보다 위에 둔다 —
+        사용자가 결정할 것은 "어느 카드를 쓰냐"가 아니라 "어디에 어느 카드로 결제하냐"다.
+        기준본은 `카드별 역할` 제목에 `order:2`를 걸어 자기 목록과 떼어 놓지만, 제목과
+        내용이 분리된 쪽 버그라 따라가지 않는다 (SRS UI-006).
+      */}
+      <div className="result-section-heading allocation-heading">
+        <h3>{ALLOCATION_COPY.heading}</h3>
+      </div>
+      <PaymentAllocation candidate={shown} cards={profile.cards} plan={plan} />
+
+      <p className="footer">
+        {CONCLUSION_COPY.constraintCaption(constraint.max_cards, constraint.allow_new_card)}
+      </p>
+
+      <div className="result-section-heading cards-heading">
+        <h3>{CARD_ROLE_COPY.heading}</h3>
+      </div>
+      <CardRoleList calculation={shownCalculation} cards={profile.cards} />
 
       <p className="footer">{DATA_NOTICE.sampleFootnote}</p>
 
-      <Actions>
-        <button
-          type="button"
-          className={liked ? 'primary liked' : 'primary'}
-          aria-pressed={liked}
-          onClick={likeCombination}
-        >
-          {liked ? '좋아요를 반영했어요' : '이 조합 좋아요'}
-        </button>
-        <SecondaryLink href="/app/evidence">{CONCLUSION_COPY.evidenceCta}</SecondaryLink>
-        <GhostLink href="/app/plan">{CONCLUSION_COPY.editPlanCta}</GhostLink>
-      </Actions>
+      <ResultActions liked={liked} onLike={likeCombination} />
+
+      {/*
+        선택하면 같은 화면에서 다음 행동이 펼쳐진다. 별도 확정 화면을 두지 않는다 —
+        `확정` 단계가 신청·해지를 대행하는 것으로 읽힌다 (SRS UI-008 · `T12`).
+      */}
+      {liked ? <NextActions candidate={shown} cards={profile.cards} /> : null}
+
+      <CalculationBasisSheet
+        open={basisOpen}
+        onClose={() => setBasisOpen(false)}
+        candidate={shown}
+        scenarioLabel={scenarioOption.label}
+        pass={shownCalculation.decision === '변경'}
+      />
     </Screen>
   )
 }

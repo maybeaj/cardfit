@@ -10,10 +10,10 @@
  *
  * 재실행해도 같은 결과가 나온다 (TEC-04 완료 조건).
  */
-import { PrismaClient, SpendDirection } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import { changeCase } from '../src/fixtures/change-case'
 import { maintainCase } from '../src/fixtures/maintain-case'
-import type { Profile } from '../src/domain/types'
+import type { Profile } from '../src/domain/cardfit/types'
 import { seedMydata } from './seed-mydata'
 
 const prisma = new PrismaClient()
@@ -49,10 +49,6 @@ function dayOfMonth(index: number): number {
   return [5, 12, 19, 26][index % 4] as number
 }
 
-function toEnum(direction: 'increase' | 'decrease'): SpendDirection {
-  return direction === 'increase' ? SpendDirection.INCREASE : SpendDirection.DECREASE
-}
-
 async function seedProfile(profile: Profile, label: string) {
   const asOf = new Date(`${profile.as_of_date}T00:00:00Z`)
 
@@ -74,8 +70,7 @@ async function seedProfile(profile: Profile, label: string) {
           id: `${profile.fixture_id}:${item.plan_id}`,
           category: item.category,
           amount: item.amount,
-          direction: toEnum(item.direction),
-          monthOffset: item.month_offset,
+          spendingMonths: item.spending_months,
         })),
       },
     },

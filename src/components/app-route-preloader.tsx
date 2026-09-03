@@ -8,7 +8,6 @@ const APP_ROUTES = [
   '/app/summary',
   '/app/plan',
   '/app/constraint',
-  '/app/calculating',
   '/app/result',
   '/app/evidence',
   '/app/confirm',

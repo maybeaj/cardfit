@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { loadProfile } from '@/server/repository'
+import { loadProfile } from '@/server/repositories/profile.repository'
 import { DemoProvider } from '@/state/store'
 import { AppRoutePreloader } from '@/components/app-route-preloader'
 import { ErrorNote, PhoneShell, Screen, ScreenHeader } from '@/components/shell'
@@ -31,7 +31,7 @@ export default async function AppDemoLayout({ children }: { children: ReactNode 
     return (
       <PhoneShell>
         <Screen>
-          <ScreenHeader step="데이터 오류" title="예시 데이터를 불러오지 못했어요" />
+          <ScreenHeader title="예시 데이터를 불러오지 못했어요" />
           <ErrorNote>
             {loaded.error.message}
             {loaded.error.missing.length > 0 ? ` (${loaded.error.missing.join(', ')})` : null}

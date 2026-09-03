@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ONBOARDING_COPY } from '@/content/copy'
-import { ConsentSheet } from '@/components/consent-sheet'
-import { Actions, Note, PrimaryButton, Screen } from '@/components/shell'
+import { ONBOARDING_COPY } from '@/content/cardfit-copy'
+import { MydataConsentSheet } from '@/features/cardfit/onboarding/mydata-consent-sheet'
+import { Actions, PrimaryButton, Screen } from '@/components/shell'
 import { useDemo } from '@/state/store'
 
 /**
  * UI-011 온보딩 — 기준본 s0.
  *
- * `카드조합 추천받기`를 누르면 별도 화면으로 넘어가지 않고 마이데이터 동의 바텀시트가
+ * `내 카드 조합 찾기`를 누르면 별도 화면으로 넘어가지 않고 마이데이터 동의 바텀시트가
  * 이 화면 위에 올라온다 (`P04-R1` · `P04-R2`). 동의를 마치면 현재 카드 확인으로 간다.
  */
 export default function OnboardingScreen() {
@@ -37,8 +37,7 @@ export default function OnboardingScreen() {
         <br />
         {ONBOARDING_COPY.title[1]}
       </h2>
-      <p className="onboarding-copy">{ONBOARDING_COPY.lead}</p>
-
+      {/* 부연 문단과 하단 안내는 두지 않는다. 아이콘은 계약에 있다 (v0.5) */}
       <div className="onboarding-steps" aria-label="CardFit 이용 과정">
         {ONBOARDING_COPY.steps.map((step) => (
           <div key={step.title} className="onboarding-step">
@@ -53,17 +52,15 @@ export default function OnboardingScreen() {
         ))}
       </div>
 
-      <Note>
-        <b>{ONBOARDING_COPY.noteTitle}</b>
-        <br />
-        {ONBOARDING_COPY.noteBody}
-      </Note>
-
       <Actions>
         <PrimaryButton onClick={() => setConsentOpen(true)}>{ONBOARDING_COPY.cta}</PrimaryButton>
       </Actions>
 
-      <ConsentSheet open={consentOpen} onClose={() => setConsentOpen(false)} onAccept={accept} />
+      <MydataConsentSheet
+        open={consentOpen}
+        onClose={() => setConsentOpen(false)}
+        onAccept={accept}
+      />
     </Screen>
   )
 }

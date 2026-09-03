@@ -87,10 +87,13 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min(100%, 430px);
-  min-height: 100dvh;
+  width: 402px;
   margin: 0 auto;
-  overflow-x: hidden;
+  /*
+   * 셸을 자르지 않는다 — 화면이 900px 고정이라 브라우저 창이 그보다 낮으면
+   * 문서가 스크롤해서 아래쪽에 닿아야 한다. 여기서 잘라내면 화면 하단의
+   * 버튼을 아예 누를 수 없다.
+   */
   background: var(--color-bg);
   font-size: 13px;
   box-shadow: 0 0 38px #18324d12;
@@ -118,46 +121,64 @@ body {
 
 /* ── 화면과 패널 ────────────────────────────────────────────
    한 화면 = 흰 카드 하나. 버튼은 카드 맨 아래에 붙는다. */
+/*
+ * 기준본의 iPhone 17 뷰포트를 그대로 고정한다 — 402×900.
+ * 화면이 늘어나지 않으므로 어떤 화면을 열어도 프레임 크기가 같고,
+ * 내용이 길어지면 화면이 아니라 패널 안에서 스크롤된다.
+ */
 .screen {
-  flex: 1;
+  flex: none;
   display: flex;
+  width: 402px;
+  height: 900px;
+  margin: 0 auto;
   padding: 12px;
-  min-height: 100dvh;
+  overflow: hidden;
 }
 
 .panel {
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: calc(100dvh - 24px);
+  height: 100%;
   padding: 20px 16px 24px;
   border: 1px solid var(--color-line);
   border-radius: 26px;
   background: var(--color-surface);
   box-shadow: 0 6px 18px #18324d0d;
+  /* 넘치는 내용은 여기서 스크롤한다. 스크롤바는 숨겨 기기 화면처럼 보이게 한다 */
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.panel::-webkit-scrollbar {
+  display: none;
+}
+/*
+ * 패널이 세로 flex 컨테이너라 내용이 높이를 넘으면 자식들이 기본값(`flex-shrink: 1`)으로
+ * 찌그러진다. 찌그러진 요소는 제 높이를 잃고 다음 요소가 그 위를 덮어 버튼을 누를 수 없게 된다.
+ * 자식은 제 높이를 지키게 두고 넘치는 만큼 패널이 스크롤한다.
+ */
+.panel > * {
+  flex-shrink: 0;
 }
 
-@media (max-width: 430px) {
+/*
+ * 402보다 좁은 기기 — 화면 크기는 402×900으로 유지하고 통째로 축소한다.
+ * 폭을 줄이면 402 기준으로 맞춘 배치가 깨지므로 비율만 바꾼다.
+ */
+@media (max-width: 402px) {
   .mobile-shell {
     box-shadow: none;
-  }
-  .screen {
-    padding: 0;
-  }
-  .panel {
-    min-height: 100dvh;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    padding: max(22px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+    transform: scale(calc(100vw / 402));
+    transform-origin: top center;
   }
 }
 .panel h2 {
-  margin: 8px 0 6px;
-  font-size: 21px;
-  line-height: 1.28;
+  margin: 10px 0 28px;
+  font-size: 28px;
+  line-height: 1.29;
   letter-spacing: -0.035em;
-  font-weight: 800;
+  font-weight: 700;
 }
 .panel h3 {
   margin: 16px 0 8px;
@@ -219,6 +240,32 @@ body {
 }
 
 /* ── 공통 블록 ─────────────────────────────────────────────── */
+/* 뒤로 가기 — 글자 없이 아이콘만. 제목 위 왼쪽에 붙는다 */
+.back-link {
+  display: inline-grid;
+  place-items: center;
+  align-self: flex-start;
+  width: 30px;
+  height: 30px;
+  margin: -4px 0 2px -6px;
+  border-radius: 50%;
+  color: var(--color-subtle);
+  transition: background 0.16s ease, color 0.16s ease;
+}
+.back-link:hover {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+.back-link svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 기준본은 패널 안에서 배지를 감춘다 (`.device .panel>.badge{display:none}`) */
+.panel > .badge {
+  display: none;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -486,51 +533,48 @@ body {
 }
 
 /* ── 온보딩 ────────────────────────────────────────────────── */
+/*
+ * UI-011 온보딩 — v0.5 최종 렌더 상태.
+ *
+ * 기준본은 단계를 카드로 만들었다가 마지막 오버라이드에서 **구분선만 남긴 목록**으로
+ * 바꾼다. 아이콘도 DOM에는 두되 `display:none`으로 감춘다 — 첫 화면에서 눈이 붙잡을
+ * 것을 줄이려는 것이고, 마크업을 지우지 않아 다른 폭에서 되살릴 수 있다.
+ */
 .onboarding-kicker {
-  color: var(--color-blue);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
   margin-bottom: 8px;
-}
-.onboarding-copy {
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--color-subtle);
+  color: var(--color-blue);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 .onboarding-steps {
   display: grid;
-  gap: 8px;
-  margin: 22px 0 4px;
+  gap: 0;
+  margin: 20px 0;
+  border-top: 1px solid var(--color-line);
 }
 .onboarding-step {
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
-  padding: 10px 11px;
-  border: 1px solid #dfe8f2;
-  border-radius: 13px;
-  background: #fbfdff;
+  display: block;
+  padding: 18px 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-line);
+  border-radius: 0;
+  background: var(--color-surface);
 }
+/* 마크업은 남기고 이 폭에서만 감춘다 */
 .onboarding-step .step-icon {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: var(--color-blue-soft);
-  font-size: 16px;
+  display: none;
 }
 .onboarding-step b {
   display: block;
-  font-size: 11px;
+  font-size: 17px;
+  font-weight: 600;
 }
 .onboarding-step small {
   display: block;
-  margin-top: 1px;
+  margin-top: 4px;
   color: var(--color-subtle);
-  font-size: 9px;
+  font-size: 14px;
   line-height: 1.4;
 }
 /* ── 현재 카드와 혜택 확인 ─────────────────────────────────── */
@@ -771,52 +815,32 @@ body {
   cursor: pointer;
 }
 .spend-controls {
-  display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.85fr);
-  gap: 8px;
-  align-items: center;
+  display: block;
 }
 .amount-field {
-  order: 1;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px;
 }
 .amount-field input {
   width: 100%;
   min-width: 0;
-  border: 1px solid var(--color-line);
-  border-radius: 9px;
-  padding: 7px;
+  height: 38px;
+  border: 1px solid #cfd9e5;
+  border-radius: 10px;
+  background: #fbfcfe;
+  padding: 7px 9px;
   text-align: right;
-  font-size: 12px;
+  font-size: 15px;
+  font-weight: 850;
+  color: var(--color-ink);
 }
 .amount-field small {
-  color: var(--color-subtle);
-  font-size: 10px;
+  align-self: center;
+  color: #526176;
+  font-size: 13px;
+  font-weight: 800;
   white-space: nowrap;
-}
-.toggle {
-  order: 2;
-  display: flex;
-  min-width: 0;
-  border: 1px solid var(--color-line);
-  border-radius: 9px;
-  overflow: hidden;
-}
-.toggle button {
-  flex: 1;
-  padding: 7px 4px;
-  border: 0;
-  background: #fff;
-  color: var(--color-subtle);
-  font-size: 11px;
-  cursor: pointer;
-}
-.toggle button.active {
-  background: var(--color-blue);
-  color: #fff;
 }
 .spend > select {
   width: 100%;
@@ -839,53 +863,6 @@ body {
   font-size: 12px;
   font-weight: 850;
   cursor: pointer;
-}
-.category-picker {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 7px;
-  align-items: end;
-  margin: 9px 0;
-  padding: 11px;
-  border: 1px solid #bcd0ec;
-  border-radius: 13px;
-  background: #f7faff;
-}
-.category-picker label {
-  min-width: 0;
-}
-.category-picker label b {
-  display: block;
-  margin-bottom: 5px;
-  font-size: 10px;
-}
-.category-picker select {
-  width: 100%;
-  border: 1px solid var(--color-line);
-  border-radius: 8px;
-  background: #fff;
-  padding: 7px;
-  font-size: 11px;
-  color: var(--color-ink);
-}
-.category-picker > button {
-  white-space: nowrap;
-  padding: 8px 10px;
-  border: 0;
-  border-radius: 9px;
-  background: var(--color-blue-soft);
-  color: var(--color-blue);
-  font-size: 10px;
-  font-weight: 850;
-  cursor: pointer;
-}
-.category-picker > small {
-  grid-column: 1 / -1;
-  display: block;
-  margin-top: 8px;
-  color: var(--color-subtle);
-  font-size: 9px;
-  line-height: 1.4;
 }
 
 /* ── 지출 탐색 ─────────────────────────────────────────────── */
@@ -1041,7 +1018,7 @@ body {
 }
 
 /* ── 마이데이터 동의 바텀시트 ──────────────────────────────── */
-.consent-backdrop {
+.sheet-backdrop {
   position: absolute;
   inset: 0;
   z-index: 20;
@@ -1050,7 +1027,7 @@ body {
   justify-content: center;
   background: #15223866;
 }
-.consent-sheet {
+.bottom-sheet {
   position: relative;
   width: 100%;
   max-height: 88%;
@@ -1060,9 +1037,9 @@ body {
   border-radius: 26px 26px 0 0;
   background: #fff;
   box-shadow: 0 -14px 34px #1522382b;
-  animation: consent-sheet-up 0.28s cubic-bezier(0.22, 0.8, 0.25, 1) both;
+  animation: bottom-sheet-up 0.28s cubic-bezier(0.22, 0.8, 0.25, 1) both;
 }
-@keyframes consent-sheet-up {
+@keyframes bottom-sheet-up {
   from {
     transform: translateY(100%);
     opacity: 0.7;
@@ -1100,7 +1077,7 @@ body {
   letter-spacing: 0.08em;
   margin-bottom: 6px;
 }
-.consent-sheet h2 {
+.bottom-sheet h2 {
   margin: 0 34px 5px 0;
   font-size: 20px;
   line-height: 1.3;
@@ -1111,23 +1088,6 @@ body {
   color: var(--color-subtle);
   font-size: 11px;
   line-height: 1.45;
-}
-.consent-purpose {
-  display: grid;
-  grid-template-columns: 58px minmax(0, 1fr);
-  gap: 8px;
-  padding: 9px 10px;
-  border-radius: 10px;
-  background: #f7f9fc;
-  margin: 6px 0;
-  font-size: 10px;
-  line-height: 1.4;
-}
-.consent-purpose b {
-  font-size: 10px;
-}
-.consent-purpose span {
-  color: var(--color-subtle);
 }
 .consent-items {
   margin-top: 12px;
@@ -1164,12 +1124,6 @@ body {
   font-size: 9px;
   line-height: 1.4;
 }
-.consent-items label .detail-link {
-  color: var(--color-blue);
-  font-size: 9px;
-  white-space: nowrap;
-  margin-top: 2px;
-}
 .consent-items .consent-all {
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr);
@@ -1186,19 +1140,6 @@ body {
 }
 .consent-items .consent-all span small {
   font-size: 9px;
-}
-.consent-term {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 11px;
-  padding: 10px;
-  border-radius: 10px;
-  background: #f7f9fc;
-  font-size: 10px;
-}
-.consent-term span {
-  color: var(--color-subtle);
 }
 .legal-note {
   margin: 10px 0 12px;
@@ -1281,4 +1222,749 @@ body {
   html {
     @apply font-sans;
   }
+}
+
+/* ── 결론 상자 — 기준본 s5의 `#resultBox` ─────────────────── */
+.result-shell {
+  margin-top: 12px;
+  border: 1px solid var(--color-mint-line);
+  border-radius: 15px;
+  overflow: hidden;
+  background: #fff;
+}
+.result-shell .scenario-explorer {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid var(--color-line);
+  background: #fbfdff;
+  padding: 11px 12px 0;
+}
+.result-shell .scenario-tabs {
+  gap: 0;
+  margin-top: 7px;
+}
+.result-shell .scenario-tabs button {
+  position: relative;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 8px 4px 9px;
+  font-weight: 800;
+}
+.result-shell .scenario-tabs button.active {
+  background: transparent;
+  color: var(--color-blue);
+}
+/* 선택한 시나리오에 밑줄을 그어 어느 가정을 보고 있는지 남긴다 */
+.result-shell .scenario-tabs button.active::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 0;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--color-blue);
+}
+.result-shell .result {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 18px 15px 17px;
+  background: linear-gradient(145deg, #e9f9f2, #f7fffb);
+  box-shadow: none;
+}
+.result-shell .result.hold {
+  background: linear-gradient(145deg, #fff7e5, #fffcf5);
+}
+
+.benefit-label {
+  display: block;
+  color: #376b5a;
+  font-size: 11px;
+  font-weight: 850;
+}
+.hold .benefit-label {
+  color: #7a5b1f;
+}
+.benefit-value {
+  display: block;
+  margin: 5px 0 2px;
+  color: #056b4a;
+  font-size: 31px;
+  line-height: 1.08;
+  font-weight: 950;
+  letter-spacing: -0.045em;
+}
+.hold .benefit-value {
+  color: var(--color-warning);
+  font-size: 24px;
+}
+.benefit-value small {
+  font-size: 13px;
+  letter-spacing: -0.02em;
+}
+.benefit-delta {
+  display: inline-flex;
+  margin-top: 7px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--color-positive);
+  font-size: 9px;
+  font-weight: 850;
+  box-shadow: 0 3px 9px #087a5514;
+}
+.hold .benefit-delta {
+  color: var(--color-warning);
+}
+
+.result-evidence-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 13px;
+  padding: 10px 0 0;
+  border: 0;
+  border-top: 1px solid #bfe6d6;
+  background: transparent;
+  color: #356052;
+  font-size: 10px;
+  font-weight: 850;
+  text-align: left;
+  cursor: pointer;
+}
+.hold .result-evidence-trigger {
+  border-top-color: var(--color-amber-line);
+  color: #7a5b1f;
+}
+.result-evidence-trigger span:last-child {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* 근거 시트 상단 요약 — 어떤 시나리오의 금액을 설명하는지 밝힌다 */
+.evidence-sheet-summary {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--color-mint);
+}
+.evidence-sheet-summary span {
+  color: #376b5a;
+  font-size: 10px;
+  font-weight: 800;
+}
+.evidence-sheet-summary strong {
+  color: #056b4a;
+  font-size: 22px;
+  font-weight: 950;
+  letter-spacing: -0.03em;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   기준본 s3·s5 이식 — app/prototype-v0.4-port의 화면 스타일.
+   레이아웃·인터랙션은 기준본이 정본이다 (ADR-004).
+   ══════════════════════════════════════════════════════════════ */
+/* ── FR-004 결제수단 배분 — 결과 화면의 본문 (UI-006 · T2) ──── */
+.allocation {
+  display: grid;
+  gap: 8px;
+}
+.allocation-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 10px;
+  align-items: center;
+  padding: 11px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 13px;
+  background: #fff;
+}
+.allocation-what b {
+  display: block;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+.allocation-what small {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-subtle);
+  font-size: 12px;
+}
+.allocation-amount {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-align: right;
+  white-space: nowrap;
+}
+.allocation-card {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 7px;
+  padding-top: 8px;
+  border-top: 1px solid #eef2f7;
+}
+.allocation-card img {
+  width: 36px;
+  height: 23px;
+  flex: 0 0 36px;
+  border-radius: 5px;
+  object-fit: cover;
+}
+.allocation-card b {
+  display: block;
+  font-size: 13px;
+}
+.allocation-card small {
+  display: block;
+  margin-top: 1px;
+  color: var(--color-blue);
+  font-size: 11px;
+  font-weight: 800;
+}
+.allocation-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 13px;
+  background: var(--color-blue-soft);
+}
+.allocation-total b {
+  font-size: 14px;
+  color: #1d4ed8;
+}
+.allocation-total span {
+  text-align: right;
+}
+.allocation-total strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 900;
+  color: #12327c;
+  letter-spacing: -0.02em;
+}
+.allocation-total small {
+  display: block;
+  margin-top: 2px;
+  color: #4a6ba8;
+  font-size: 11px;
+}
+/* ── 좋아요 이후의 다음 행동 (AC-003 · T27) ────────────────── */
+.next-actions {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #bde5d4;
+  border-radius: 15px;
+  background: var(--color-mint);
+}
+.next-actions h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+.next-action {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  padding: 9px 10px;
+  border-radius: 11px;
+  background: #ffffffcc;
+  margin-bottom: 7px;
+}
+.next-action b {
+  display: block;
+  font-size: 13px;
+}
+.next-action small {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-subtle);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.tiny-note {
+  margin: 8px 0 0;
+  color: #3d6b5b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+/* ── 입력 화면 ─────────────────────────────────────────────── */
+.amount-echo {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-subtle);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+/*
+ * 삭제 되돌리기 바.
+ *
+ * 기준본은 이 바를 다크로 칠했지만 그대로 쓰지 않는다 — 다크 영역은 결론 배너
+ * 하나뿐이고, 늘어나면 결론의 신호값이 사라진다 (`T13`). 앰버 토큰으로 "되돌릴 수
+ * 있는 상태"임을 알리되 결론보다 약하게 둔다.
+ */
+.undo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-amber-line);
+  border-radius: 12px;
+  background: var(--color-amber);
+  color: var(--color-warning);
+  font-size: 13px;
+  font-weight: 700;
+}
+.undo-bar button {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--color-amber-line);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-warning);
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+}
+.undo-bar button:hover {
+  background: #fffaf0;
+}
+/* HTML prototype parity: future-spend category picker */
+.category-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 3px;
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 19px !important;
+  font-weight: 500 !important;
+  text-align: left;
+}
+.category-trigger::after { content: '⌄'; color: #8b95a1; font-size: 18px; }
+.category-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(25, 31, 40, .4);
+}
+.category-sheet {
+  width: 100%;
+  max-height: 76%;
+  overflow: auto;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  border-radius: 24px 24px 0 0;
+  background: #fff;
+  box-shadow: 0 -12px 30px rgba(0,0,0,.12);
+}
+.category-sheet-handle { width: 38px; height: 4px; margin: 0 auto 18px; border-radius: 99px; background: #d8dce0; }
+.category-sheet-title { margin: 0 0 14px; font-size: 22px; font-weight: 600; }
+.category-group { border-top: 1px solid var(--line); }
+.category-group summary { padding: 15px 0; cursor: pointer; list-style: none; font-size: 16px; font-weight: 600; }
+.category-group summary::-webkit-details-marker { display: none; }
+.category-group summary::after { content: '＋'; float: right; color: #8b95a1; font-weight: 400; }
+.category-group[open] summary::after { content: '−'; }
+.category-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0 0 14px; }
+.category-options button { min-height: 44px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: #333d4b; font-size: 15px; font-weight: 500; text-align: left; }
+.category-options button:hover, .category-options button.selected { border-color: #00a86b; background: #e8f8f1; color: #008f5b; }
+.category-sheet-close { width: 100%; min-height: 46px; margin-top: 8px; border: 0; border-radius: 11px; background: #f2f4f6; color: #6b7684; font-size: 16px; font-weight: 500; }
+.screen[data-screen='s5'] .allocation-heading { order: 3; }
+.screen[data-screen='s5'] .allocation { order: 4; }
+.screen[data-screen='s5'] .next-actions { order: 8; }
+.consent-reassurance { margin: 18px 0 0; color: var(--muted); font-size: 14px; text-align: center; }.spend-index {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  border-radius: 7px;
+  background: var(--color-blue);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+.amount-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #526176;
+  font-size: 12px;
+  font-weight: 800;
+}
+/* 스크린리더 전용 — 화면에서는 감추고 보조기술에는 남긴다 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.spend-duration {
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid #edf1f5;
+}
+.spend-duration-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #46566b;
+  font-size: 12px;
+  font-weight: 850;
+}
+.duration-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.duration-options button {
+  min-width: 0;
+  padding: 7px 2px;
+  border: 1px solid #d8e1ec;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--color-subtle);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.duration-options button.active {
+  border-color: var(--color-blue);
+  background: var(--color-blue-soft);
+  color: var(--color-blue);
+  box-shadow: inset 0 0 0 1px #2563eb1f;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   v0.5 기준본 이식 — 동의 시트·계산 기준 시트·다음 행동.
+   값은 토큰으로 참조한다. 기준본의 raw 색상을 그대로 옮기지 않는다.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 마이데이터 동의 (UI-012) — 필수 2항목 + 그 자리에서 펼치는 상세 ── */
+.compact-consent {
+  margin-top: 24px;
+  border-top: 0;
+}
+.compact-consent .consent-all,
+.consent-row > label {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+.compact-consent .consent-all {
+  margin: 0;
+  padding: 14px 38px 14px 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-line);
+  border-radius: 0;
+  background: var(--color-surface);
+}
+.compact-consent .consent-all span b {
+  font-size: 15px;
+}
+.compact-consent input[type='checkbox'] {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  align-self: center;
+}
+.consent-row {
+  position: relative;
+  border-bottom: 1px solid var(--color-line);
+}
+.consent-row > label {
+  min-height: 58px;
+  margin: 0;
+  padding: 16px 38px 16px 0;
+  border: 0;
+}
+.consent-row > label span b {
+  font-size: 14px;
+}
+/* `필수` 표시는 색으로만 구분하지 않는다 — 글자로도 읽힌다 */
+.consent-row em {
+  margin-right: 5px;
+  color: var(--color-blue);
+  font-size: 13px;
+  font-style: normal;
+}
+.consent-row details {
+  position: static;
+}
+/*
+ * 펼침 화살표를 항목 오른쪽에 겹쳐 둔다. 별도 줄로 빼면 항목마다 높이가 늘어
+ * 시트 안에서 두 항목이 한 화면에 안 들어온다.
+ */
+.consent-row summary {
+  position: absolute;
+  top: 13px;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--color-subtle);
+  font-size: 28px;
+  line-height: 1;
+}
+.consent-row summary::-webkit-details-marker {
+  display: none;
+}
+.consent-row details[open] summary {
+  transform: rotate(90deg);
+}
+.consent-detail-body {
+  margin: 0 0 14px 30px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--color-bg);
+  color: var(--color-subtle);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.consent-detail-body > b {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-ink);
+  font-size: 14px;
+}
+.consent-detail-body dl,
+.consent-detail-body dd {
+  margin: 0;
+}
+.consent-detail-body dl {
+  display: grid;
+  gap: 8px;
+}
+.consent-detail-body dl > div {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr);
+  gap: 8px;
+}
+.consent-detail-body dt {
+  color: var(--color-subtle);
+}
+.consent-reassurance {
+  margin: 18px 0 0;
+  color: var(--color-subtle);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ── 계산 기준 요약 시트 (UI-007) — 전체 근거 화면과 다른 화면이다 ── */
+.evidence-sheet .evidence-summary {
+  margin: 10px 0 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--color-mint);
+}
+.evidence-sheet .evidence-summary span {
+  display: block;
+  color: var(--color-subtle);
+  font-size: 12px;
+  font-weight: 800;
+}
+.evidence-sheet .evidence-summary strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--color-positive);
+  font-size: 20px;
+}
+.evidence-lines {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--color-line);
+}
+.evidence-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 12px;
+}
+.evidence-line span {
+  color: var(--color-subtle);
+  text-align: right;
+}
+.sheet-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+.sheet-actions > * {
+  display: grid;
+  place-items: center;
+  min-height: 42px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.sheet-actions .secondary {
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+.sheet-actions .primary {
+  background: var(--color-blue);
+  color: #fff;
+}
+
+/* ── 다음에 하면 되는 일 (UI-008) — 결과 화면 안에서 펼쳐진다 ── */
+.next-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 9px;
+  background: var(--color-blue);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 850;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   v0.5 s3·s6 이식 — 입력 합계·건너뛰기와 상세 근거.
+   기준본의 raw 변수를 우리 토큰으로 옮긴다.
+   ══════════════════════════════════════════════════════════════ */
+.error{color:var(--color-danger);background:var(--color-danger-soft);padding:12px;border-radius:12px;font-size:13px}
+.spend-evidence{margin:14px 0 4px;padding:12px;border:1px solid #cfe0f6;border-radius:13px;background:#f7faff}
+.spend-evidence-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid #e4ebf4;font-size:12px}
+.spend-evidence-row:first-of-type{border-top:0}
+.spend-evidence-row span{color:var(--color-subtle);text-align:right}
+.card-evidence-list{display:grid;gap:11px;margin-top:13px}
+.card-evidence{overflow:hidden;border:1px solid #dce5ee;border-radius:15px;background:#fff}
+.card-evidence summary{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:9px;align-items:center;padding:11px;cursor:pointer;list-style:none}
+.card-evidence summary::-webkit-details-marker{display:none}
+.card-evidence summary img{width:52px;height:33px;object-fit:cover;border-radius:6px;box-shadow:0 3px 7px #15223818}
+.card-evidence summary b{display:block;font-size:13px}
+.card-evidence summary small{display:block;margin-top:2px;color:var(--color-subtle);font-size:11px}
+.card-evidence summary .open-mark{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#eef3f8;color:#617086;font-size:14px}
+.card-evidence[open] summary .open-mark{transform:rotate(180deg)}
+.card-evidence-body{padding:0 11px 12px;border-top:1px solid #edf1f5}
+.performance-box{margin:10px 0;padding:10px;border-radius:11px;background:#eef5ff}
+.performance-box span{display:block;color:#526176;font-size:11px}
+.performance-box strong{display:block;margin-top:2px;color:#245cc7;font-size:14px}
+.performance-table{width:100%;margin:8px 0 11px;border-collapse:collapse;font-size:11px}
+.performance-table th,.performance-table td{padding:6px 4px;border:1px solid #e1e8f0;text-align:center}
+.performance-table th{background:#f7f9fc;color:#526176}
+.benefit-rule-list{display:grid;gap:7px}
+.benefit-rule{display:grid;grid-template-columns:29px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px;border-radius:10px;background:#f8fafc}
+.benefit-rule .rule-icon{display:grid;place-items:center;width:29px;height:29px;border-radius:9px;background:#fff;font-size:14px}
+.benefit-rule b{display:block;font-size:11px}
+.benefit-rule small{display:block;margin-top:1px;color:var(--color-subtle);font-size:11px;line-height:1.35}
+.benefit-rule strong{color:var(--color-positive);font-size:11px;white-space:nowrap}
+.evidence-caution{margin:9px 0 0;color:#6c7787;font-size:11px;line-height:1.45}
+.official-link{display:inline-flex;margin-top:9px;color:var(--color-blue);font-size:11px;font-weight:850;text-decoration:none}
+.evidence-six-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:13px}
+.evidence-six-item{padding:9px;border:1px solid #dce5ee;border-radius:10px;background:#f8fafc}
+.evidence-six-item b{display:block;color:#245cc7;font-size:11px}
+.evidence-six-item span{display:block;margin-top:3px;color:#526176;font-size:11px;line-height:1.4}
+.future-total strong{color:var(--color-blue);font-size:18px}
+.future-total strong{color:#191f28;font-size:22px}
+.notice:before,.legal-note:before,.evidence-caution:before{content:"안내";display:block;margin-bottom:5px;color:#6b7684;font-size:12px;font-weight:800}
+.evidence-six-grid{grid-template-columns:1fr;gap:0;border-top:1px solid var(--color-line)}
+.evidence-six-item{padding:14px 0;border:0;border-bottom:1px solid var(--color-line);border-radius:0;background:#fff}
+.evidence-six-item b{color:#3182f6}
+.card-evidence-list{gap:0;border-top:1px solid var(--color-line)}
+.card-evidence summary{padding:16px 0}
+.card-evidence-body{padding:0 0 18px}
+.performance-table th{background:#f7f8fa}
+.benefit-rule{background:#f7f8fa}
+.benefit-rule strong{color:#1b64da}
+.evidence-six-item b,.evidence-six-item span{font-size:14px}
+.card-evidence summary b{font-size:16px}
+.performance-box span,.performance-box strong{font-size:14px}
+.notice:before,.legal-note:before,.evidence-caution:before{font-size:12px}
+.notice:before,.legal-note:before,.evidence-caution:before{font-size:13px;font-weight:600}
+
+/* 적용된 실적구간 줄을 표시한다 — 표에서 어느 줄이 쓰였는지 알아야 대조가 된다 */
+.performance-table tr.applied td {
+  background: var(--color-mint);
+  font-weight: 800;
+}
+/* 근거 6항목 개요 */
+.evidence-six-grid {
+  display: grid;
+  gap: 8px;
+  margin: 13px 0 4px;
+}
+.evidence-six-item {
+  padding: 10px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+.evidence-six-item b {
+  display: block;
+  font-size: 12px;
+  color: var(--color-blue);
+}
+.evidence-six-item span {
+  display: block;
+  margin-top: 3px;
+  color: var(--color-subtle);
+  font-size: 11px;
+  line-height: 1.45;
+}
+/* 입력 화면 합계와 건너뛰기 */
+.future-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 13px;
+  background: var(--color-blue-soft);
+}
+.future-total span {
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 800;
+}
+.future-total strong {
+  color: #12327c;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.skip-action {
+  display: grid;
+  place-items: center;
+  min-height: 46px;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--color-subtle);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
 }

@@ -8,7 +8,7 @@
  *
  * `card_performance.csv`의 전월실적은 근거 6항목의 `실적구간` 판정 근거로 함께 적재한다.
  */
-import { CardType, PrismaClient, SpendDirection } from '@prisma/client'
+import { CardType, PrismaClient } from '@prisma/client'
 import { loadMydata, MYDATA_FIXTURE_ID } from './mydata-loader'
 import { toCardTypeEnum } from '../src/fixtures/mydata/csv'
 
@@ -58,9 +58,7 @@ export async function seedMydata(prisma: PrismaClient): Promise<{
           id: `${MYDATA_FIXTURE_ID}:${item.plan_id}`,
           category: item.category,
           amount: item.amount,
-          direction:
-            item.direction === 'increase' ? SpendDirection.INCREASE : SpendDirection.DECREASE,
-          monthOffset: item.month_offset,
+          spendingMonths: item.spending_months,
         })),
       },
     },

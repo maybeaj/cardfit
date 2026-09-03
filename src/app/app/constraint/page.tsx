@@ -1,102 +1,60 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { CONSTRAINT_COPY, PLAN_NOTICE } from '@/content/copy'
-import { NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO } from '@/domain/calc'
-import { manwon, won } from '@/domain/format'
-import { planTotal } from '@/domain/plan'
+import { CONSTRAINT_COPY, PLAN_NOTICE } from '@/content/cardfit-copy'
+import { manwon, won } from '@/domain/cardfit/format'
+import { planTotal } from '@/domain/cardfit/plan'
+import { NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO } from '@/domain/cardfit/constants'
+import { CardCountStepper } from '@/features/cardfit/constraint/card-count-stepper'
+import { NewCardChoice } from '@/features/cardfit/constraint/new-card-choice'
 import { Actions, Note, PrimaryButton, Screen, ScreenHeader } from '@/components/shell'
-import { logEvent } from '@/state/events'
+import { logEvent } from '@/state/client-events'
 import { useDemo } from '@/state/store'
 
 /**
  * UI-003 변경 조건 — 기준본 s4.
  *
- * 컨트롤 모양은 기준본을 따른다 (스테퍼 + 예/아니오). 다만 사용 카드 상한은 2장이다 —
- * 기준본 HTML은 3장까지 올리지만 조합 후보를 2장 넘게 만들지 않는 것이 도메인 규칙이고
- * (`T6`), 기준본은 화면의 기준이지 계산 제약을 바꾸는 근거가 아니다.
+ * 컨트롤 모양과 상한 모두 기준본을 따른다 — 스테퍼로 1~3장을 고르고 신규는 예/아니오다 (`T11`).
+ * 기본값은 2장이다.
  */
-const MAX_CARDS_LIMIT = 2
-const MIN_CARDS_LIMIT = 1
-
 export default function ConstraintScreen() {
   const router = useRouter()
-  const { plan, constraint, updateConstraint } = useDemo()
+  const { plan, constraint, pending, updateConstraint, requestCalculation } = useDemo()
 
-  const changeMax = (delta: number) => {
-    const next = Math.min(MAX_CARDS_LIMIT, Math.max(MIN_CARDS_LIMIT, constraint.max_cards + delta))
-    updateConstraint({ max_cards: next })
-  }
-
+  /*
+   * 계산하고 결과로 바로 간다. 중간에 대기 화면을 두지 않는 이유 —
+   * 규칙 엔진이 동기 함수라 기다릴 것이 없고, 없는 지연을 연출하면
+   * 사용자가 그만큼 더 기다리게 된다.
+   */
   const confirm = () => {
     logEvent('계산요청', {
       items: plan.length,
       max_cards: constraint.max_cards,
       allow_new_card: constraint.allow_new_card,
     })
-    router.push('/app/calculating')
+    /*
+     * 계산이 끝난 뒤에 옮긴다. 먼저 옮기면 결과 화면이 빈 상태로 열려 입력으로 되튕긴다 —
+     * 금액을 만드는 곳이 서버라 결과가 즉시 있지 않다.
+     */
+    void requestCalculation().then(() => router.push('/app/result'))
   }
 
   return (
     <Screen>
       <ScreenHeader
-        step="05 · 계산 조건"
         title={CONSTRAINT_COPY.title}
-        lead={CONSTRAINT_COPY.lead}
         backHref="/app/plan"
       />
 
       <div className="mt-3 grid gap-2.5">
-        <div className="rule">
-          <div>
-            <b>{CONSTRAINT_COPY.maxCardsLabel}</b>
-            <small className="sub block">{CONSTRAINT_COPY.maxCardsHint}</small>
-          </div>
-          <div className="stepper">
-            <button
-              type="button"
-              onClick={() => changeMax(-1)}
-              disabled={constraint.max_cards <= MIN_CARDS_LIMIT}
-              aria-label="사용 카드 최대 수 줄이기"
-            >
-              −
-            </button>
-            <b aria-live="polite" className="tabular-nums">
-              {constraint.max_cards}
-            </b>
-            <button
-              type="button"
-              onClick={() => changeMax(1)}
-              disabled={constraint.max_cards >= MAX_CARDS_LIMIT}
-              aria-label="사용 카드 최대 수 늘리기"
-            >
-              ＋
-            </button>
-          </div>
-        </div>
-
-        <div className="rule">
-          <div>
-            <b>{CONSTRAINT_COPY.newCardLabel}</b>
-            <small className="sub block">{CONSTRAINT_COPY.newCardHint}</small>
-          </div>
-          <div className="choice-group" role="group" aria-label={CONSTRAINT_COPY.newCardLabel}>
-            {[
-              { value: true, label: CONSTRAINT_COPY.yes },
-              { value: false, label: CONSTRAINT_COPY.no },
-            ].map((option) => (
-              <button
-                key={String(option.value)}
-                type="button"
-                className={`choice ${constraint.allow_new_card === option.value ? 'active' : ''}`}
-                aria-pressed={constraint.allow_new_card === option.value}
-                onClick={() => updateConstraint({ allow_new_card: option.value })}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <CardCountStepper
+          value={constraint.max_cards}
+          onChange={(max_cards) => updateConstraint({ max_cards })}
+        />
+        <NewCardChoice
+          value={constraint.allow_new_card}
+          onChange={(allow_new_card) => updateConstraint({ allow_new_card })}
+        />
       </div>
 
       <div className="total">
@@ -110,7 +68,9 @@ export default function ConstraintScreen() {
       <p className="footer">{CONSTRAINT_COPY.confirmNote}</p>
 
       <Actions>
-        <PrimaryButton onClick={confirm}>{PLAN_NOTICE.confirmCta}</PrimaryButton>
+        <PrimaryButton onClick={confirm} disabled={pending}>
+          {pending ? PLAN_NOTICE.calculating : PLAN_NOTICE.confirmCta}
+        </PrimaryButton>
       </Actions>
     </Screen>
   )
