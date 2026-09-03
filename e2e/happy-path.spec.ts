@@ -37,17 +37,27 @@ test('랜딩에서 앱으로 들어가 조합을 확정한다', async ({ page })
   await page.getByRole('button', { name: '이 계획대로 계산하기' }).click()
 
   // s5 계산 결과 — 결론 배너 + 배분표
-  await expect(page.getByText('지금 조합 그대로면')).toBeVisible({ timeout: 15_000 })
-  // 배너의 캡션과 아래 `비교 기준선` 블록 두 곳에 나온다 — 둘 다 있어야 정상이다
-  await expect(page.getByText('현재 조합 3장을 그대로 쓸 때와 비교', { exact: false })).toHaveCount(2)
+  // 결론 상자는 조합이 받을 절대 혜택을 앞세우고 증가분을 뱃지로 붙인다
+  await expect(page.getByText('이 조합으로 받을 수 있는 연간 혜택')).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByText('더 받아요', { exact: false })).toBeVisible()
+  await expect(page.getByText('현재 조합 3장을 그대로 쓸 때와 비교', { exact: false })).toBeVisible()
   await expect(page.getByText('이렇게 나눠 쓰세요')).toBeVisible()
-  await expect(page.getByText('사용 카드 2장 · 신규 1장 이내에서의 최선')).toBeVisible()
+  await expect(page.getByText('사용 카드 3장 · 신규 1장 이내에서의 최선')).toBeVisible()
 
   // 금지어 0건
   const resultText = (await page.locator('body').innerText()) ?? ''
   for (const banned of ['총혜택', '최대혜택', '놓쳤어요', '손해보고 있어요']) {
     expect(resultText).not.toContain(banned)
   }
+
+  // 근거는 결과 화면 위에 시트로 열린다 — 금액을 보던 자리에서 이유를 확인한다
+  await page.getByRole('button', { name: /왜 이 금액인가요/ }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  for (const field of ['실적구간', '혜택한도', '연회비', '제외조건', '기준일']) {
+    await expect(page.getByRole('dialog').getByText(field, { exact: false }).first()).toBeVisible()
+  }
+  await page.getByRole('button', { name: '닫기' }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
 
   await page.getByRole('link', { name: '계산 근거 보기' }).click()
 
@@ -62,7 +72,7 @@ test('랜딩에서 앱으로 들어가 조합을 확정한다', async ({ page })
   ]) {
     await expect(page.getByText(field, { exact: false }).first()).toBeVisible()
   }
-  await page.getByRole('button', { name: '이 조합 확정하기' }).click()
+  await page.getByRole('button', { name: '다음 행동 보기' }).click()
 
   // s7 확정 + 경계 — 아웃링크 1개, 해지 실행 버튼 0개 (AC-003 · AC-008)
   await expect(page.getByText('CardFit의 실행 경계')).toBeVisible()

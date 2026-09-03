@@ -22,7 +22,7 @@ import { useDemo } from '@/state/store'
  */
 export default function EvidenceScreen() {
   const router = useRouter()
-  const { calculation, error, confirmCombination, pending, profile } = useDemo()
+  const { calculation, error, pending, profile } = useDemo()
 
   useEffect(() => {
     if (error) {
@@ -40,11 +40,8 @@ export default function EvidenceScreen() {
 
   const shown = calculation.decision === '변경' ? calculation.chosen : calculation.current
 
-  const apply = () => {
-    confirmCombination()
-    logEvent('조합확정', { candidate_id: shown.candidate_id, decision: calculation.decision })
-    router.push('/app/confirm')
-  }
+  // 근거를 다 본 뒤 다음 행동으로 넘어간다. 선택 자체는 결과 화면의 `좋아요`가 맡는다 (`T12`)
+  const goNext = () => router.push('/app/confirm')
 
   return (
     <Screen>
@@ -78,7 +75,7 @@ export default function EvidenceScreen() {
       </p>
 
       <Actions>
-        <PrimaryButton onClick={apply} disabled={pending}>
+        <PrimaryButton onClick={goNext} disabled={pending}>
           {EVIDENCE_COPY.applyCta}
         </PrimaryButton>
         <GhostLink href="/app/result">{EVIDENCE_COPY.backToResult}</GhostLink>

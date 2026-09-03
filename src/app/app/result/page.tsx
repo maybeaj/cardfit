@@ -1,13 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CONCLUSION_COPY, DATA_NOTICE, PLAN_NOTICE } from '@/content/copy'
-import { won } from '@/domain/format'
+import { calculatePlan } from '@/domain/calc'
+import type { Calculation } from '@/domain/types'
+import { BenefitBox } from '@/components/benefit-box'
+import { EvidenceSheet } from '@/components/evidence-sheet'
 import {
   AllocationTable,
   CombinationList,
-  ConclusionBanner,
   ReviewedAlternatives,
 } from '@/components/result-blocks'
 import {
@@ -26,9 +28,38 @@ import { useDemo } from '@/state/store'
 /** UI-005 + UI-006 — 기준본 s5. 결론 배너는 좁게, 결제 배분표가 본문 (`T2`). */
 export default function ResultScreen() {
   const router = useRouter()
-  const { calculation, error, profile, clearError } = useDemo()
+  const { calculation, error, profile, plan, constraint, clearError, confirmCombination } =
+    useDemo()
   const [scenario, setScenario] = useState('expected')
+  const [evidenceOpen, setEvidenceOpen] = useState(false)
   const [liked, setLiked] = useState(false)
+
+  /*
+   * 시나리오별 결과를 규칙 엔진으로 다시 계산한다.
+   * 출력값에 배수를 곱하지 않는 이유 — 실적구간·혜택한도·연회비는 금액에 비례하지 않아
+   * 곱셈으로는 틀린 금액이 나온다. 계획을 바꿔 엔진을 다시 돌려야 맞는 값이 된다.
+   *
+   * 엔진은 순수 함수라 같은 입력에 항상 같은 결과를 준다 (NFR-001). 서버를 다시 부르지 않아도
+   * 서버가 계산한 값과 어긋나지 않는다.
+   */
+  const scenarios = useMemo(() => {
+    const out: Record<string, Calculation | null> = {}
+    for (const option of CONCLUSION_COPY.scenario.options) {
+      if (option.multiplier === 1) {
+        // `예상대로`는 사용자가 확인한 계획 그대로다. 서버가 계산한 결과를 그대로 쓴다
+        out[option.key] = calculation
+        continue
+      }
+      const scaled = plan.map((item) => ({
+        ...item,
+        amount: Math.round(item.amount * option.multiplier),
+      }))
+      const result = calculatePlan({ profile, plan: scaled, constraint })
+      out[option.key] = result.ok ? result.calculation : null
+    }
+    return out
+  }, [calculation, plan, constraint, profile])
+
 
   useEffect(() => {
     if (!calculation && !error) router.replace('/app/plan')
@@ -78,12 +109,26 @@ export default function ResultScreen() {
   }
 
   if (!calculation) return null
-  const shown = calculation.decision === '변경' ? calculation.chosen : calculation.current
-  const multiplier =
-    CONCLUSION_COPY.scenario.options.find((item) => item.key === scenario)?.multiplier ?? 1
 
+  const scenarioOption =
+    CONCLUSION_COPY.scenario.options.find((item) => item.key === scenario) ??
+    CONCLUSION_COPY.scenario.options[1]!
+  // 시나리오 계산이 결과를 못 만들면(예: 근거 미달) 확인한 계획 결과로 되돌린다
+  const shownCalculation = scenarios[scenario] ?? calculation
+  const shown =
+    shownCalculation.decision === '변경' ? shownCalculation.chosen : shownCalculation.current
+  /*
+   * 종착 행동 — 북극성(조합안 선택률)의 측정 지점이다 (`T12`).
+   * 고른 시점의 규칙 버전·기준일·금액을 함께 얼린다 (`T43`).
+   */
   const likeCombination = () => {
     setLiked(true)
+    confirmCombination()
+    logEvent('조합좋아요', {
+      candidate_id: shown.candidate_id,
+      decision: shownCalculation.decision,
+      scenario,
+    })
     try {
       window.localStorage.setItem(
         'cardfit.liked-combination',
@@ -103,8 +148,8 @@ export default function ResultScreen() {
       <ScreenHeader title={CONCLUSION_COPY.title} backHref="/app/constraint" />
 
       {/*
-        지출 탐색 — 계획이 예상보다 적거나 많을 때 폭이 어느 정도인지 가늠하는 참고값이다.
-        계산을 다시 돌리지 않고 확인한 계획의 배수로만 보여주며, 공식 결론은 `예상대로` 기준이다.
+        지출 탐색 — 확인한 계획이 예상보다 적거나 많을 때의 결과를 사용자가 눌러서 본다.
+        `예상대로`가 확인한 계획 그대로이고 기본값이다.
       */}
       <div className="result-shell">
         <div className="scenario-explorer">
@@ -122,28 +167,30 @@ export default function ResultScreen() {
               </button>
             ))}
           </div>
-          <div className="scenario-value">
-            {CONCLUSION_COPY.scenario.valueLabel}
-            <b className="tabular-nums">
-              연 {won(Math.round(shown.net_benefit * multiplier))}
-            </b>{' '}
-            {CONCLUSION_COPY.scenario.suffix}
-          </div>
         </div>
-        <ConclusionBanner calculation={calculation} />
+        <BenefitBox
+          calculation={shownCalculation}
+          scenarioLabel={scenarioOption.label}
+          onOpenEvidence={() => setEvidenceOpen(true)}
+        />
       </div>
+
+      {/* 어떤 가정의 결과인지 밝힌다 — 시나리오를 바꾸면 결론이 뒤집힐 수 있다 */}
+      {scenario === 'expected' ? null : (
+        <p className="footer">{CONCLUSION_COPY.scenario.assumption(scenarioOption.label)}</p>
+      )}
 
       <Note>
         <b>{CONCLUSION_COPY.baselineTitle}</b>
         <br />
-        {calculation.decision === '변경'
-          ? CONCLUSION_COPY.change.caption(calculation.current_card_count)
+        {shownCalculation.decision === '변경'
+          ? CONCLUSION_COPY.change.caption(shownCalculation.current_card_count)
           : CONCLUSION_COPY.hold.caption()}
       </Note>
 
-      <CombinationList calculation={calculation} cards={profile.cards} />
+      <CombinationList calculation={shownCalculation} cards={profile.cards} />
       <AllocationTable candidate={shown} cards={profile.cards} />
-      <ReviewedAlternatives reviewed={calculation.reviewed} cards={profile.cards} />
+      <ReviewedAlternatives reviewed={shownCalculation.reviewed} cards={profile.cards} />
 
       <p className="footer">{DATA_NOTICE.sampleFootnote}</p>
 
@@ -159,6 +206,14 @@ export default function ResultScreen() {
         <SecondaryLink href="/app/evidence">{CONCLUSION_COPY.evidenceCta}</SecondaryLink>
         <GhostLink href="/app/plan">{CONCLUSION_COPY.editPlanCta}</GhostLink>
       </Actions>
+
+      <EvidenceSheet
+        open={evidenceOpen}
+        onClose={() => setEvidenceOpen(false)}
+        calculation={shownCalculation}
+        profile={profile}
+        scenarioLabel={scenarioOption.label}
+      />
     </Screen>
   )
 }

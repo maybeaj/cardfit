@@ -89,11 +89,11 @@ test('기준본 s0~s7 플로우를 순서대로 통과한다', async ({ page }) 
   }
   await expect(page.locator('details')).not.toHaveCount(0)
   await expect(page.getByRole('link', { name: /카드사 공식 혜택 확인/ }).first()).toBeVisible()
-  await page.getByRole('button', { name: '이 조합 확정하기' }).click()
+  await page.getByRole('button', { name: '다음 행동 보기' }).click()
 
   // s7 확정 및 실행 경계 — 해지 항목에 실행 버튼을 두지 않는다
   await expect(page).toHaveURL(/\/app\/confirm$/)
-  await expect(page.getByRole('heading', { name: '확정한 조합과 다음 행동' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '고른 조합과 다음 행동' })).toBeVisible()
   await expect(page.getByText('카드별 다음 행동')).toBeVisible()
   await expect(page.getByText('CardFit의 실행 경계')).toBeVisible()
 })
@@ -130,7 +130,7 @@ test('결과에서 뒤로 가는 버튼들이 기준본과 같은 곳으로 간�
 
   // s7 `다시 검토하기` → s5
   await page.getByRole('link', { name: '계산 근거 보기' }).click()
-  await page.getByRole('button', { name: '이 조합 확정하기' }).click()
+  await page.getByRole('button', { name: '다음 행동 보기' }).click()
   await expect(page).toHaveURL(/\/app\/confirm$/)
   await page.getByRole('link', { name: '다시 검토하기' }).click()
   await expect(page).toHaveURL(/\/app\/result$/)
@@ -154,4 +154,37 @@ test('화면 콘텐츠에 다크 영역을 쓰지 않는다', async ({ page }) =
     }).length
   })
   expect(darkCount).toBe(0)
+})
+
+test('지출 탐색 탭이 결론 금액을 다시 계산한다', async ({ page }) => {
+  await page.goto('/app/constraint')
+  await page.getByRole('button', { name: '이 계획대로 계산하기' }).click()
+  await expect(page).toHaveURL(/\/app\/result$/, { timeout: 15_000 })
+
+  const amount = page.locator('.benefit-value')
+  await expect(amount).toBeVisible({ timeout: 15_000 })
+
+  // `예상대로`가 기본값이고 확인한 계획 그대로다
+  await expect(page.getByRole('button', { name: '예상대로' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  const expected = await amount.innerText()
+
+  /*
+   * 다른 시나리오는 규칙 엔진으로 다시 계산한 값이라 금액이 달라진다.
+   * 출력에 배수를 곱한 값이면 실적구간·한도가 반영되지 않아 틀린 금액이 된다.
+   */
+  await page.getByRole('button', { name: '적게' }).click()
+  await expect(amount).not.toHaveText(expected)
+
+  await page.getByRole('button', { name: '많이' }).click()
+  await expect(amount).not.toHaveText(expected)
+
+  // 어떤 가정의 결과인지 화면에 남는다
+  await expect(page.getByText('많이 지출한다고 가정한 결과예요')).toBeVisible()
+
+  // `예상대로`로 돌아오면 원래 값이다
+  await page.getByRole('button', { name: '예상대로' }).click()
+  await expect(amount).toHaveText(expected)
 })

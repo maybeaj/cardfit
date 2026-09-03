@@ -12,11 +12,11 @@ import { useDemo } from '@/state/store'
 /**
  * UI-003 변경 조건 — 기준본 s4.
  *
- * 컨트롤 모양은 기준본을 따른다 (스테퍼 + 예/아니오). 다만 사용 카드 상한은 2장이다 —
- * 기준본 HTML은 3장까지 올리지만 조합 후보를 2장 넘게 만들지 않는 것이 도메인 규칙이고
- * (`T6`), 기준본은 화면의 기준이지 계산 제약을 바꾸는 근거가 아니다.
+ * 컨트롤 모양과 상한 모두 기준본을 따른다 — 스테퍼로 1~3장을 고르고 신규는 예/아니오다 (`T11`).
+ * 기본값은 2장이다. 상한은 화면 복잡도를 기준으로 정한 값이라 최적 조합을 보장하지 않으며,
+ * 그 이상 조합은 계산하지 않는다 (`T39`).
  */
-const MAX_CARDS_LIMIT = 2
+const MAX_CARDS_LIMIT = 3
 const MIN_CARDS_LIMIT = 1
 
 export default function ConstraintScreen() {

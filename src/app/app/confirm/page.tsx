@@ -17,7 +17,8 @@ import { logEvent } from '@/state/events'
 import { useDemo } from '@/state/store'
 
 /**
- * UI-008 확정 + 경계 — 기준본 s7. 근거 화면에서만 진입한다 (`T25`).
+ * UI-008 조합 선택 + 경계 — 기준본 s7. 근거 화면에서만 진입한다 (`T25`).
+ * 종착 행동은 `좋아요`다 — `확정`은 신청·해지 대행으로 읽힌다 (`T12`).
  * 신규 발급 1장만 아웃링크, 정리 항목에는 버튼을 두지 않고 안내 문구만 둔다 (`AC-003` · `AC-008`).
  */
 export default function ConfirmScreen() {
@@ -47,7 +48,7 @@ export default function ConfirmScreen() {
         backHref="/app/evidence"
       />
 
-      {/* 확정 요약 — 결론과 같은 의미색을 쓴다 (기준본 s7의 `.result`) */}
+      {/* 고른 조합 요약 — 결론과 같은 의미색을 쓴다 (기준본 s7의 `.result`) */}
       <div className={calculation.decision === '변경' ? 'result' : 'result hold'}>
         <b>{calculation.decision === '변경' ? '추천 조합' : '현재 카드 조합 유지'}</b>
         <p>
@@ -56,11 +57,11 @@ export default function ConfirmScreen() {
             .join(' + ')}
         </p>
         <small>
-          확정 기준: 순혜택 {won(confirmed?.net_benefit ?? shownCandidate.net_benefit)} ·{' '}
+          기준: 순혜택 {won(confirmed?.net_benefit ?? shownCandidate.net_benefit)} ·{' '}
           {confirmed?.as_of_date ?? calculation.as_of_date} ·{' '}
           {Object.values(calculation.rule_versions)[0] ?? ''}
           {confirmed
-            ? ` · 확정 ${new Date(confirmed.confirmed_at).toLocaleString('ko-KR')}`
+            ? ` · 선택 ${new Date(confirmed.confirmed_at).toLocaleString('ko-KR')}`
             : null}
         </small>
       </div>

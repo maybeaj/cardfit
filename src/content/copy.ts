@@ -129,12 +129,12 @@ export const PLAN_NOTICE = {
   skip: '이 단계 건너뛰기',
 } as const
 
-/** UI-003 변경 조건 — 기준본 s4. 상한은 T6(사용 카드 2장·신규 1장)을 따른다. */
+/** UI-003 변경 조건 — 기준본 s4. 상한은 T11(사용 카드 3장·신규 1장)을 따른다. */
 export const CONSTRAINT_COPY = {
   title: '어느 정도까지 바꿔도 괜찮나요?',
   lead: '불필요하게 카드를 늘리지 않도록 계산 조건을 확인합니다.',
   maxCardsLabel: '사용 카드 최대 수',
-  maxCardsHint: '결과 조합에 포함할 보유 카드 수 · 최대 2장',
+  maxCardsHint: '결과 조합에 포함할 보유 카드 수 · 최대 3장',
   newCardLabel: '신규 카드 포함',
   newCardHint: '더 유리할 때 신규 카드 최대 1장',
   yes: '예',
@@ -166,7 +166,7 @@ export const CONCLUSION_COPY = {
     caption: () => '현재 조합과 비교 · 확인한 앞으로 12개월 계획 기준',
   },
   /** T39 — 상한 안에서의 최선임을 밝히고 "최적 조합"으로 단정하지 않는다 */
-  boundedOptimum: '사용 카드 2장 · 신규 1장 이내에서의 최선',
+  boundedOptimum: '사용 카드 3장 · 신규 1장 이내에서의 최선',
   /** T38 — `제약과다`일 때만 노출한다 */
   relaxHint: '제약을 풀면 더 나은 조합이 있어요',
   reviewedTitle: '검토했던 대안',
@@ -183,14 +183,32 @@ export const CONCLUSION_COPY = {
    * 계산을 다시 돌리지 않고 확인한 계획의 배수로 폭만 보여준다.
    */
   scenario: {
-    label: '참고용 지출 탐색 · 공식 결론은 ‘예상대로’ 기준',
-    valueLabel: '참고 예상 실질 차이',
+    /**
+     * 지출 탐색 — 확인한 계획이 예상보다 적거나 많을 때의 결과를 사용자가 직접 눌러 본다.
+     * `예상대로`가 확인한 계획 그대로이고 기본값이다. 엔진이 계획을 임의로 바꾸는 것이 아니라
+     * 사용자가 고른 가정으로 다시 계산하는 것이라 `T37`(확인한 값을 임의 증감하지 않는다)과 어긋나지 않는다.
+     */
+    label: '앞으로 12개월 지출이',
     options: [
       { key: 'low', label: '적게', multiplier: 0.72 },
       { key: 'expected', label: '예상대로', multiplier: 1 },
       { key: 'high', label: '많이', multiplier: 1.28 },
     ],
-    suffix: '(참고용)',
+    /** 시나리오를 바꾸면 결론이 뒤집힐 수 있으므로 어떤 가정의 결과인지 밝힌다 */
+    assumption: (label: string) => `${label} 지출한다고 가정한 결과예요`,
+  },
+  /** 결론 상자 — 조합이 받을 절대 혜택을 앞세우고, 현재 조합 대비 증가분을 뱃지로 붙인다 */
+  benefit: {
+    label: '이 조합으로 받을 수 있는 연간 혜택',
+    unit: '연',
+    delta: (amount: string) => `현재 카드 조합보다 ${amount} 더 받아요`,
+    holdLabel: (scenarioLabel: string) => `${scenarioLabel} 지출하면`,
+    holdValue: '현재 조합 유지',
+    holdDelta: '바꾸는 비용보다 추가 혜택이 작아요',
+    evidenceTrigger: '왜 이 금액인가요? · 근거 보기',
+    holdEvidenceTrigger: '유지 이유와 계산 근거 보기',
+    sheetTitle: (scenarioLabel: string) => `${scenarioLabel} 지출 시 받을 수 있는 연간 혜택`,
+    close: '닫기',
   },
 } as const
 
@@ -204,7 +222,7 @@ export const EVIDENCE_COPY = {
   annualFeeWholeWindow: '연회비는 안분하지 않고 12개월 창에 통째로 반영했습니다',
   staleAsOf: '적용 기준일이 오래되어 약관이 변경되었을 수 있습니다',
   disclaimer: '계산 결과는 참고용이며 실제 혜택은 카드사 약관·심사에 따릅니다',
-  applyCta: '이 조합 확정하기',
+  applyCta: '다음 행동 보기',
   /** UI-007 근거 — 기준본 s6 */
   title: '이 결과가 나온 이유',
   lead: '결론 카드마다 다음 6개 근거를 확인합니다. 수치는 예시이며 실제 혜택은 카드사 약관·심사에 따릅니다.',
@@ -223,19 +241,19 @@ export const BOUNDARY_COPY = {
   newCardRisk: '카드사 심사로 거절될 수 있습니다',
   removeRisk: '연회비 환급·포인트 소멸이 있을 수 있으니 카드사에 확인해 주세요',
   keepNote: '그대로 계속 사용하세요',
-  frozen: '확정한 조합은 확정 시점의 규칙 버전·기준일·금액으로 얼려 보관합니다',
+  frozen: '고른 조합은 고른 시점의 규칙 버전·기준일·금액으로 얼려 보관합니다',
   expired: '약관이 변경되었을 수 있습니다 · 다시 계산하기',
-  /** UI-008 확정 — 기준본 s7 */
-  title: '확정한 조합과 다음 행동',
-  lead: '확정 시점의 금액·기준일·규칙 버전을 기록합니다.',
+  /** UI-008 조합 선택 — 기준본 s7. `확정`은 신청 대행으로 읽혀 `좋아요`로 바꿨다 (T12) */
+  title: '고른 조합과 다음 행동',
+  lead: '고른 시점의 금액·기준일·규칙 버전을 기록합니다.',
   actionsHeading: '카드별 다음 행동',
-  confirmCta: '조합 확정 완료',
+  confirmCta: '이 조합으로 정했어요',
   reviewAgainCta: '다시 검토하기',
   outlinkCta: '공식 페이지로 이동',
   noActionTag: '실행 버튼 없음',
   keepTag: '계속 사용',
   footer:
-    '확정 조합은 rule_version·기준일·금액과 함께 동결됩니다. 카드사 공식 링크에서 돌아오면 입력값과 확정 조합을 복원합니다.',
+    '고른 조합은 rule_version·기준일·금액과 함께 동결됩니다. 카드사 공식 링크에서 돌아오면 입력값과 고른 조합을 복원합니다.',
 } as const
 
 export const STATUS_COPY = {

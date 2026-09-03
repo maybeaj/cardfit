@@ -35,14 +35,30 @@ describe('change_case — 조합 변경 (AC-005·006 · FR-003)', () => {
     for (const status of statuses) expect(['신규', '유지', '정리']).toContain(status)
   })
 
-  it('사용 카드는 최대 2장, 신규는 최대 1장이다 (T6)', () => {
+  it('조합은 제약이 정한 카드 수를 넘지 않고 신규는 최대 1장이다 (T11)', () => {
     if (!result.ok) return
     const chosen = result.calculation.chosen
-    expect(chosen.card_ids.length).toBeLessThanOrEqual(2)
+    expect(chosen.card_ids.length).toBeLessThanOrEqual(changeCase.constraint.max_cards)
     const newCount = chosen.card_ids.filter(
       (id) => !changeCase.cards.find((card) => card.card_id === id)?.owned,
     ).length
     expect(newCount).toBeLessThanOrEqual(1)
+  })
+
+  it('상한을 3장으로 올리면 3장 조합까지 후보에 넣는다 (T11)', () => {
+    // 상한은 화면 복잡도로 정한 값이라 그 이상은 계산하지 않는다. 3장까지는 열거해야 한다
+    const wide = calculatePlan({
+      profile: changeCase,
+      plan: changeCase.suggested_plan,
+      constraint: { ...changeCase.constraint, max_cards: 3 },
+    })
+    expect(wide.ok).toBe(true)
+    if (!wide.ok) return
+    const sizes = [wide.calculation.chosen, ...wide.calculation.reviewed].map(
+      (item) => item.card_ids.length,
+    )
+    expect(Math.max(...sizes)).toBeGreaterThan(2)
+    expect(Math.max(...sizes)).toBeLessThanOrEqual(3)
   })
 
   it('배분 합과 계획 총액의 오차가 1원 이하다 (NFR-001)', () => {

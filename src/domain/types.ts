@@ -82,7 +82,7 @@ export interface FutureSpendPlan {
 }
 
 export interface Constraint {
-  /** 사용 카드 최대 2장 (T6) */
+  /** 사용 카드 최대 3장 · 기본 2장 (T11) */
   max_cards: number
   allow_new_card: boolean
   /** 신규 발급 최대 1장 (T6) */
