@@ -42,7 +42,6 @@ export default function ConfirmScreen() {
   return (
     <Screen>
       <ScreenHeader
-        step="08 · 확정 및 실행 경계"
         title={BOUNDARY_COPY.title}
         lead={BOUNDARY_COPY.lead}
         backHref="/app/evidence"

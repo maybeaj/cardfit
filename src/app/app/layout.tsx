@@ -31,7 +31,7 @@ export default async function AppDemoLayout({ children }: { children: ReactNode 
     return (
       <PhoneShell>
         <Screen>
-          <ScreenHeader step="데이터 오류" title="예시 데이터를 불러오지 못했어요" />
+          <ScreenHeader title="예시 데이터를 불러오지 못했어요" />
           <ErrorNote>
             {loaded.error.message}
             {loaded.error.missing.length > 0 ? ` (${loaded.error.missing.join(', ')})` : null}

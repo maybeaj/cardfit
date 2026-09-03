@@ -87,10 +87,9 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min(100%, 430px);
-  min-height: 100dvh;
+  width: 402px;
   margin: 0 auto;
-  overflow-x: hidden;
+  overflow: hidden;
   background: var(--color-bg);
   font-size: 13px;
   box-shadow: 0 0 38px #18324d12;
@@ -118,38 +117,48 @@ body {
 
 /* ── 화면과 패널 ────────────────────────────────────────────
    한 화면 = 흰 카드 하나. 버튼은 카드 맨 아래에 붙는다. */
+/*
+ * 기준본의 iPhone 17 뷰포트를 그대로 고정한다 — 402×900.
+ * 화면이 늘어나지 않으므로 어떤 화면을 열어도 프레임 크기가 같고,
+ * 내용이 길어지면 화면이 아니라 패널 안에서 스크롤된다.
+ */
 .screen {
-  flex: 1;
+  flex: none;
   display: flex;
+  width: 402px;
+  height: 900px;
+  margin: 0 auto;
   padding: 12px;
-  min-height: 100dvh;
+  overflow: hidden;
 }
 
 .panel {
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: calc(100dvh - 24px);
+  height: 100%;
   padding: 20px 16px 24px;
   border: 1px solid var(--color-line);
   border-radius: 26px;
   background: var(--color-surface);
   box-shadow: 0 6px 18px #18324d0d;
+  /* 넘치는 내용은 여기서 스크롤한다. 스크롤바는 숨겨 기기 화면처럼 보이게 한다 */
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.panel::-webkit-scrollbar {
+  display: none;
 }
 
-@media (max-width: 430px) {
+/*
+ * 402보다 좁은 기기 — 화면 크기는 402×900으로 유지하고 통째로 축소한다.
+ * 폭을 줄이면 402 기준으로 맞춘 배치가 깨지므로 비율만 바꾼다.
+ */
+@media (max-width: 402px) {
   .mobile-shell {
     box-shadow: none;
-  }
-  .screen {
-    padding: 0;
-  }
-  .panel {
-    min-height: 100dvh;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    padding: max(22px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+    transform: scale(calc(100vw / 402));
+    transform-origin: top center;
   }
 }
 .panel h2 {
@@ -219,6 +228,32 @@ body {
 }
 
 /* ── 공통 블록 ─────────────────────────────────────────────── */
+/* 뒤로 가기 — 글자 없이 아이콘만. 제목 위 왼쪽에 붙는다 */
+.back-link {
+  display: inline-grid;
+  place-items: center;
+  align-self: flex-start;
+  width: 30px;
+  height: 30px;
+  margin: -4px 0 2px -6px;
+  border-radius: 50%;
+  color: var(--color-subtle);
+  transition: background 0.16s ease, color 0.16s ease;
+}
+.back-link:hover {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+.back-link svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 기준본은 패널 안에서 배지를 감춘다 (`.device .panel>.badge{display:none}`) */
+.panel > .badge {
+  display: none;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;

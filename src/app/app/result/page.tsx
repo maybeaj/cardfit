@@ -48,7 +48,6 @@ export default function ResultScreen() {
     return (
       <Screen>
         <ScreenHeader
-          step="계산 결과"
           title={
             error.code === 'INVALID_PLAN'
               ? '아직 계산할 수 없어요'
@@ -101,7 +100,7 @@ export default function ResultScreen() {
 
   return (
     <Screen>
-      <ScreenHeader step="06 · 계산 결과" title={CONCLUSION_COPY.title} backHref="/app/constraint" />
+      <ScreenHeader title={CONCLUSION_COPY.title} backHref="/app/constraint" />
 
       {/*
         지출 탐색 — 계획이 예상보다 적거나 많을 때 폭이 어느 정도인지 가늠하는 참고값이다.

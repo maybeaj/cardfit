@@ -24,13 +24,18 @@ export function Screen({ children }: { children: ReactNode }) {
   )
 }
 
+/**
+ * 화면 제목. 기준본은 패널 안에서 배지를 감춘다 (`.device .panel>.badge{display:none}`).
+ *
+ * 뒤로 가기는 글자 없이 아이콘만 둔다 — 모바일에서 통용되는 기호라 설명이 필요 없고,
+ * 제목 위에 글자가 얹히면 화면의 첫 줄이 제목이 아니게 된다.
+ * 화면 낭독기에는 `aria-label`로 이름을 준다.
+ */
 export function ScreenHeader({
-  step,
   title,
   lead,
   backHref,
 }: {
-  step?: string
   title: ReactNode
   lead?: ReactNode
   backHref?: string
@@ -38,11 +43,19 @@ export function ScreenHeader({
   return (
     <>
       {backHref ? (
-        <Link href={backHref} className="mb-1 inline-block text-[11px] text-[var(--color-subtle)]">
-          ← 뒤로
+        <Link href={backHref} className="back-link" aria-label="이전 화면으로">
+          <svg viewBox="0 0 24 24" aria-hidden focusable="false">
+            <path
+              d="M15 5 8 12l7 7"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </Link>
       ) : null}
-      {step ? <span className="badge">{step}</span> : null}
       <h2>{title}</h2>
       {lead ? <p className="sub">{lead}</p> : null}
     </>

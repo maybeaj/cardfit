@@ -40,7 +40,7 @@ export default function CalculatingScreen() {
 
   return (
     <Screen>
-      <ScreenHeader step="계산 중" title="확인한 계획으로 조합을 계산하고 있어요" />
+      <ScreenHeader title="확인한 계획으로 조합을 계산하고 있어요" />
 
       <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-line)]">
         <div

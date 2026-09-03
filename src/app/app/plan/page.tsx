@@ -61,7 +61,6 @@ export default function PlanScreen() {
   return (
     <Screen>
       <ScreenHeader
-        step="04 · 미래 지출 확인"
         title={PLAN_NOTICE.title}
         lead={PLAN_NOTICE.lead}
         backHref="/app/summary"

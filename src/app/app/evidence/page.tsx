@@ -49,7 +49,6 @@ export default function EvidenceScreen() {
   return (
     <Screen>
       <ScreenHeader
-        step="07 · 근거 검증"
         title={EVIDENCE_COPY.title}
         lead={EVIDENCE_COPY.lead}
         backHref="/app/result"

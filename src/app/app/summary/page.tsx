@@ -33,7 +33,6 @@ export default function CurrentCardsScreen() {
   return (
     <Screen>
       <ScreenHeader
-        step="03 · 현재 상태"
         title={
           <>
             지금 가지고 있는 카드부터
@@ -42,7 +41,7 @@ export default function CurrentCardsScreen() {
           </>
         }
         lead={CURRENT_STATE_NOTICE.lead}
-        backHref="/app"
+      backHref="/app"
       />
 
       <div className="grid current-summary">

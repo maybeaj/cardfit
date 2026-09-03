@@ -40,7 +40,6 @@ export default function ConstraintScreen() {
   return (
     <Screen>
       <ScreenHeader
-        step="05 · 계산 조건"
         title={CONSTRAINT_COPY.title}
         lead={CONSTRAINT_COPY.lead}
         backHref="/app/plan"
