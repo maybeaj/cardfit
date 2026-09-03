@@ -5,22 +5,20 @@ import { useRouter } from 'next/navigation'
 import { CONCLUSION_COPY, DATA_NOTICE, PLAN_NOTICE } from '@/content/copy'
 import { calculatePlan } from '@/domain/calc'
 import type { Calculation } from '@/domain/types'
-import { BenefitBox } from '@/components/benefit-box'
 import { EvidenceSheet } from '@/components/evidence-sheet'
-import {
-  AllocationTable,
-  CombinationList,
-  ReviewedAlternatives,
-} from '@/components/result-blocks'
+import { BenefitSummary } from '@/features/cardfit/result/benefit-summary'
+import { CardRoleList } from '@/features/cardfit/result/card-role-list'
+import { PaymentAllocation } from '@/features/cardfit/result/payment-allocation'
+import { ResultActions } from '@/features/cardfit/result/result-actions'
+import { ReviewedAlternatives } from '@/features/cardfit/result/reviewed-alternatives'
+import { ScenarioTabs } from '@/features/cardfit/result/scenario-tabs'
 import {
   Actions,
   ErrorNote,
-  GhostLink,
   Note,
   PrimaryLink,
   Screen,
   ScreenHeader,
-  SecondaryLink,
 } from '@/components/shell'
 import { logEvent } from '@/state/events'
 import { useDemo } from '@/state/store'
@@ -147,28 +145,9 @@ export default function ResultScreen() {
     <Screen>
       <ScreenHeader title={CONCLUSION_COPY.title} backHref="/app/constraint" />
 
-      {/*
-        지출 탐색 — 확인한 계획이 예상보다 적거나 많을 때의 결과를 사용자가 눌러서 본다.
-        `예상대로`가 확인한 계획 그대로이고 기본값이다.
-      */}
       <div className="result-shell">
-        <div className="scenario-explorer">
-          <span className="label">{CONCLUSION_COPY.scenario.label}</span>
-          <div className="scenario-tabs" role="group" aria-label="지출 탐색">
-            {CONCLUSION_COPY.scenario.options.map((option) => (
-              <button
-                key={option.key}
-                type="button"
-                className={scenario === option.key ? 'active' : ''}
-                aria-pressed={scenario === option.key}
-                onClick={() => setScenario(option.key)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <BenefitBox
+        <ScenarioTabs selected={scenario} onSelect={setScenario} />
+        <BenefitSummary
           calculation={shownCalculation}
           scenarioLabel={scenarioOption.label}
           onOpenEvidence={() => setEvidenceOpen(true)}
@@ -188,24 +167,13 @@ export default function ResultScreen() {
           : CONCLUSION_COPY.hold.caption()}
       </Note>
 
-      <CombinationList calculation={shownCalculation} cards={profile.cards} />
-      <AllocationTable candidate={shown} cards={profile.cards} />
+      <CardRoleList calculation={shownCalculation} cards={profile.cards} />
+      <PaymentAllocation candidate={shown} cards={profile.cards} />
       <ReviewedAlternatives reviewed={shownCalculation.reviewed} cards={profile.cards} />
 
       <p className="footer">{DATA_NOTICE.sampleFootnote}</p>
 
-      <Actions>
-        <button
-          type="button"
-          className={liked ? 'primary liked' : 'primary'}
-          aria-pressed={liked}
-          onClick={likeCombination}
-        >
-          {liked ? '좋아요를 반영했어요' : '이 조합 좋아요'}
-        </button>
-        <SecondaryLink href="/app/evidence">{CONCLUSION_COPY.evidenceCta}</SecondaryLink>
-        <GhostLink href="/app/plan">{CONCLUSION_COPY.editPlanCta}</GhostLink>
-      </Actions>
+      <ResultActions liked={liked} onLike={likeCombination} />
 
       <EvidenceSheet
         open={evidenceOpen}

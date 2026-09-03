@@ -14,7 +14,7 @@ import type { Calculation } from '@/domain/types'
  * 유지 결론에서는 금액 대신 `현재 조합 유지`를 띄운다 — 바꾸지 않는 것이 결론이므로
  * 받을 금액을 앞세우면 변경을 권하는 것처럼 읽힌다 (`T21` · `T26`).
  */
-export function BenefitBox({
+export function BenefitSummary({
   calculation,
   scenarioLabel,
   onOpenEvidence,
