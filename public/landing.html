@@ -9,9 +9,9 @@
     <!-- Noto Sans KR (Pretendard 대체 — 폴백 스택에 Pretendard 이름은 남겨둠) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="prefetch" href="/app?restart=1" as="document">
+    <link rel="prefetch" href="/proto" as="document">
     <script type="speculationrules">
-      {"prerender":[{"urls":["/app?restart=1"]}]}
+      {"prerender":[{"urls":["/proto"]}]}
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -368,8 +368,11 @@
     <!-- INTERACTIVE JAVASCRIPT -->
     <script>
         function startSimulation() {
-            // 앱 온보딩으로 이동한다. `restart`는 이전 세션 입력을 지우고 처음부터 시작하라는 뜻이다.
-            window.location.href = "/app?restart=1";
+            // 기준본 프로토타입(`/proto`)으로 이동한다. 랜딩의 CTA 4개가 이 함수를 공유하므로
+            // 여기 한 곳만 바꾸면 넷이 같은 곳으로 간다 — 일부만 다른 곳으로 보내지 않는다.
+            //
+            // 실 앱은 `/app`으로 그대로 열린다. 되돌리려면 이 줄을 `/app?restart=1`로 되돌린다.
+            window.location.href = "/proto";
         }
     </script>
 </body>
