@@ -13,7 +13,7 @@
 import { PrismaClient } from '@prisma/client'
 import { changeCase } from '../src/fixtures/change-case'
 import { maintainCase } from '../src/fixtures/maintain-case'
-import type { Profile } from '../src/domain/types'
+import type { Profile } from '../src/domain/cardfit/types'
 import { seedMydata } from './seed-mydata'
 
 const prisma = new PrismaClient()

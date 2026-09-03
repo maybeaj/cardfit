@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { calculatePlan } from '@/domain/calc'
+import { calculatePlan } from '@/domain/cardfit/calculate-plan'
 import { changeCase, maintainCase } from '@/fixtures'
 import { EXPECTED } from '@/fixtures/expected'
-import { loadProfile } from './repository'
+import { loadProfile } from './profile.repository'
 
 /**
  * TEC-03·04·06 — Migration·Seed·Repository가 계산 결과를 바꾸지 않는지 검증한다.

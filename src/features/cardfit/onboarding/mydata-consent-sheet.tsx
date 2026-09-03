@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useState } from 'react'
-import { CONSENT_COPY } from '@/content/copy'
+import { CONSENT_COPY } from '@/content/cardfit-copy'
 import { BottomSheet, useSheetTitleId } from '@/components/overlay/bottom-sheet'
 
 /**

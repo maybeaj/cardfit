@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import type { CardStatus } from '@/domain/types'
+import type { CardStatus } from '@/domain/cardfit/types'
 
 /**
  * 앱 셸과 공통 블록 — `docs/prototype/cardfit-prd-srs-v0.4.html`이 기준본이다 (`D-011`).

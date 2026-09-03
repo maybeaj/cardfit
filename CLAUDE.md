@@ -17,6 +17,26 @@
 | 아키텍처 결정 | `docs/adr/` — 화면 정본·데이터 정본은 `ADR-004` |
 | 사업 모델·전략 (🟡 팀 합의 초안) | `docs/knowledge-base/07-business-model.md` |
 | 파일 소유 경계 | `docs/TEAM_OPERATIONS.md` 1절 — **소유 레인만 커밋** |
+| 화면 계약 (v0.5 최종 렌더 상태) | `docs/ux/v05-contract/` — `npm run ux:contract`로 다시 뽑는다 |
+
+## 코드 배치
+
+```
+app/                라우팅과 페이지 조립
+features/cardfit/   화면 단위 UI — 라우트 이름과 폴더 이름을 맞춘다
+components/         화면에 매이지 않는 것 — ui/ 프리미티브, overlay/ 바텀시트
+domain/cardfit/     계산. React도 Prisma도 모른다
+actions/cardfit/    Server Action — 화면이 서버에 요청하는 유일한 통로
+server/             db/ 연결, repositories/ Prisma 접근, errors·action-guard
+state/              입력 중인 UI 상태만
+content/            화면 문구
+```
+
+- **계산은 Server Action에서만 돈다.** 화면이 `domain`의 엔진을 직접 부르지 않는다 — 클라이언트에도 엔진이 있으면 같은 입력에 계산 경로가 둘 생기고 어느 금액이 정본인지 말할 수 없다 (`NFR-001`). 임계 상수처럼 문구에 필요한 값은 `domain/cardfit/constants.ts`에서 읽는다.
+- **공개 REST 엔드포인트를 만들지 않는다** (`C-TEC-002`). `src/app/api/`를 두지 않는다.
+- **Prisma는 `server/repositories/` 밖으로 나가지 않는다** (`TEC-06`). 액션은 무엇을 저장할지만 정하고 표를 어떻게 나눠 담는지는 모른다.
+- **`'use server'` 파일에 헬퍼를 두지 않는다** — export한 것이 전부 원격 호출 지점이 되어 검증 함수가 실수로 엔드포인트가 된다. 공유 헬퍼는 `server/action-guard.ts`에 둔다.
+- **바텀시트는 `components/overlay/bottom-sheet.tsx` 하나를 쓴다.** 시트마다 backdrop·닫기·스크롤 잠금을 따로 구현하면 조금씩 다르게 동작한다.
 
 ## 확정된 제약 (되돌리려면 Decision Log에 사유를 남긴다)
 

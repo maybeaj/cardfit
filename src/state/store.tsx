@@ -9,10 +9,11 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import type { Calculation, Constraint, FutureSpendPlan, Profile } from '@/domain/types'
+import type { Calculation, Constraint, FutureSpendPlan, Profile } from '@/domain/cardfit/types'
 import type { ActionError } from '@/server/errors'
-import { calculateAction, confirmPlanAction } from '@/server/actions'
-import { clearSession, loadSession, saveSession, type SessionState } from './session'
+import { calculateAction } from '@/actions/cardfit/calculate-plan'
+import { savePreferenceAction } from '@/actions/cardfit/save-preference'
+import { clearSession, loadSession, saveSession, type SessionState } from './session-storage'
 
 /**
  * 화면 상태.
@@ -168,7 +169,7 @@ export function DemoProvider({ children, profile }: { children: ReactNode; profi
           },
         })
         // 기록 실패가 결과 확인 흐름을 막지 않는다 — 화면은 이미 선택을 반영했다
-        if (calculationId) void confirmPlanAction(calculationId, shown.candidate_id)
+        if (calculationId) void savePreferenceAction(calculationId, shown.candidate_id)
       },
     }
   }, [state, profile, calculation, scenarios, calculationId, error, pending, patch, invalidate])

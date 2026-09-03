@@ -1,6 +1,6 @@
 import { ChevronDown, ExternalLink } from 'lucide-react'
-import { DATA_NOTICE, EVIDENCE_COPY, STATUS_COPY } from '@/content/copy'
-import { manwon, percent, won } from '@/domain/format'
+import { DATA_NOTICE, EVIDENCE_COPY, STATUS_COPY } from '@/content/cardfit-copy'
+import { manwon, percent, won } from '@/domain/cardfit/format'
 import type {
   BenefitRule,
   Calculation,
@@ -9,9 +9,9 @@ import type {
   CardStatus,
   PlanCandidate,
   Profile,
-} from '@/domain/types'
+} from '@/domain/cardfit/types'
 import { CARD_ART } from '@/fixtures/mydata/rules'
-import { SampleBadge } from './shell'
+import { SampleBadge } from '@/components/shell'
 
 type EvidenceDetailsProps = {
   calculation: Calculation

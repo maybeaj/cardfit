@@ -14,7 +14,7 @@
  * **미반영 상한은 출처를 댈 수 있는 항목만 둔다** (`T42`). 출처를 못 대면 행을 만들지 않고,
  * `0`으로도 두지 않는다 — 없는 것과 0원은 다르다.
  */
-import type { BenefitRule, CardProduct } from '@/domain/types'
+import type { BenefitRule, CardProduct } from '@/domain/cardfit/types'
 
 /** CSV 거래의 마지막 달이 2026-08이라 기준일을 그 달 말일로 둔다. */
 export const MYDATA_AS_OF = '2026-08-31'

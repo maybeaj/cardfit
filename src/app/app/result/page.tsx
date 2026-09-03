@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CONCLUSION_COPY, DATA_NOTICE, PLAN_NOTICE } from '@/content/copy'
+import { CONCLUSION_COPY, DATA_NOTICE, PLAN_NOTICE } from '@/content/cardfit-copy'
 import { CalculationBasisSheet } from '@/features/cardfit/result/calculation-basis-sheet'
 import { BenefitSummary } from '@/features/cardfit/result/benefit-summary'
 import { CardRoleList } from '@/features/cardfit/result/card-role-list'
@@ -19,7 +19,7 @@ import {
   Screen,
   ScreenHeader,
 } from '@/components/shell'
-import { logEvent } from '@/state/events'
+import { logEvent } from '@/state/client-events'
 import { useDemo } from '@/state/store'
 
 /** UI-005 + UI-006 — 기준본 s5. 결론 배너는 좁게, 결제 배분표가 본문 (`T2`). */

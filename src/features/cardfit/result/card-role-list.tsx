@@ -1,8 +1,8 @@
 'use client'
 
-import { CONCLUSION_COPY, STATUS_COPY } from '@/content/copy'
-import { won } from '@/domain/format'
-import type { Calculation, CardProduct } from '@/domain/types'
+import { CONCLUSION_COPY, STATUS_COPY } from '@/content/cardfit-copy'
+import { won } from '@/domain/cardfit/format'
+import type { Calculation, CardProduct } from '@/domain/cardfit/types'
 import { CARD_ART } from '@/fixtures/mydata/rules'
 
 /** 카드별 상태 — 신규·유지·정리 중 정확히 하나 (AC-005). 카드 순위 목록을 만들지 않는다. */

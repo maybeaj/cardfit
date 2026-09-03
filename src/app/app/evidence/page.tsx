@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { CALC_NOTICE, DATA_NOTICE, EVIDENCE_COPY } from '@/content/copy'
-import { EvidenceDetails } from '@/components/evidence-details'
+import { CALC_NOTICE, DATA_NOTICE, EVIDENCE_COPY } from '@/content/cardfit-copy'
+import { EvidenceDetails } from '@/features/cardfit/result/evidence-details'
 import {
   Actions,
   GhostLink,
@@ -13,7 +13,7 @@ import {
   Screen,
   ScreenHeader,
 } from '@/components/shell'
-import { logEvent } from '@/state/events'
+import { logEvent } from '@/state/client-events'
 import { useDemo } from '@/state/store'
 
 /**

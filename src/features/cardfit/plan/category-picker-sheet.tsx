@@ -1,6 +1,6 @@
 'use client'
 
-import { PLAN_NOTICE } from '@/content/copy'
+import { PLAN_NOTICE } from '@/content/cardfit-copy'
 import { APP_CATEGORIES } from '@/fixtures/mydata/categories'
 import { BottomSheet, useSheetTitleId } from '@/components/overlay/bottom-sheet'
 

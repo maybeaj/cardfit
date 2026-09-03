@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ONBOARDING_COPY } from '@/content/copy'
+import { ONBOARDING_COPY } from '@/content/cardfit-copy'
 import { MydataConsentSheet } from '@/features/cardfit/onboarding/mydata-consent-sheet'
 import { Actions, PrimaryButton, Screen } from '@/components/shell'
 import { useDemo } from '@/state/store'

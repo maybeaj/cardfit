@@ -1,8 +1,8 @@
 'use client'
 
-import { CONCLUSION_COPY } from '@/content/copy'
-import { won } from '@/domain/format'
-import type { CardProduct, PlanCandidate } from '@/domain/types'
+import { CONCLUSION_COPY } from '@/content/cardfit-copy'
+import { won } from '@/domain/cardfit/format'
+import type { CardProduct, PlanCandidate } from '@/domain/cardfit/types'
 
 /** T21 — 게이팅 미통과 후보를 손익과 함께 노출한다. 추가 계산 없이 값을 반대 방향으로 보여준다. */
 export function ReviewedAlternatives({

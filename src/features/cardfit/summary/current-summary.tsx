@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CURRENT_STATE_NOTICE } from "@/content/copy";
-import { won } from "@/domain/format";
+import { CURRENT_STATE_NOTICE } from "@/content/cardfit-copy";
+import { won } from "@/domain/cardfit/format";
 import { Metric } from "@/components/shell";
 
 /**

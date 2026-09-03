@@ -1,8 +1,8 @@
 'use client'
 
-import { CONCLUSION_COPY } from '@/content/copy'
-import { won } from '@/domain/format'
-import type { Calculation } from '@/domain/types'
+import { CONCLUSION_COPY } from '@/content/cardfit-copy'
+import { won } from '@/domain/cardfit/format'
+import type { Calculation } from '@/domain/cardfit/types'
 
 /**
  * UI-005 결론 상자 — 기준본 s5의 `#resultBox`.

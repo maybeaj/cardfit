@@ -1,10 +1,10 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { PLAN_NOTICE } from '@/content/copy'
-import { manwon } from '@/domain/format'
-import { isPlanEmpty, planTotal } from '@/domain/plan'
-import type { FutureSpendPlan } from '@/domain/types'
+import { PLAN_NOTICE } from '@/content/cardfit-copy'
+import { manwon } from '@/domain/cardfit/format'
+import { isPlanEmpty, planTotal } from '@/domain/cardfit/plan'
+import type { FutureSpendPlan } from '@/domain/cardfit/types'
 import { CategoryPickerSheet } from '@/features/cardfit/plan/category-picker-sheet'
 import { SpendItem } from '@/features/cardfit/plan/spend-item'
 import {
@@ -17,7 +17,7 @@ import {
   ScreenHeader,
   SecondaryButton,
 } from '@/components/shell'
-import { logEvent } from '@/state/events'
+import { logEvent } from '@/state/client-events'
 import { useDemo } from '@/state/store'
 
 /**

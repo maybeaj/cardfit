@@ -1,9 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { BASIS_COPY } from '@/content/copy'
-import { won } from '@/domain/format'
-import type { PlanCandidate } from '@/domain/types'
+import { BASIS_COPY } from '@/content/cardfit-copy'
+import { won } from '@/domain/cardfit/format'
+import type { PlanCandidate } from '@/domain/cardfit/types'
 import { BottomSheet, useSheetTitleId } from '@/components/overlay/bottom-sheet'
 
 /**

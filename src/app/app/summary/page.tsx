@@ -1,9 +1,9 @@
 'use client'
 
-import { CURRENT_STATE_NOTICE, DATA_NOTICE } from '@/content/copy'
-import { diagnose } from '@/domain/diagnose'
-import { CurrentSummary } from '@/features/cardfit/current/current-summary'
-import { OwnedCardList } from '@/features/cardfit/current/owned-card-list'
+import { CURRENT_STATE_NOTICE, DATA_NOTICE } from '@/content/cardfit-copy'
+import { diagnose } from '@/domain/cardfit/diagnose'
+import { CurrentSummary } from '@/features/cardfit/summary/current-summary'
+import { OwnedCardList } from '@/features/cardfit/summary/owned-card-list'
 import { Actions, Notice, PrimaryLink, Screen, ScreenHeader } from '@/components/shell'
 import { useDemo } from '@/state/store'
 

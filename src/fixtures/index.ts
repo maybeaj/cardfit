@@ -1,4 +1,4 @@
-import type { Profile } from '@/domain/types'
+import type { Profile } from '@/domain/cardfit/types'
 import { changeCase } from './change-case'
 import { maintainCase } from './maintain-case'
 

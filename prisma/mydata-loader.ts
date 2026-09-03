@@ -9,7 +9,7 @@
  */
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { Profile } from '../src/domain/types'
+import type { Profile } from '../src/domain/cardfit/types'
 import {
   monthlyAverageByCategory,
   monthsCovered,

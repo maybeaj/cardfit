@@ -1,6 +1,6 @@
 'use client'
 
-import { CONSTRAINT_COPY } from '@/content/copy'
+import { CONSTRAINT_COPY } from '@/content/cardfit-copy'
 
 /**
  * UI-003 사용 카드 최대 수 — 기준본 s4의 스테퍼.

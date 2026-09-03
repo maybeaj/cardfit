@@ -1,8 +1,8 @@
 'use client'
 
-import { PLAN_NOTICE } from '@/content/copy'
-import { won } from '@/domain/format'
-import { SPENDING_MONTHS, type FutureSpendPlan } from '@/domain/types'
+import { PLAN_NOTICE } from '@/content/cardfit-copy'
+import { won } from '@/domain/cardfit/format'
+import { SPENDING_MONTHS, type FutureSpendPlan } from '@/domain/cardfit/types'
 
 /**
  * UI-002 지출 항목 한 줄 — 카테고리·금액·지출 기간.

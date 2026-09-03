@@ -1,14 +1,14 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { CONSTRAINT_COPY, PLAN_NOTICE } from '@/content/copy'
-import { manwon, won } from '@/domain/format'
-import { planTotal } from '@/domain/plan'
-import { NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO } from '@/domain/constants'
+import { CONSTRAINT_COPY, PLAN_NOTICE } from '@/content/cardfit-copy'
+import { manwon, won } from '@/domain/cardfit/format'
+import { planTotal } from '@/domain/cardfit/plan'
+import { NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO } from '@/domain/cardfit/constants'
 import { CardCountStepper } from '@/features/cardfit/constraint/card-count-stepper'
 import { NewCardChoice } from '@/features/cardfit/constraint/new-card-choice'
 import { Actions, Note, PrimaryButton, Screen, ScreenHeader } from '@/components/shell'
-import { logEvent } from '@/state/events'
+import { logEvent } from '@/state/client-events'
 import { useDemo } from '@/state/store'
 
 /**

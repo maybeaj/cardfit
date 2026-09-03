@@ -1,7 +1,7 @@
 'use client'
 
-import { manwon, won } from '@/domain/format'
-import type { CardProduct, PlanCandidate } from '@/domain/types'
+import { manwon, won } from '@/domain/cardfit/format'
+import type { CardProduct, PlanCandidate } from '@/domain/cardfit/types'
 
 /** UI-006 결제 배분표 — 결과 화면의 본문. 유지 결론에서도 비우지 않는다 (T21). */
 export function PaymentAllocation({

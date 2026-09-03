@@ -1,4 +1,4 @@
-import type { Profile } from '@/domain/types'
+import type { Profile } from '@/domain/cardfit/types'
 
 const AS_OF = '2026-08-20'
 

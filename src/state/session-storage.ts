@@ -1,4 +1,4 @@
-import type { Constraint, FutureSpendPlan } from '@/domain/types'
+import type { Constraint, FutureSpendPlan } from '@/domain/cardfit/types'
 
 /**
  * 외부 링크 복귀용 임시 화면 상태 (T28 · ADR-003).

@@ -1,6 +1,6 @@
 'use client'
 
-import { CONCLUSION_COPY } from '@/content/copy'
+import { CONCLUSION_COPY } from '@/content/cardfit-copy'
 
 /**
  * 지출 탐색 탭 — 기준본 s5의 `.scenario-explorer`.

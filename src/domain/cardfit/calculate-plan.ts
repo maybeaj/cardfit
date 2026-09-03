@@ -1,8 +1,5 @@
-import { HORIZON_MONTHS, buildMonthlySpend, isPlanEmpty, type MonthlySpend } from './plan'
+import { buildMonthlySpend, isPlanEmpty } from './plan'
 import type {
-  AllocationRow,
-  BenefitRule,
-  BenefitTier,
   CalculationResult,
   CardEvidence,
   CardProduct,
@@ -12,14 +9,11 @@ import type {
   HoldReason,
   PlanCandidate,
   Profile,
-  SwitchingCost,
 } from './types'
-import {
-  ANNUAL_FEE_NOTICE_MONTH,
-  NET_BENEFIT_FLOOR,
-  NET_BENEFIT_RATIO,
-  STALE_AS_OF_MONTHS,
-} from './constants'
+import { NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO, STALE_AS_OF_MONTHS } from './constants'
+import { simulate } from './allocation'
+import { statusesFor, switchingCostFor } from './switching-cost'
+import { EVIDENCE_FIELDS, buildEvidenceRow, monthsBetween } from './evidence'
 
 export {
   ANNUAL_FEE_NOTICE_MONTH,
@@ -28,167 +22,12 @@ export {
   STALE_AS_OF_MONTHS,
 } from './constants'
 
-const EVIDENCE_FIELDS = ['실적구간', '혜택한도', '연회비', '제외조건', '기준일', '미반영 항목'] as const
-
-function tierFor(rule: BenefitRule, previousSpend: number): BenefitTier | null {
-  let picked: BenefitTier | null = null
-  for (const tier of rule.tiers) {
-    if (previousSpend >= tier.min_monthly_spend) {
-      if (!picked || tier.min_monthly_spend > picked.min_monthly_spend) picked = tier
-    }
-  }
-  return picked
-}
-
-function benefitOf(
-  rule: BenefitRule | undefined,
-  qualifyingSpend: number,
-  eligibleSpend: number,
-): { benefit: number; tier: BenefitTier | null } {
-  if (!rule) return { benefit: 0, tier: null }
-  const tier = tierFor(rule, qualifyingSpend)
-  if (!tier) return { benefit: 0, tier: null }
-  return { benefit: Math.min(tier.monthly_cap, Math.floor(eligibleSpend * tier.rate)), tier }
-}
-
-interface Simulation {
-  grossBenefit: number
-  allocations: AllocationRow[]
-  /** 카드별 적용 실적구간 — 근거 화면이 읽는다 */
-  appliedTier: Map<string, BenefitTier>
-}
-
-interface Bucket {
-  /** 실적 산정 대상 배분액 (제외 항목 제외) */
-  qualifying: number
-  /** 혜택 산정 대상 배분액 */
-  eligible: number
-  benefit: number
-}
-
 /**
- * 조합 하나를 12개월 시뮬레이션한다.
+ * 조합 열거와 임계 판정 — 규칙 엔진의 입구.
  *
- * 실적구간은 그 달에 카드로 배분된 금액으로 판정한다. 전월실적을 직전 달 값으로 물리면
- * 배분과 실적이 서로를 참조해 순환하므로, 12개월 균질 계획에서는 같은 달 배분액으로 근사하고
- * 그 사실을 근거 화면에 고지한다. 이 방식은 같은 입력에 항상 같은 결과를 준다 (NFR-001).
+ * 후보를 만들고(`combinations`), 하나씩 배분·혜택·전환비용을 구해(`allocation`,
+ * `switching-cost`) 이중 임계로 거른 뒤(`D-002`) 결론 하나를 고른다.
  */
-function simulate(
-  cardIds: string[],
-  cards: Map<string, CardProduct>,
-  rules: Map<string, BenefitRule>,
-  months: MonthlySpend,
-): Simulation {
-  const ordered = [...cardIds].sort()
-  const rows = new Map<string, AllocationRow>()
-  const appliedTier = new Map<string, BenefitTier>()
-  let grossBenefit = 0
-
-  for (let m = 0; m < HORIZON_MONTHS; m += 1) {
-    const monthBucket = months[m]
-    if (!monthBucket) continue
-
-    const state = new Map<string, Bucket>()
-    for (const id of ordered) state.set(id, { qualifying: 0, eligible: 0, benefit: 0 })
-
-    const categories = [...monthBucket.entries()]
-      .filter(([, amount]) => amount > 0)
-      .sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0], 'ko'))
-
-    for (const [category, amount] of categories) {
-      let bestId = ordered[0] as string
-      let bestMarginal = -1
-      let bestNext: Bucket | null = null
-
-      for (const id of ordered) {
-        const rule = rules.get(id)
-        const current = state.get(id) as Bucket
-        const isExcluded = rule?.excluded.includes(category) ?? true
-        const isCovered = (rule?.categories.includes(category) ?? false) && !isExcluded
-        const next: Bucket = {
-          qualifying: current.qualifying + (isExcluded ? 0 : amount),
-          eligible: current.eligible + (isCovered ? amount : 0),
-          benefit: 0,
-        }
-        const { benefit } = benefitOf(rule, next.qualifying, next.eligible)
-        next.benefit = benefit
-        const marginal = benefit - current.benefit
-        if (marginal > bestMarginal) {
-          bestMarginal = marginal
-          bestId = id
-          bestNext = next
-        }
-      }
-
-      const previous = (state.get(bestId) as Bucket).benefit
-      if (bestNext) state.set(bestId, bestNext)
-      const gained = Math.max(0, (state.get(bestId) as Bucket).benefit - previous)
-      grossBenefit += gained
-
-      const key = `${category}::${bestId}`
-      const row = rows.get(key)
-      if (row) {
-        row.amount += amount
-        row.benefit += gained
-      } else {
-        rows.set(key, { category, card_id: bestId, amount, benefit: gained })
-      }
-    }
-
-    for (const id of ordered) {
-      const rule = rules.get(id)
-      const bucket = state.get(id) as Bucket
-      const tier = rule ? tierFor(rule, bucket.qualifying) : null
-      if (tier) appliedTier.set(id, tier)
-    }
-  }
-
-  const allocations = [...rows.values()].sort(
-    (a, b) => (b.amount - a.amount) || a.category.localeCompare(b.category, 'ko'),
-  )
-  return { grossBenefit, allocations, appliedTier }
-}
-
-function switchingCostFor(
-  cardIds: string[],
-  ownedIds: string[],
-  cards: Map<string, CardProduct>,
-): SwitchingCost {
-  const inCombo = new Set(cardIds)
-  let annual_fee = 0
-  let issuance_wait_cost = 0
-  let requalification_loss = 0
-
-  for (const id of cardIds) {
-    const card = cards.get(id)
-    if (!card || card.owned) continue
-    // 연회비는 12개월 창 안에서 안분하지 않는다 (T40)
-    annual_fee += card.annual_fee
-    issuance_wait_cost += card.transition.issuance_wait_cost
-  }
-  for (const id of ownedIds) {
-    if (inCombo.has(id)) continue
-    requalification_loss += cards.get(id)?.transition.requalification_loss ?? 0
-  }
-  return {
-    annual_fee,
-    requalification_loss,
-    issuance_wait_cost,
-    total: annual_fee + requalification_loss + issuance_wait_cost,
-  }
-}
-
-function statusesFor(cardIds: string[], ownedIds: string[], cards: Map<string, CardProduct>) {
-  const inCombo = new Set(cardIds)
-  const statuses: Record<string, CardStatus> = {}
-  for (const id of cardIds) {
-    statuses[id] = cards.get(id)?.owned ? '유지' : '신규'
-  }
-  for (const id of ownedIds) {
-    if (!inCombo.has(id)) statuses[id] = '정리'
-  }
-  return statuses
-}
 
 function combinations<T>(items: T[], size: number): T[][] {
   if (size === 0) return [[]]
@@ -207,45 +46,6 @@ function combinations<T>(items: T[], size: number): T[][] {
   }
   walk(0, [])
   return out
-}
-
-function buildEvidenceRow(
-  card: CardProduct,
-  rule: BenefitRule | undefined,
-  appliedTier: BenefitTier | null,
-): CardEvidence {
-  const missing: string[] = []
-  if (!appliedTier) missing.push('실적구간')
-  if (!appliedTier?.monthly_cap) missing.push('혜택한도')
-  if (!rule || rule.excluded.length === 0) missing.push('제외조건')
-  if (!rule?.as_of_date) missing.push('기준일')
-  // 출처를 댈 수 없는 미반영 항목은 노출하지 않는다 — 0으로 채우지 않는다 (T42)
-  const unmodeled = (rule?.unmodeled ?? []).filter((item) => item.source?.label && item.bound > 0)
-  if (unmodeled.length === 0) missing.push('미반영 항목')
-
-  return {
-    card_id: card.card_id,
-    issuer: card.issuer,
-    name: card.name,
-    applied_tier: appliedTier
-      ? { min_monthly_spend: appliedTier.min_monthly_spend, rate: appliedTier.rate }
-      : null,
-    monthly_cap: appliedTier?.monthly_cap ?? null,
-    annual_fee: card.annual_fee,
-    excluded: rule?.excluded ?? [],
-    as_of_date: rule?.as_of_date ?? '',
-    rule_version: rule?.rule_version ?? '',
-    unmodeled,
-    annual_fee_whole_window_notice: !card.owned && ANNUAL_FEE_NOTICE_MONTH <= 1,
-    complete: missing.length === 0,
-    missing,
-  }
-}
-
-function monthsBetween(from: string, to: string): number {
-  const a = new Date(`${from}T00:00:00Z`)
-  const b = new Date(`${to}T00:00:00Z`)
-  return (b.getUTCFullYear() - a.getUTCFullYear()) * 12 + (b.getUTCMonth() - a.getUTCMonth())
 }
 
 export interface CalculateInput {

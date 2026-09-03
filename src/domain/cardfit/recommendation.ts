@@ -1,4 +1,4 @@
-import { calculatePlan, NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO } from './calc'
+import { calculatePlan, NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO } from './calculate-plan'
 import type { CalculationResult, Constraint, FutureSpendPlan, Profile } from './types'
 
 /**

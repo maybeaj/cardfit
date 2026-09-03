@@ -1,6 +1,6 @@
 'use client'
 
-import { CONSTRAINT_COPY } from '@/content/copy'
+import { CONSTRAINT_COPY } from '@/content/cardfit-copy'
 
 /** UI-003 신규 카드 포함 여부 — 기준본 s4의 예/아니오. 신규는 최대 1장이다 (`T6`). */
 export function NewCardChoice({

@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { BOUNDARY_COPY } from '@/content/copy'
-import type { CardProduct, CardStatus, PlanCandidate } from '@/domain/types'
-import { logEvent } from '@/state/events'
+import { BOUNDARY_COPY } from '@/content/cardfit-copy'
+import type { CardProduct, CardStatus, PlanCandidate } from '@/domain/cardfit/types'
+import { logEvent } from '@/state/client-events'
 
 /**
  * UI-008 다음에 하면 되는 일 — 기준본 s5의 `#nextActions`.

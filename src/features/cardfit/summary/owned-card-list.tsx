@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { CURRENT_STATE_NOTICE, DATA_NOTICE } from "@/content/copy";
-import type { Diagnosis } from "@/domain/diagnose";
-import { HORIZON_MONTHS } from "@/domain/plan";
-import { percent, won } from "@/domain/format";
+import { CURRENT_STATE_NOTICE, DATA_NOTICE } from "@/content/cardfit-copy";
+import type { Diagnosis } from "@/domain/cardfit/diagnose";
+import { HORIZON_MONTHS } from "@/domain/cardfit/plan";
+import { percent, won } from "@/domain/cardfit/format";
 import { CARD_ART } from "@/fixtures/mydata/rules";
 
 /**

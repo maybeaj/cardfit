@@ -5,10 +5,10 @@ import type {
   FutureSpendPlan,
   PastSpend,
   Profile,
-} from '@/domain/types'
-import { HORIZON_MONTHS } from '@/domain/plan'
-import { prisma } from './prisma'
-import { actionError, type ActionResult } from './errors'
+} from '@/domain/cardfit/types'
+import { HORIZON_MONTHS } from '@/domain/cardfit/plan'
+import { prisma } from '../db/prisma'
+import { actionError, type ActionResult } from '../errors'
 
 /**
  * TEC-06 — Prisma 접근을 서버 전용 Repository로 격리한다.

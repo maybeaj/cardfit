@@ -1,6 +1,6 @@
 'use client'
 
-import { CONCLUSION_COPY } from '@/content/copy'
+import { CONCLUSION_COPY } from '@/content/cardfit-copy'
 import { Actions, GhostLink } from '@/components/shell'
 
 /**

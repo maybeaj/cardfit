@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { loadProfile } from '@/server/repository'
+import { loadProfile } from '@/server/repositories/profile.repository'
 import { DemoProvider } from '@/state/store'
 import { AppRoutePreloader } from '@/components/app-route-preloader'
 import { ErrorNote, PhoneShell, Screen, ScreenHeader } from '@/components/shell'
