@@ -262,6 +262,38 @@
     .consent-reassurance{margin:18px 0 0;color:#6b7684;font-size:13px;text-align:center}
     .compact-consent+.consent-reassurance+.legal-note{margin:22px 0 14px!important}
     .consent-sheet .sheet-submit{min-height:52px;border-radius:12px}
+    /*
+      CardFit mobile type specification (logical px, aligned with iOS default points)
+      Reference: Apple HIG Typography — Body 17, Subhead 15, Footnote 13.
+      https://developer.apple.com/design/human-interface-guidelines/typography
+      Display 28/36 700 · Section 20/27 600 · Body 17/24 400
+      Callout 16/22 400 · Subhead 15/21 400 · Footnote 13/18 400
+      Action 17/22 600. Product UI never uses 11px or 12px text.
+    */
+    .device .device-screen{font-size:17px;line-height:1.42}
+    .device .panel h2{font-size:28px;line-height:1.29;font-weight:700;letter-spacing:-.035em}
+    .device .panel h3,.section-heading h3,.result-section-heading h3,.next-actions h3{font-size:20px!important;line-height:1.35;font-weight:600!important}
+    .device b,.device strong{font-weight:600!important}
+    .device button{font-size:17px;font-weight:500!important}.device input,.device select{font-size:17px;font-weight:400!important}
+    .device .actions button,.sheet-submit{font-size:17px!important;font-weight:600!important}
+    .device small,.device .sub,.amount-label,.spend-duration-label,.scenario-explorer .label{font-size:15px!important;font-weight:400!important}
+    .onboarding-kicker,.sheet-eyebrow{font-size:16px!important;font-weight:600!important;letter-spacing:0}
+    .onboarding-step b,.card-title-row b,.card-copy>b,.allocation-what b,.allocation-amount,.allocation-card b,.result-card-copy b,.next-action b{font-size:17px!important;font-weight:600!important}
+    .category-tag,.state-pill,.visibility-toggle,.consent-row em{font-size:14px;font-weight:500}
+    .device .metric span,.device .cardrow small,.device .evidence small{font-size:15px!important;font-weight:400!important}
+    .device .metric strong{font-size:26px;font-weight:600}.benefit-highlight strong{font-size:30px!important}
+    .benefit-label,.device #s5 .benefit-delta,.result-evidence-trigger{font-size:15px!important;font-weight:400!important}
+    .benefit-value{font-weight:700!important}
+    .duration-options button,.scenario-tabs button,.result-shell .scenario-tabs button{font-size:15px;font-weight:500}
+    .note,.notice,.legal-note,.footer,.evidence-caution,.tiny-note{font-size:13px!important;font-weight:400!important}
+    .notice:before,.legal-note:before,.evidence-caution:before{font-size:13px;font-weight:600}
+    .consent-row>label span b,.consent-detail-body,.consent-reassurance{font-size:15px;font-weight:400}
+    .consent-detail-body>b{font-size:16px;font-weight:600}
+    .device #s5 .result{margin-top:10px;padding:22px 18px;border:1px solid #bfe8d6!important;border-radius:18px;background:linear-gradient(145deg,#e7f8f0,#f4fcf8)}
+    .device #s5 .result.hold{border-color:#e5e8eb!important;background:#f7f8fa}
+    .device #s5 .benefit-delta{display:block;margin-top:10px;color:#4e5968}
+    .device #s5 .result-evidence-trigger{border-color:#cfe9dd;color:#4e5968}
+    .device #s3 .spend-category{min-height:44px;font-size:19px!important;font-weight:500!important;line-height:1.35}
   </style>
 </head>
 <body>
@@ -399,6 +431,21 @@
   document.querySelectorAll('.result-section-heading span').forEach(node=>node.remove());
   function refineResultCopy(){if(!outcome)return;const label=document.querySelector('#resultBox .benefit-label'),value=document.querySelector('#resultBox .benefit-value'),delta=document.querySelector('#resultBox .benefit-delta'),trigger=document.querySelector('#resultBox .result-evidence-trigger span:first-child');if(outcome.pass){if(label)label.textContent='현재보다 늘어나는 연간 혜택';if(value)value.innerHTML='<small>+</small> '+won(outcome.benefitIncrease);if(delta)delta.textContent='총 예상 혜택 '+won(outcome.displayBenefit);if(trigger)trigger.textContent='계산 기준 보기'}const like=document.getElementById('likeCombination');if(like&&!like.classList.contains('liked'))like.textContent='이 조합 선택하기'}
   const originalRenderOutcome=renderOutcome;renderOutcome=function(){originalRenderOutcome();refineResultCopy()};refineResultCopy();
+  /* Respect the user's maximum-card constraint in the recommendation itself. */
+  const originalBuildScenario=buildScenario;
+  buildScenario=function(key,multiplier){
+    const result=originalBuildScenario(key,multiplier);
+    const eligible=result.cards
+      .filter(card=>card[1]!=='정리'&&(includeNew||card[1]!=='신규'))
+      .sort((a,b)=>b[3]-a[3]);
+    result.cards=eligible.slice(0,maxCards);
+    result.displayBenefit=result.cards.reduce((sum,card)=>sum+card[3],0);
+    result.benefitIncrease=Math.max(0,result.displayBenefit-486000);
+    return result;
+  };
+  const originalRefineResultCopy=refineResultCopy;
+  refineResultCopy=function(){originalRefineResultCopy();if(!outcome)return;const footer=document.querySelector('#s5 .footer');if(footer)footer.textContent=`최대 ${maxCards}장 · ${includeNew?'신규 카드 포함':'보유 카드만'} 조건의 추천 결과`};
+  if(outcomes){outcomes={low:buildScenario('low',.72),expected:buildScenario('expected',1),high:buildScenario('high',1.28)};outcome=outcomes[selectedScenario];renderOutcome()}
   if(location.hash==='#consent')setTimeout(()=>openConsent(),0);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js" onload="mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#eaf1ff',primaryTextColor:'#152238',primaryBorderColor:'#2563eb',lineColor:'#7b8da5'}})"></script>
