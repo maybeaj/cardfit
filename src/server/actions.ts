@@ -1,6 +1,6 @@
 'use server'
 
-import { calculatePlan } from '@/domain/calc'
+import { engine } from '@/domain/recommendation'
 import { isPlanEmpty } from '@/domain/plan'
 import type { Calculation, Constraint, FutureSpendPlan, Profile } from '@/domain/types'
 import type { Prisma } from '@prisma/client'
@@ -146,7 +146,7 @@ export async function calculateAction(
   const loaded = await loadProfile(fixtureId)
   if (!loaded.ok) return loaded
 
-  const result = calculatePlan({ profile: loaded.data, plan, constraint })
+  const result = engine.calculate({ profile: loaded.data, plan, constraint })
   if (!result.ok) {
     // 계산 엔진의 거부를 성공 결과로 바꾸지 않는다
     if (result.code === 'EMPTY_PLAN') {

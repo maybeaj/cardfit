@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CONCLUSION_COPY, DATA_NOTICE, PLAN_NOTICE } from '@/content/copy'
-import { calculatePlan } from '@/domain/calc'
+import { calculateForMultiplier } from '@/domain/recommendation'
 import type { Calculation } from '@/domain/types'
 import { EvidenceSheet } from '@/components/evidence-sheet'
 import { BenefitSummary } from '@/features/cardfit/result/benefit-summary'
@@ -48,11 +48,7 @@ export default function ResultScreen() {
         out[option.key] = calculation
         continue
       }
-      const scaled = plan.map((item) => ({
-        ...item,
-        amount: Math.round(item.amount * option.multiplier),
-      }))
-      const result = calculatePlan({ profile, plan: scaled, constraint })
+      const result = calculateForMultiplier({ profile, plan, constraint }, option.multiplier)
       out[option.key] = result.ok ? result.calculation : null
     }
     return out

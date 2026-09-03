@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { CONSTRAINT_COPY, PLAN_NOTICE } from '@/content/copy'
-import { NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO } from '@/domain/calc'
+import { NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO } from '@/domain/recommendation'
 import { manwon, won } from '@/domain/format'
 import { planTotal } from '@/domain/plan'
 import { Actions, Note, PrimaryButton, Screen, ScreenHeader } from '@/components/shell'

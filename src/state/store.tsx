@@ -11,7 +11,7 @@ import {
 } from 'react'
 import type { Calculation, Constraint, FutureSpendPlan, Profile } from '@/domain/types'
 import type { ActionError } from '@/server/errors'
-import { calculatePlan } from '@/domain/calc'
+import { engine } from '@/domain/recommendation'
 import { clearSession, loadSession, saveSession, type SessionState } from './session'
 
 /**
@@ -123,7 +123,7 @@ export function DemoProvider({ children, profile }: { children: ReactNode; profi
 
       requestCalculation: () => {
         setError(null)
-        const result = calculatePlan({ profile, plan: state.plan, constraint: state.constraint })
+        const result = engine.calculate({ profile, plan: state.plan, constraint: state.constraint })
         if (!result.ok) {
           setError({
             code: result.code === 'EMPTY_PLAN' ? 'INVALID_PLAN' : 'EVIDENCE_INCOMPLETE',
