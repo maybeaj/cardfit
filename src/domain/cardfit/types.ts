@@ -127,6 +127,22 @@ export interface AllocationRow {
 
 export type AllocationReason = '주 혜택 업종' | '월 한도 분산'
 
+/**
+ * UI-006 배분표 한 줄 — **확인한 계획 항목 하나**를 어느 카드로 결제할지.
+ *
+ * `AllocationRow`와 다르다. 그쪽은 12개월 전체 지출(과거 기저 + 계획)을 카드에 나눈
+ * 계산의 산출물이고, 이쪽은 **사용자가 입력한 항목만** 담는다. 화면이 전체 배분을
+ * 보여주면 입력한 적 없는 카테고리가 줄줄이 나와 무엇을 보고 있는지 알 수 없다.
+ */
+export interface PlanAllocationRow {
+  plan_id: string
+  category: string
+  spending_months: SpendingMonths
+  amount: number
+  card_id: string
+  reason: AllocationReason
+}
+
 export interface CardEvidence {
   card_id: string
   issuer: string
@@ -165,7 +181,10 @@ export interface PlanCandidate {
   switching_cost: SwitchingCost
   net_benefit: number
   passes_threshold: boolean
+  /** 12개월 전체 배분 — 카드별 연간 혜택의 근거다 */
   allocations: AllocationRow[]
+  /** 확인한 계획 항목별 담당 카드 — 결과 화면의 배분표가 읽는다 (UI-006) */
+  plan_allocations: PlanAllocationRow[]
   /** 제약을 완화해야만 나오는 후보인지 (T38 제약과다 판정용) */
   relaxed: boolean
 }

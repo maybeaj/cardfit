@@ -11,6 +11,10 @@ import { CARD_ART } from '@/fixtures/mydata/rules'
  * **결과 화면의 본문이다** (`T2`). 사용자가 결정할 것은 "어느 카드를 쓰냐"가 아니라
  * "어디에 어느 카드로 결제하냐"이고, 그 답이 여기 있다.
  *
+ * **확인한 계획 항목만 담는다.** 12개월 전체 배분을 띄우면 입력한 적 없는 카테고리가
+ * 줄줄이 나와 사용자가 자기 입력을 못 찾는다 — 실제로 과거 소비 13개 카테고리가 함께
+ * 나오고 있었다. 전체 배분은 카드별 연간 혜택을 구하는 데 쓰고 화면에는 내지 않는다.
+ *
  * 행마다 **담당 사유**를 적는다 — `주 혜택 업종`인지 `월 한도 분산`인지. 적지 않으면
  * 사용자가 배분을 검증할 수 없고 결과를 믿을 근거가 사라진다.
  *
@@ -24,32 +28,24 @@ export function PaymentAllocation({
 }: {
   candidate: PlanCandidate
   cards: CardProduct[]
-  /** 카테고리별 지출 기간을 되읽기 위해 받는다 */
+  /** 합계가 확인한 계획과 맞는지 대조하려고 받는다 */
   plan: FutureSpendPlan[]
 }) {
-  const total = candidate.allocations.reduce((sum, row) => sum + row.amount, 0)
+  const rows = candidate.plan_allocations
+  const total = rows.reduce((sum, row) => sum + row.amount, 0)
   const planTotal = plan.reduce((sum, item) => sum + item.amount, 0)
-
-  /** 같은 카테고리에 여러 항목이 있으면 가장 긴 기간을 적는다 — 짧게 적으면 과장이 된다 */
-  const spanOf = (category: string) => {
-    const months = plan
-      .filter((item) => item.category === category)
-      .map((item) => item.spending_months)
-    if (months.length === 0) return null
-    const span = Math.max(...months)
-    return span === 1 ? PLAN_NOTICE.once : PLAN_NOTICE.months(span)
-  }
 
   return (
     <div className="allocation">
-      {candidate.allocations.map((row) => {
+      {rows.map((row) => {
         const card = cards.find((item) => item.card_id === row.card_id)
-        const span = spanOf(row.category)
+        const span =
+          row.spending_months === 1 ? PLAN_NOTICE.once : PLAN_NOTICE.months(row.spending_months)
         return (
-          <div key={`${row.category}:${row.card_id}`} className="allocation-row">
+          <div key={row.plan_id} className="allocation-row">
             <div className="allocation-what">
               <b>{row.category}</b>
-              {span ? <small>{span}</small> : null}
+              <small>{span}</small>
             </div>
             <strong className="allocation-amount tabular-nums">{won(row.amount)}</strong>
             <div className="allocation-card">

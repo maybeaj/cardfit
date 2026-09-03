@@ -15,7 +15,6 @@ import { CardRoleList } from '@/features/cardfit/result/card-role-list'
 import { PaymentAllocation } from '@/features/cardfit/result/payment-allocation'
 import { NextActions } from '@/features/cardfit/result/next-actions'
 import { ResultActions } from '@/features/cardfit/result/result-actions'
-import { ReviewedAlternatives } from '@/features/cardfit/result/reviewed-alternatives'
 import { ScenarioTabs } from '@/features/cardfit/result/scenario-tabs'
 import {
   Actions,
@@ -175,7 +174,6 @@ export default function ResultScreen() {
         <h3>{CARD_ROLE_COPY.heading}</h3>
       </div>
       <CardRoleList calculation={shownCalculation} cards={profile.cards} />
-      <ReviewedAlternatives reviewed={shownCalculation.reviewed} cards={profile.cards} />
 
       <p className="footer">{DATA_NOTICE.sampleFootnote}</p>
 

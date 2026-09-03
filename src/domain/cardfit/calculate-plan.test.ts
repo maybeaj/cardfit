@@ -96,7 +96,7 @@ describe('maintain_case — 현재 조합 유지 (AC-004·013)', () => {
     expect(result.calculation.hold_reason).toBe(EXPECTED.maintain_case.hold_reason)
   })
 
-  it('검토했던 대안을 손익과 함께 남긴다 (T21)', () => {
+  it('게이팅 미통과 후보를 손익과 함께 데이터로 남긴다 (T21)', () => {
     if (!result.ok) return
     const best = result.calculation.reviewed[0]
     expect(best).toBeDefined()
@@ -283,6 +283,59 @@ describe('미래지출은 증가만 받는다 (T10 · UI-002)', () => {
     for (const row of result.calculation.current.allocations) {
       expect(row.amount).toBeGreaterThanOrEqual(0)
     }
+  })
+})
+
+describe('배분표는 확인한 계획만 담는다 (UI-006)', () => {
+  it('화면 배분에 계획에 없는 카테고리가 섞이지 않는다', () => {
+    const result = run(changeCase)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    /*
+     * 전체 배분(`allocations`)은 과거 소비까지 포함해 카테고리가 훨씬 많다. 화면이
+     * 그쪽을 읽으면 사용자가 입력한 적 없는 줄이 줄줄이 나온다 — 실제로 그랬다.
+     */
+    const planned = new Set(changeCase.suggested_plan.map((item) => item.category))
+    const shown = result.calculation.chosen.plan_allocations
+    expect(shown.length).toBe(changeCase.suggested_plan.length)
+    for (const row of shown) expect(planned.has(row.category)).toBe(true)
+    expect(result.calculation.chosen.allocations.length).toBeGreaterThan(shown.length)
+  })
+
+  it('배분 합계가 확인한 계획 총액과 정확히 같다 (NFR-001)', () => {
+    const result = run(changeCase)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    const planTotal = changeCase.suggested_plan.reduce((sum, item) => sum + item.amount, 0)
+    const allocated = result.calculation.chosen.plan_allocations.reduce(
+      (sum, row) => sum + row.amount,
+      0,
+    )
+    expect(allocated).toBe(planTotal)
+  })
+
+  it('정리 카드에는 배분하지 않는다 (AC-003)', () => {
+    const result = run(changeCase)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    const chosen = result.calculation.chosen
+    const organized = Object.entries(chosen.statuses)
+      .filter(([, status]) => status === '정리')
+      .map(([id]) => id)
+    for (const row of chosen.plan_allocations) {
+      expect(organized).not.toContain(row.card_id)
+    }
+  })
+
+  it('같은 입력이면 같은 담당 카드가 나온다 (NFR-001)', () => {
+    const a = run(changeCase)
+    const b = run(changeCase)
+    expect(a.ok && b.ok).toBe(true)
+    if (!a.ok || !b.ok) return
+    expect(a.calculation.chosen.plan_allocations).toEqual(b.calculation.chosen.plan_allocations)
   })
 })
 

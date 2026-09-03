@@ -11,7 +11,7 @@ import type {
   Profile,
 } from './types'
 import { NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO, STALE_AS_OF_MONTHS } from './constants'
-import { simulate } from './allocation'
+import { allocatePlan, simulate } from './allocation'
 import { statusesFor, switchingCostFor } from './switching-cost'
 import { EVIDENCE_FIELDS, buildEvidenceRow, monthsBetween } from './evidence'
 
@@ -87,13 +87,14 @@ export function calculatePlan(input: CalculateInput): CalculationResult {
 
   const makeCandidate = (cardIds: string[], relaxed: boolean, currentGross: number): PlanCandidate => {
     const sim = simulate(cardIds, cards, rules, months)
+    const statuses = statusesFor(cardIds, ownedIds, cards)
     const switching = switchingCostFor(cardIds, ownedIds, cards)
     const grossDelta = sim.grossBenefit - currentGross
     const net = grossDelta - switching.total
     return {
       candidate_id: [...cardIds].sort().join('+'),
       card_ids: [...cardIds].sort(),
-      statuses: statusesFor(cardIds, ownedIds, cards),
+      statuses,
       gross_benefit_absolute: sim.grossBenefit,
       gross_benefit: grossDelta,
       switching_cost: switching,
@@ -101,22 +102,27 @@ export function calculatePlan(input: CalculateInput): CalculationResult {
       passes_threshold:
         net >= NET_BENEFIT_FLOOR && net >= Math.floor(grossDelta * NET_BENEFIT_RATIO),
       allocations: sim.allocations,
+      plan_allocations: allocatePlan(plan, cardIds, statuses, rules),
       relaxed,
     }
   }
 
   // 현재 조합 — 비교 기준선. 전환비용 0, 차액 0
   const currentSim = simulate(ownedIds, cards, rules, months)
+  const currentStatuses = Object.fromEntries(
+    ownedIds.map((id) => [id, '유지' as CardStatus]),
+  ) as Record<string, CardStatus>
   const current: PlanCandidate = {
     candidate_id: [...ownedIds].sort().join('+'),
     card_ids: [...ownedIds].sort(),
-    statuses: Object.fromEntries(ownedIds.map((id) => [id, '유지' as CardStatus])),
+    statuses: currentStatuses,
     gross_benefit_absolute: currentSim.grossBenefit,
     gross_benefit: 0,
     switching_cost: { annual_fee: 0, requalification_loss: 0, issuance_wait_cost: 0, total: 0 },
     net_benefit: 0,
     passes_threshold: false,
     allocations: currentSim.allocations,
+    plan_allocations: allocatePlan(plan, ownedIds, currentStatuses, rules),
     relaxed: false,
   }
 

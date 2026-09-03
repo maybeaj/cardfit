@@ -174,7 +174,6 @@ export const CONCLUSION_COPY = {
   boundedOptimum: '사용 카드 3장 · 신규 1장 이내에서의 최선',
   /** T38 — `제약과다`일 때만 노출한다 */
   relaxHint: '제약을 풀면 더 나은 조합이 있어요',
-  reviewedTitle: '검토했던 대안',
   /** UI-005 결과 — 기준본 s5 */
   passStatus: '✓ 바꿀 가치가 충분해요',
   holdStatus: '✓ 지금은 바꾸지 않아도 돼요',

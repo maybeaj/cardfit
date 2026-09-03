@@ -35,9 +35,17 @@ export function CardRoleList({
         const card = cards.find((item) => item.card_id === cardId)
         if (!card) return null
         const art = CARD_ART[cardId]
-        const rows = shown.allocations.filter((row) => row.card_id === cardId)
-        const paid = rows.reduce((sum, row) => sum + row.amount, 0)
-        const benefit = rows.reduce((sum, row) => sum + row.benefit, 0)
+        /*
+         * `이 카드로 결제`는 **확인한 계획 중** 이 카드가 맡은 몫이다. 12개월 전체
+         * 배분을 쓰면 사용자가 입력한 적 없는 금액까지 더해져 배분표와 어긋난다.
+         * 반면 연간 혜택은 전체 배분에서 나온다 — 과거 소비도 혜택을 만든다.
+         */
+        const paid = shown.plan_allocations
+          .filter((row) => row.card_id === cardId)
+          .reduce((sum, row) => sum + row.amount, 0)
+        const benefit = shown.allocations
+          .filter((row) => row.card_id === cardId)
+          .reduce((sum, row) => sum + row.benefit, 0)
         const organized = status === '정리'
         const stateClass = STATE_CLASS[status]
 

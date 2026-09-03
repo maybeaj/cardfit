@@ -1,4 +1,13 @@
-import type { AllocationReason, AllocationRow, BenefitRule, BenefitTier, CardProduct } from './types'
+import type {
+  AllocationReason,
+  AllocationRow,
+  BenefitRule,
+  BenefitTier,
+  CardProduct,
+  CardStatus,
+  FutureSpendPlan,
+  PlanAllocationRow,
+} from './types'
 import { HORIZON_MONTHS, type MonthlySpend } from './plan'
 import { benefitOf, tierFor } from './benefit'
 
@@ -114,4 +123,59 @@ export function simulate(
     (a, b) => (b.amount - a.amount) || a.category.localeCompare(b.category, 'ko'),
   )
   return { grossBenefit, allocations, appliedTier }
+}
+
+/**
+ * UI-006 계획 배분 — 확인한 지출 항목마다 담당 카드를 정한다.
+ *
+ * 전체 배분(`simulate`)과 다른 질문에 답한다. 저쪽은 *"12개월 지출로 얼마를 받나"*이고
+ * 이쪽은 *"내가 말한 이 돈을 어느 카드로 내나"*다. 화면에 전체 배분을 띄우면 입력한 적
+ * 없는 카테고리가 줄줄이 나와 사용자가 자기 입력을 못 찾는다.
+ *
+ * 규칙은 둘뿐이다 (SRS UI-006).
+ * ① 그 카테고리를 혜택 대상으로 삼는 카드가 있으면 그 카드 — `주 혜택 업종`
+ * ② 없으면 지금까지 가장 적게 맡은 카드 — `월 한도 분산`
+ *
+ * **`정리` 카드에는 배분하지 않는다** (`AC-003`). 앞으로 쓰지 않을 카드다.
+ */
+export function allocatePlan(
+  plan: FutureSpendPlan[],
+  cardIds: string[],
+  statuses: Record<string, CardStatus>,
+  rules: Map<string, BenefitRule>,
+): PlanAllocationRow[] {
+  const pool = cardIds.filter((id) => statuses[id] !== '정리')
+  // 전원이 `정리`면 배분할 곳이 없어진다 — 그때만 전체를 후보로 되돌린다
+  const targets = pool.length > 0 ? pool : cardIds
+  if (targets.length === 0) return []
+
+  const assigned = new Map<string, number>(targets.map((id) => [id, 0]))
+
+  return plan
+    .filter((item) => item.amount > 0)
+    .map((item) => {
+      const affine = targets.find((id) => {
+        const rule = rules.get(id)
+        return (
+          (rule?.categories.includes(item.category) ?? false) &&
+          !(rule?.excluded.includes(item.category) ?? true)
+        )
+      })
+      /* 동률이면 카드 순서로 끊는다 — 무작위면 같은 입력에 다른 결과가 나온다 (NFR-001) */
+      const spread = [...targets].sort(
+        (a, b) => (assigned.get(a) ?? 0) - (assigned.get(b) ?? 0) || a.localeCompare(b),
+      )[0]!
+      const card_id = affine ?? spread
+      const reason: AllocationReason = affine ? '주 혜택 업종' : '월 한도 분산'
+      assigned.set(card_id, (assigned.get(card_id) ?? 0) + item.amount)
+
+      return {
+        plan_id: item.plan_id,
+        category: item.category,
+        spending_months: item.spending_months,
+        amount: item.amount,
+        card_id,
+        reason,
+      }
+    })
 }
