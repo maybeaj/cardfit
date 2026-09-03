@@ -294,6 +294,10 @@
     .device #s5 .benefit-delta{display:block;margin-top:10px;color:#4e5968}
     .device #s5 .result-evidence-trigger{border-color:#cfe9dd;color:#4e5968}
     .device #s3 .spend-category{min-height:44px;font-size:19px!important;font-weight:500!important;line-height:1.35}
+    .compact-consent .consent-all{margin:0!important;padding:14px 38px 14px 0!important;border-bottom:1px solid var(--line);border-radius:0;background:#fff}
+    .compact-consent .consent-all,.consent-row>label{grid-template-columns:22px minmax(0,1fr);gap:10px}
+    .compact-consent input[type="checkbox"]{width:22px;height:22px;margin:0;align-self:center}
+    .category-tag{background:#eef4ff!important;color:#526f9e!important}
   </style>
 </head>
 <body>
@@ -417,6 +421,7 @@
   document.querySelector('#s0 .note')?.remove();
   setScreenCopy('#s2 h2','지금 쓰는 카드를<br>확인해 주세요.');
   document.querySelector('#s2 .panel > .sub')?.remove();
+  document.querySelectorAll('#s2 .category-tag').forEach(tag=>tag.textContent=tag.textContent.replace(/^#/,'').trim());
   setScreenCopy('#s3 h2','앞으로 쓸 돈을<br>입력해 주세요.');
   document.querySelector('#s3 .panel > .sub')?.remove();
   const addSpendButton=document.querySelector('#s3 .add-spend-button');if(addSpendButton)addSpendButton.textContent='＋ 지출 추가';
