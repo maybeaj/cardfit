@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { PLAN_NOTICE } from '@/content/copy'
 import { manwon } from '@/domain/format'
 import { isPlanEmpty, planTotal } from '@/domain/plan'
 import type { FutureSpendPlan } from '@/domain/types'
-import { APP_CATEGORIES } from '@/fixtures/mydata/categories'
+import { AddSpendPicker } from '@/features/cardfit/plan/add-spend-picker'
+import { SpendItem } from '@/features/cardfit/plan/spend-item'
 import {
   Actions,
   ErrorNote,
@@ -19,9 +20,6 @@ import {
 import { logEvent } from '@/state/events'
 import { useDemo } from '@/state/store'
 
-/** 기준본 s3의 카테고리 선택지. 결과 배분표의 행 이름과 같아야 사용자가 대조할 수 있다 */
-const CATEGORY_OPTIONS = APP_CATEGORIES
-
 /**
  * UI-002 미래지출 입력 — 기준본 s3.
  *
@@ -31,9 +29,6 @@ const CATEGORY_OPTIONS = APP_CATEGORIES
 export default function PlanScreen() {
   const { plan, updatePlan, refillPlan } = useDemo()
   const empty = useMemo(() => isPlanEmpty(plan), [plan])
-  // 기준본 s3의 `#categoryPicker` — 항목 추가 버튼이 선택지를 펼친다
-  const [pickerOpen, setPickerOpen] = useState(false)
-  const [newCategory, setNewCategory] = useState<string>(CATEGORY_OPTIONS[0] as string)
 
   const patchItem = (planId: string, next: Partial<FutureSpendPlan>) => {
     updatePlan(
@@ -43,144 +38,39 @@ export default function PlanScreen() {
 
   const removeItem = (planId: string) => updatePlan(plan.filter((item) => item.plan_id !== planId))
 
-  const addSelectedCategory = () => {
+  const addItem = (category: string) => {
     updatePlan([
       ...plan,
       {
         plan_id: `u${Date.now()}`,
-        category: newCategory,
+        category,
         amount: 0,
         direction: 'increase',
         month_offset: 3,
         source: 'user',
       },
     ])
-    setPickerOpen(false)
   }
 
   return (
     <Screen>
-      <ScreenHeader
-        title={PLAN_NOTICE.title}
-        lead={PLAN_NOTICE.lead}
-        backHref="/app/summary"
-      />
+      <ScreenHeader title={PLAN_NOTICE.title} lead={PLAN_NOTICE.lead} backHref="/app/summary" />
 
       {/* 빈 폼으로 열지 않는다는 사실을 화면에서도 밝힌다 (T3 · FR-006) */}
       <p className="footer">{PLAN_NOTICE.prefilled}</p>
 
       <div className="mt-1">
         {plan.map((item) => (
-          <div key={item.plan_id} className="spend">
-            <div className="spend-header">
-              <select
-                className="spend-category"
-                aria-label={`${item.category} 카테고리`}
-                value={item.category}
-                onChange={(event) => patchItem(item.plan_id, { category: event.target.value })}
-              >
-                {CATEGORY_OPTIONS.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                className="delete-spend"
-                aria-label={`${item.category} 항목 삭제`}
-                onClick={() => removeItem(item.plan_id)}
-              >
-                {PLAN_NOTICE.remove}
-              </button>
-            </div>
-
-            <div className="spend-controls">
-              <div className="amount-field">
-                <input
-                  type="number"
-                  min={0}
-                  step={10000}
-                  inputMode="numeric"
-                  aria-label={`${item.category} 금액`}
-                  value={item.amount}
-                  onChange={(event) =>
-                    patchItem(item.plan_id, {
-                      amount: Math.max(0, Number(event.target.value) || 0),
-                    })
-                  }
-                />
-                <small>원</small>
-              </div>
-              {/* 금액 칸에 마이너스를 직접 입력받지 않는다 (T20) */}
-              <div className="toggle" role="group" aria-label={`${item.category} 지출 방향`}>
-                <button
-                  type="button"
-                  className={item.direction === 'increase' ? 'active' : ''}
-                  aria-pressed={item.direction === 'increase'}
-                  onClick={() => patchItem(item.plan_id, { direction: 'increase' })}
-                >
-                  {PLAN_NOTICE.increase}
-                </button>
-                <button
-                  type="button"
-                  className={item.direction === 'decrease' ? 'active' : ''}
-                  aria-pressed={item.direction === 'decrease'}
-                  onClick={() => patchItem(item.plan_id, { direction: 'decrease' })}
-                >
-                  {PLAN_NOTICE.decrease}
-                </button>
-              </div>
-            </div>
-
-            <select
-              aria-label={`${item.category} 시점`}
-              value={item.month_offset}
-              onChange={(event) =>
-                patchItem(item.plan_id, { month_offset: Number(event.target.value) })
-              }
-            >
-              {Array.from({ length: 12 }, (_, n) => (
-                <option key={n + 1} value={n + 1}>
-                  {n + 1}개월 내
-                </option>
-              ))}
-            </select>
-          </div>
+          <SpendItem
+            key={item.plan_id}
+            item={item}
+            onChange={(next) => patchItem(item.plan_id, next)}
+            onRemove={() => removeItem(item.plan_id)}
+          />
         ))}
       </div>
 
-      <button
-        type="button"
-        className="add-spend-button"
-        aria-expanded={pickerOpen}
-        onClick={() => setPickerOpen((prev) => !prev)}
-      >
-        {PLAN_NOTICE.addItem}
-      </button>
-
-      {pickerOpen ? (
-        <div className="category-picker">
-          <label htmlFor="new-category">
-            <b>{PLAN_NOTICE.addCategoryTitle}</b>
-            <select
-              id="new-category"
-              value={newCategory}
-              onChange={(event) => setNewCategory(event.target.value)}
-            >
-              {CATEGORY_OPTIONS.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button type="button" onClick={addSelectedCategory}>
-            {PLAN_NOTICE.addCategoryCta}
-          </button>
-          <small>{PLAN_NOTICE.addCategoryNote}</small>
-        </div>
-      ) : null}
+      <AddSpendPicker onAdd={addItem} />
 
       {empty ? (
         <div className="mt-3 grid gap-2">
