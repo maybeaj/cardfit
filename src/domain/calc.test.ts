@@ -248,27 +248,36 @@ describe('제약과 게이팅 분해 (T38 · FR-003)', () => {
   })
 })
 
-describe('지출 감소 방향 (AC-007 · T20)', () => {
-  it('− 줄어요 항목도 오류 없이 처리한다', () => {
-    const plan = changeCase.suggested_plan.map((item, index) =>
-      index === 0 ? { ...item, direction: 'decrease' as const } : item,
-    )
-    const result = run(changeCase, plan)
-    expect(result.ok).toBe(true)
+describe('미래지출은 증가만 받는다 (T10 · UI-002)', () => {
+  it('금액을 늘리면 배분 총액도 늘어난다', () => {
+    // 계획 0건은 AC-001로 거부되므로 기준선도 1건 이상이어야 한다
+    const item = {
+      plan_id: 'i1',
+      category: '식비',
+      month_offset: 1,
+      source: 'user' as const,
+    }
+    const base = run(changeCase, [{ ...item, amount: 300_000 }])
+    const added = run(changeCase, [{ ...item, amount: 3_000_000 }])
+    expect(base.ok).toBe(true)
+    expect(added.ok).toBe(true)
+    if (!base.ok || !added.ok) return
+
+    const total = (r: typeof added) =>
+      r.ok ? r.calculation.current.allocations.reduce((s, row) => s + row.amount, 0) : 0
+    expect(total(added)).toBeGreaterThan(total(base))
   })
 
-  it('감소가 과거 기저를 넘어도 음수 지출을 만들지 않는다', () => {
-    const plan = [
+  it('배분 금액은 음수가 되지 않는다', () => {
+    const result = run(changeCase, [
       {
-        plan_id: 'd1',
+        plan_id: 'i2',
         category: '식비',
         amount: 99_000_000,
-        direction: 'decrease' as const,
         month_offset: 1,
         source: 'user' as const,
       },
-    ]
-    const result = run(changeCase, plan)
+    ])
     expect(result.ok).toBe(true)
     if (!result.ok) return
     for (const row of result.calculation.current.allocations) {

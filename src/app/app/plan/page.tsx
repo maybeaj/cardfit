@@ -23,7 +23,7 @@ import { useDemo } from '@/state/store'
 /**
  * UI-002 미래지출 입력 — 기준본 s3.
  *
- * 빈 폼으로 열지 않는다 (`T3` · FR-006). 감소는 항목별 토글로 받고 금액은 항상 양수다 (`T20`).
+ * 빈 폼으로 열지 않는다 (`T3` · FR-006). 앞으로 늘어날 지출만 받는다 (`T10`).
  * 이벤트 필수 선택 단계를 두지 않는다 (`AC-007`).
  */
 export default function PlanScreen() {
@@ -45,7 +45,6 @@ export default function PlanScreen() {
         plan_id: `u${Date.now()}`,
         category,
         amount: 0,
-        direction: 'increase',
         month_offset: 3,
         source: 'user',
       },
@@ -81,7 +80,7 @@ export default function PlanScreen() {
         <div className="total">
           <span>확인할 앞으로 12개월 계획</span>
           <span className="tabular-nums">
-            {plan.length}건 · 순증 {manwon(planTotal(plan))}
+            {plan.length}건 · {manwon(planTotal(plan))}
           </span>
         </div>
       )}

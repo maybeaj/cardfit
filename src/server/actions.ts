@@ -16,8 +16,6 @@ import { loadProfile } from './repository'
  * 금액은 규칙 엔진이 계산한다. AI를 호출하지 않는다 (`C-TEC-005`·`C-TEC-006` 기각).
  */
 
-const DIRECTION = { increase: 'INCREASE', decrease: 'DECREASE' } as const
-
 /** 도메인 값을 Prisma Json 컬럼에 넣기 위한 좁은 변환. 값을 바꾸지 않는다. */
 const toJson = (value: unknown): Prisma.InputJsonValue =>
   JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue
@@ -72,7 +70,6 @@ export async function startSessionAction(
         planKey: item.plan_id,
         category: item.category,
         amount: item.amount,
-        direction: DIRECTION[item.direction],
         monthOffset: item.month_offset,
         origin: 'suggested',
         confirmed: false,
@@ -110,8 +107,7 @@ export async function savePlanAction(
           planKey: item.plan_id,
           category: item.category,
           amount: item.amount,
-          direction: DIRECTION[item.direction],
-          monthOffset: item.month_offset,
+            monthOffset: item.month_offset,
           origin: item.source,
           confirmed: false,
         })),

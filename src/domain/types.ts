@@ -73,9 +73,8 @@ export interface PastSpend {
 export interface FutureSpendPlan {
   plan_id: string
   category: string
-  /** 항상 양수. 감소는 direction으로 표현한다 (T20) */
+  /** 앞으로 늘어날 금액. 감소는 입력받지 않는다 (T10 · UI-002) */
   amount: number
-  direction: SpendDirection
   /** 기준일 +1~12개월 */
   month_offset: number
   source: 'suggested' | 'user'

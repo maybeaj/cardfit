@@ -110,7 +110,6 @@ export async function loadProfile(fixtureId: string): Promise<ActionResult<Profi
     plan_id: item.id.split(':').slice(1).join(':') || item.id,
     category: item.category,
     amount: item.amount,
-    direction: item.direction === 'INCREASE' ? 'increase' : 'decrease',
     month_offset: item.monthOffset,
     source: 'suggested',
   }))

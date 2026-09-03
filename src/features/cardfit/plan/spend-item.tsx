@@ -5,10 +5,10 @@ import type { FutureSpendPlan } from '@/domain/types'
 import { APP_CATEGORIES } from '@/fixtures/mydata/categories'
 
 /**
- * UI-002 지출 항목 한 줄 — 카테고리·금액·방향·시점.
+ * UI-002 지출 항목 한 줄 — 카테고리·금액·시점.
  *
- * 금액은 항상 양수로 받고 늘어남·줄어듦은 토글로 정한다 — 금액 칸에 마이너스를
- * 직접 입력받으면 부호를 잘못 넣기 쉽다 (`T20`).
+ * 증감 토글과 감소 입력을 두지 않는다 (`T10`). 입력한 금액은 전부 추가 지출이다 —
+ * 감소를 받으면 카드 사용을 줄이라는 서비스로 읽힌다.
  *
  * 항목이 자기 `plan_id`를 알 필요가 없다. 바뀐 값만 위로 올리고 어느 항목인지는
  * 부르는 쪽이 안다 — 목록의 키 관리와 항목의 표시를 섞지 않는다.
@@ -61,25 +61,6 @@ export function SpendItem({
             }
           />
           <small>원</small>
-        </div>
-        {/* 금액 칸에 마이너스를 직접 입력받지 않는다 (T20) */}
-        <div className="toggle" role="group" aria-label={`${item.category} 지출 방향`}>
-          <button
-            type="button"
-            className={item.direction === 'increase' ? 'active' : ''}
-            aria-pressed={item.direction === 'increase'}
-            onClick={() => onChange({ direction: 'increase' })}
-          >
-            {PLAN_NOTICE.increase}
-          </button>
-          <button
-            type="button"
-            className={item.direction === 'decrease' ? 'active' : ''}
-            aria-pressed={item.direction === 'decrease'}
-            onClick={() => onChange({ direction: 'decrease' })}
-          >
-            {PLAN_NOTICE.decrease}
-          </button>
         </div>
       </div>
 

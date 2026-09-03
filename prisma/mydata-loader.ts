@@ -86,7 +86,6 @@ function buildSuggestions(rows: MydataTransactionRow[]): Profile['suggested_plan
     category,
     // 만원 단위로 내려 제안한다. 과거 실적을 그대로 미래로 단정하지 않는다는 뜻이다
     amount: Math.floor(value.total / 10_000) * 10_000,
-    direction: 'increase' as const,
     month_offset: offsets[index] ?? 6,
     source: 'suggested' as const,
   }))

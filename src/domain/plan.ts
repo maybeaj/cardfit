@@ -20,9 +20,7 @@ export function buildMonthlySpend(past: PastSpend[], plan: FutureSpendPlan[]): M
     const index = item.month_offset - 1
     const bucket = months[index]
     if (!bucket) continue
-    const delta = item.direction === 'increase' ? item.amount : -item.amount
-    const next = (bucket.get(item.category) ?? 0) + delta
-    bucket.set(item.category, Math.max(0, next))
+    bucket.set(item.category, (bucket.get(item.category) ?? 0) + item.amount)
   }
   return months
 }
@@ -32,9 +30,7 @@ export function isPlanEmpty(plan: FutureSpendPlan[]): boolean {
   return plan.length === 0 || plan.every((item) => item.amount === 0)
 }
 
+/** 확인한 계획의 합계. 모든 항목이 추가 지출이라 그대로 더한다 (T10) */
 export function planTotal(plan: FutureSpendPlan[]): number {
-  return plan.reduce(
-    (sum, item) => sum + (item.direction === 'increase' ? item.amount : -item.amount),
-    0,
-  )
+  return plan.reduce((sum, item) => sum + item.amount, 0)
 }

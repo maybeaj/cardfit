@@ -54,8 +54,9 @@ test('기준본 s0~s7 플로우를 순서대로 통과한다', async ({ page }) 
   await expect(page).toHaveURL(/\/app\/plan$/)
   await expect(page.getByRole('heading', { name: /예상되는 지출액을 입력해주세요/ })).toBeVisible()
   // 지출 감소는 항목별 토글로 받는다 — 금액 칸에 마이너스를 직접 입력받지 않는다 (`T20`)
-  await expect(page.getByText('늘어요').first()).toBeVisible()
-  await expect(page.getByText('줄어요').first()).toBeVisible()
+  // 증감 토글과 감소 입력을 제공하지 않는다 (T10 · UI-002)
+  await expect(page.getByText('줄어요')).toHaveCount(0)
+  await expect(page.getByText('늘어요')).toHaveCount(0)
   await page.getByRole('link', { name: '다음' }).click()
 
   // s4 계산 조건 — 스테퍼와 예/아니오
