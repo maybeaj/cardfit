@@ -1,114 +1,44 @@
-import { ChevronDown, ExternalLink } from 'lucide-react'
-import { DATA_NOTICE, EVIDENCE_COPY, STATUS_COPY } from '@/content/cardfit-copy'
+'use client'
+
+import { EVIDENCE_COPY, PLAN_NOTICE, STATUS_COPY } from '@/content/cardfit-copy'
 import { manwon, percent, won } from '@/domain/cardfit/format'
 import type {
   BenefitRule,
   Calculation,
   CardEvidence,
-  CardProduct,
-  CardStatus,
   PlanCandidate,
   Profile,
 } from '@/domain/cardfit/types'
 import { CARD_ART } from '@/fixtures/mydata/rules'
-import { SampleBadge } from '@/components/shell'
 
-type EvidenceDetailsProps = {
-  calculation: Calculation
-  profile: Profile
-  candidate?: PlanCandidate
+/**
+ * UI-007 전체 근거 — 기준본 s6.
+ *
+ * 요약 시트(`calculation-basis-sheet.tsx`)와 다른 화면이다. 여기서는 카드마다 실적구간
+ * 표와 업종별 조건, 제외조건을 약관과 대조할 수 있는 형태로 편다.
+ *
+ * **전문 용어를 쉬운 말로 바꾸지 않는다** (`T44`). 바꾸면 사용자가 카드사 약관과
+ * 대조할 수 없어 이 화면의 존재 이유가 사라진다. 대신 첫 등장 1회에 한 줄 풀이를 붙인다.
+ */
+
+/** 근거 6항목 개요 — 무엇을 확인했는지 먼저 밝히고 카드별 상세로 내려간다 */
+const OVERVIEW: Record<(typeof EVIDENCE_COPY.fields)[number], string> = {
+  실적구간: '카드별로 전월에 얼마를 써야 혜택이 시작되는지 확인해요.',
+  혜택한도: '할인율이 적용되어도 카드별 월 최대 할인액까지만 계산해요.',
+  연회비: '신규 카드의 연회비와 기존 카드의 연회비를 비용에 반영해요.',
+  제외조건: '상품권·선불충전·취소금액 등 실적과 할인에서 빠지는 거래를 확인해요.',
+  기준일: '적용한 약관의 기준일과 규칙 버전을 밝혀요.',
+  '미반영 항목': '계산하지 않은 항목의 약관상 상한만 밝히고 결론 차액에 더하지 않아요.',
 }
 
-const OVERVIEW_COPY: Record<(typeof EVIDENCE_COPY.fields)[number], string> = {
-  실적구간: '카드별 전월 사용액 단계와 적용률을 확인합니다.',
-  혜택한도: '할인율이 적용되어도 월 한도까지만 계산합니다.',
-  연회비: '12개월 창에서 비용으로 반영한 연 단위 금액입니다.',
-  제외조건: '상품권·공과금 등 계산에서 빠질 수 있는 거래를 확인합니다.',
-  기준일: '약관 기준일과 rule_version을 함께 표시합니다.',
-  '미반영 항목': '출처 있는 상한만 고지하고 결론 차액에는 더하지 않습니다.',
-}
-
-const STATUS_TONE: Record<CardStatus, string> = {
-  신규: 'border-[#9cbcff] bg-[#f8fbff] text-[#245cc7]',
-  유지: 'border-[var(--color-mint-line)] bg-[#fbfffd] text-[var(--color-positive)]',
-  정리: 'border-[#e0d5cf] bg-[#fffdfc] text-[#8a5841]',
-}
-
-function resolveCandidate(calculation: Calculation, candidate?: PlanCandidate) {
-  return candidate ?? (calculation.decision === '변경' ? calculation.chosen : calculation.current)
-}
-
-function sumAllocated(candidate: PlanCandidate, cardId: string) {
-  return candidate.allocations
-    .filter((row) => row.card_id === cardId)
-    .reduce(
-      (total, row) => ({
-        amount: total.amount + row.amount,
-        benefit: total.benefit + row.benefit,
-      }),
-      { amount: 0, benefit: 0 },
-    )
-}
-
-function evidenceValue(row: CardEvidence, field: (typeof EVIDENCE_COPY.fields)[number]) {
-  switch (field) {
-    case '실적구간':
-      return row.applied_tier
-        ? `${won(row.applied_tier.min_monthly_spend)} 이상 · ${percent(row.applied_tier.rate)}`
-        : '적용 구간 없음'
-    case '혜택한도':
-      return row.monthly_cap === null ? '한도 없음' : `월 ${won(row.monthly_cap)}`
-    case '연회비':
-      return won(row.annual_fee)
-    case '제외조건':
-      return row.excluded.length > 0 ? `${row.excluded.length}개 확인` : '없음'
-    case '기준일':
-      return `${row.as_of_date} · ${row.rule_version}`
-    case '미반영 항목':
-      return row.unmodeled.length > 0 ? `${row.unmodeled.length}개 고지` : '없음'
-  }
-}
-
-function uniqueList(items: string[]) {
-  return [...new Set(items.filter(Boolean))]
-}
-
-function findCard(profile: Profile, evidence: CardEvidence) {
-  return profile.cards.find((card) => card.card_id === evidence.card_id)
-}
-
-function findRule(profile: Profile, evidence: CardEvidence) {
+function ruleOf(profile: Profile, row: CardEvidence): BenefitRule | undefined {
   return profile.rules.find(
-    (rule) => rule.card_id === evidence.card_id && rule.rule_version === evidence.rule_version,
+    (rule) => rule.card_id === row.card_id && rule.rule_version === row.rule_version,
   )
 }
 
-function CardArt({ card, index }: { card: CardProduct | undefined; index: number }) {
-  const src = card ? CARD_ART[card.card_id] : undefined
-  if (src) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        className="block h-[33px] w-[52px] rounded-md object-cover shadow-[0_3px_7px_#15223818]"
-        src={src}
-        alt=""
-        width={52}
-        height={33}
-      />
-    )
-  }
-
-  return (
-    <span
-      className={`block h-[33px] w-[52px] rounded-md shadow-[0_3px_7px_#15223818] tone-${
-        (index % 3) + 1
-      }`}
-      aria-hidden
-    />
-  )
-}
-
-function TierTable({
+/** 실적구간 표 — 구간·적립률·월 한도. 적용된 줄을 표시한다 */
+function PerformanceTable({
   rule,
   appliedTier,
 }: {
@@ -116,47 +46,25 @@ function TierTable({
   appliedTier: CardEvidence['applied_tier']
 }) {
   const tiers = rule?.tiers ?? []
-  if (tiers.length === 0) {
-    return <p className="evidence-caution">표시할 실적 구간 데이터가 없습니다.</p>
-  }
+  if (tiers.length === 0) return null
 
   return (
-    <table className="my-2.5 w-full border-collapse text-[8px]">
-      <thead>
-        <tr>
-          <th className="border border-[#e1e8f0] bg-[#f7f9fc] px-1 py-1.5 text-center text-[#526176]">
-            전월 실적
-          </th>
-          <th className="border border-[#e1e8f0] bg-[#f7f9fc] px-1 py-1.5 text-center text-[#526176]">
-            적용률
-          </th>
-          <th className="border border-[#e1e8f0] bg-[#f7f9fc] px-1 py-1.5 text-center text-[#526176]">
-            월 한도
-          </th>
-          <th className="border border-[#e1e8f0] bg-[#f7f9fc] px-1 py-1.5 text-center text-[#526176]">
-            상태
-          </th>
-        </tr>
-      </thead>
+    <table className="performance-table">
       <tbody>
+        <tr>
+          <th>전월 실적</th>
+          <th>적립·할인율</th>
+          <th>월 한도</th>
+        </tr>
         {tiers.map((tier) => {
-          const isApplied =
+          const applied =
             appliedTier?.min_monthly_spend === tier.min_monthly_spend &&
             appliedTier?.rate === tier.rate
           return (
-            <tr key={`${tier.min_monthly_spend}-${tier.rate}-${tier.monthly_cap}`}>
-              <td className="border border-[#e1e8f0] px-1 py-1.5 text-center">
-                {manwon(tier.min_monthly_spend)} 이상
-              </td>
-              <td className="border border-[#e1e8f0] px-1 py-1.5 text-center">
-                {percent(tier.rate)}
-              </td>
-              <td className="border border-[#e1e8f0] px-1 py-1.5 text-center">
-                월 {won(tier.monthly_cap)}
-              </td>
-              <td className="border border-[#e1e8f0] px-1 py-1.5 text-center font-bold">
-                {isApplied ? '적용' : '대기'}
-              </td>
+            <tr key={`${tier.min_monthly_spend}-${tier.rate}`} className={applied ? 'applied' : ''}>
+              <td>{manwon(tier.min_monthly_spend)} 이상</td>
+              <td>{percent(tier.rate)}</td>
+              <td>월 {won(tier.monthly_cap)}</td>
             </tr>
           )
         })}
@@ -165,141 +73,126 @@ function TierTable({
   )
 }
 
-function BenefitRules({
-  rule,
-  evidence,
-}: {
-  rule: BenefitRule | undefined
-  evidence: CardEvidence
-}) {
-  const categories = uniqueList(rule?.categories ?? [])
-  if (categories.length === 0) {
-    return <p className="evidence-caution">표시할 카테고리 규칙이 없습니다.</p>
-  }
-
-  return (
-    <div className="grid gap-[7px]">
-      {categories.map((category) => (
-        <div
-          key={category}
-          className="grid grid-cols-[29px_minmax(0,1fr)_auto] items-center gap-2 rounded-[10px] bg-[#f8fafc] p-2"
-        >
-          <span className="grid h-[29px] w-[29px] place-items-center rounded-[9px] bg-white text-[13px]">
-            %
-          </span>
-          <span>
-            <b className="block text-[9px]">{category}</b>
-            <small className="mt-px block text-[8px] leading-[1.35] text-[var(--color-subtle)]">
-              rule_version {evidence.rule_version}의 적용 카테고리
-            </small>
-          </span>
-          <strong className="whitespace-nowrap text-[9px] text-[var(--color-positive)]">
-            {evidence.applied_tier ? percent(evidence.applied_tier.rate) : '확인'}
-          </strong>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function CardEvidenceDetails({
+function CardEvidenceRow({
   row,
-  card,
-  rule,
+  profile,
   candidate,
   index,
+  open,
 }: {
   row: CardEvidence
-  card: CardProduct | undefined
-  rule: BenefitRule | undefined
+  profile: Profile
   candidate: PlanCandidate
   index: number
+  open: boolean
 }) {
+  const card = profile.cards.find((item) => item.card_id === row.card_id)
+  const rule = ruleOf(profile, row)
+  const art = card ? CARD_ART[card.card_id] : undefined
   const status = candidate.statuses[row.card_id]
-  const allocated = sumAllocated(candidate, row.card_id)
-  const title = card ? `${card.issuer} ${card.name}` : `${row.issuer} ${row.name}`
-  const exclusions = uniqueList([...(rule?.excluded ?? []), ...row.excluded])
-  const officialUrl = card?.official_url
+  const benefit = candidate.allocations
+    .filter((allocation) => allocation.card_id === row.card_id)
+    .reduce((sum, allocation) => sum + allocation.benefit, 0)
 
   return (
-    <details
-      className="group overflow-hidden rounded-[15px] border border-[#dce5ee] bg-white"
-      open={index === 0}
-    >
-      <summary className="grid cursor-pointer list-none grid-cols-[52px_minmax(0,1fr)_24px] items-center gap-[9px] p-[11px] [&::-webkit-details-marker]:hidden">
-        <CardArt card={card} index={index} />
-        <span className="min-w-0">
-          <span className="flex items-center gap-1.5">
-            <b className="truncate text-[11px]">{title}</b>
-            <SampleBadge label={DATA_NOTICE.sampleBadge} />
-          </span>
-          <small className="mt-0.5 block text-[9px] text-[var(--color-subtle)]">
-            {status ? `${status} · ` : ''}
-            {allocated.benefit > 0
-              ? `예상 연간 혜택 ${won(allocated.benefit)}`
-              : '예상 연간 혜택 산출 없음'}
+    <details className="card-evidence" open={open}>
+      <summary>
+        {art ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={art} alt={row.name} />
+        ) : (
+          <span className={`art tone-${(index % 3) + 1}`} aria-hidden />
+        )}
+        <span>
+          <b>{row.name}</b>
+          <small>
+            {status ?? ''} · 예상 연간 혜택 {won(benefit)}
           </small>
         </span>
-        <span className="grid h-6 w-6 place-items-center rounded-full bg-[#eef3f8] text-[#617086] transition-transform group-open:rotate-180">
-          <ChevronDown size={14} aria-hidden />
+        <span className="open-mark" aria-hidden>
+          ⌃
         </span>
       </summary>
 
-      <div className="border-t border-[#edf1f5] px-[11px] pb-3">
-        {status ? (
-          <div className="mt-2.5 flex items-center justify-between gap-2">
-            <span className={`rounded-full border px-2 py-1 text-[9px] font-black ${STATUS_TONE[status]}`}>
-              {STATUS_COPY[status].label}
-            </span>
-            <span className="text-right text-[9px] text-[var(--color-subtle)]">
-              {STATUS_COPY[status].note}
-            </span>
+      <div className="card-evidence-body">
+        <div className="performance-box">
+          <span>실적구간</span>
+          <strong>
+            {row.applied_tier
+              ? `전월 ${manwon(row.applied_tier.min_monthly_spend)} 이상부터 ${percent(
+                  row.applied_tier.rate,
+                )} 적용`
+              : '적용 구간 없음'}
+          </strong>
+        </div>
+
+        <PerformanceTable rule={rule} appliedTier={row.applied_tier} />
+
+        {rule && rule.categories.length > 0 ? (
+          <div className="benefit-rule-list">
+            {rule.categories.map((category) => (
+              <div key={category} className="benefit-rule">
+                <span className="rule-icon" aria-hidden>
+                  ●
+                </span>
+                <span>
+                  <b>{category}</b>
+                  <small>
+                    {row.applied_tier ? percent(row.applied_tier.rate) : '적용 구간 없음'}
+                  </small>
+                </span>
+                <strong>{row.monthly_cap ? `월 ${won(row.monthly_cap)}까지` : '한도 확인'}</strong>
+              </div>
+            ))}
           </div>
         ) : null}
 
-        <div className="my-2.5 rounded-[11px] bg-[#eef5ff] p-2.5">
-          <span className="block text-[9px] text-[#526176]">적용 실적 요약</span>
-          <strong className="mt-0.5 block text-[12px] text-[#245cc7]">
-            {row.applied_tier
-              ? `${won(row.applied_tier.min_monthly_spend)} 이상 구간 · ${percent(
-                  row.applied_tier.rate,
-                )}`
-              : '적용된 실적 구간 없음'}
-          </strong>
-          <span className="mt-1 block text-[9px] text-[#526176]">
-            기준월 사용액 {won(card?.qualifying_month_spend ?? 0)} · 앞으로 12개월 배분{' '}
-            {manwon(allocated.amount)}
-          </span>
+        <div className="benefit-rule-list">
+          <div className="benefit-rule">
+            <span className="rule-icon" aria-hidden>
+              ₩
+            </span>
+            <span>
+              <b>연회비</b>
+              <small>{EVIDENCE_COPY.annualFeeWholeWindow}</small>
+            </span>
+            <strong>{won(row.annual_fee)}</strong>
+          </div>
+          <div className="benefit-rule">
+            <span className="rule-icon" aria-hidden>
+              ◷
+            </span>
+            <span>
+              <b>기준일</b>
+              <small>{row.rule_version}</small>
+            </span>
+            <strong>{row.as_of_date}</strong>
+          </div>
         </div>
 
-        <TierTable rule={rule} appliedTier={row.applied_tier} />
-        <BenefitRules rule={rule} evidence={row} />
+        {row.excluded.length > 0 ? (
+          <p className="evidence-caution">꼭 확인하세요: {row.excluded.join(' · ')}</p>
+        ) : null}
 
-        <p className="mt-[9px] mb-0 text-[8px] leading-[1.45] text-[#6c7787]">
-          꼭 확인하세요: {exclusions.length > 0 ? exclusions.join(' · ') : '제외조건 없음'}
-        </p>
+        {/* 미반영 항목은 약관에 명시된 상한만 적고 결론 차액에 더하지 않는다 (`T7` · `T42`) */}
         {row.unmodeled.length > 0 ? (
-          <p className="mt-1 mb-0 text-[8px] leading-[1.45] text-[#6c7787]">
-            미반영 항목:{' '}
+          <p className="evidence-caution">
+            <b>{EVIDENCE_COPY.unmodeledTitle}</b> · {EVIDENCE_COPY.unmodeledRule}
+            <br />
             {row.unmodeled
               .map((item) => `${item.label} 최대 ±${won(item.bound)} (${item.source.as_of_date})`)
               .join(' · ')}
           </p>
         ) : null}
-        {row.annual_fee_whole_window_notice ? (
-          <p className="mt-1 mb-0 text-[8px] leading-[1.45] text-[var(--color-warning)]">
-            {EVIDENCE_COPY.annualFeeWholeWindow}
-          </p>
-        ) : null}
-        {officialUrl ? (
+
+        {card ? (
           <a
-            className="mt-[9px] inline-flex items-center gap-1 text-[8px] font-extrabold text-[var(--color-blue)] no-underline"
-            href={officialUrl}
+            className="official-link"
+            href={card.official_url}
             target="_blank"
             rel="noopener noreferrer"
           >
-            카드사 공식 혜택 확인
-            <ExternalLink size={10} aria-hidden />
+            카드사 공식 혜택 확인 ›
           </a>
         ) : null}
       </div>
@@ -307,48 +200,63 @@ function CardEvidenceDetails({
   )
 }
 
-export function EvidenceDetails({ calculation, profile, candidate }: EvidenceDetailsProps) {
-  const shown = resolveCandidate(calculation, candidate)
-  const shownEvidence = calculation.evidence.filter((row) => shown.card_ids.includes(row.card_id))
-  const rows = shownEvidence.length > 0 ? shownEvidence : calculation.evidence
+export function EvidenceDetails({
+  calculation,
+  profile,
+  candidate,
+}: {
+  calculation: Calculation
+  profile: Profile
+  candidate: PlanCandidate
+}) {
+  const rows = calculation.evidence.filter((row) => candidate.card_ids.includes(row.card_id))
 
   return (
     <>
-      <div className="evidence-six-grid">
-        {EVIDENCE_COPY.fields.map((field) => {
-          const sample = rows[0]
+      {/* 어떤 지출을 어떻게 펼쳐 반영했는지 먼저 밝힌다 — 금액의 출발점이다 */}
+      <div className="spend-evidence">
+        <h3>확인한 지출을 이렇게 반영했어요</h3>
+        {calculation.plan_snapshot.map((item) => {
+          const span = item.spending_months
           return (
-            <div key={field} className="evidence-six-item">
-              <b className="block text-[9px] text-[#245cc7]">{field}</b>
-              <span className="mt-[3px] block text-[8px] leading-[1.4] text-[#526176]">
-                {OVERVIEW_COPY[field]}
+            <div key={item.plan_id} className="spend-evidence-row">
+              <b>
+                {item.category} · {span === 1 ? PLAN_NOTICE.once : PLAN_NOTICE.months(span)}
+              </b>
+              <span>
+                {span === 1 ? won(item.amount) : `월 ${won(Math.floor(item.amount / span))}씩`}
               </span>
-              {sample ? (
-                <em className="mt-1 block text-[8px] not-italic text-[var(--color-subtle)]">
-                  예: {evidenceValue(sample, field)}
-                </em>
-              ) : null}
             </div>
           )
         })}
       </div>
 
-      <div className="mt-[13px] grid gap-[11px]">
-        {rows.map((row, index) => (
-          <CardEvidenceDetails
-            key={row.card_id}
-            row={row}
-            card={findCard(profile, row)}
-            rule={findRule(profile, row)}
-            candidate={shown}
-            index={index}
-          />
+      <div className="evidence-six-grid">
+        {EVIDENCE_COPY.fields.map((field, index) => (
+          <div key={field} className="evidence-six-item">
+            <b>
+              {String(index + 1).padStart(2, '0')} · {field}
+            </b>
+            <span>{OVERVIEW[field]}</span>
+          </div>
         ))}
       </div>
 
-      <p className="footer">
-        <b>{EVIDENCE_COPY.unmodeledTitle}</b> · {EVIDENCE_COPY.unmodeledRule}
-      </p>
+      <div className="card-evidence-list">
+        {rows.map((row, index) => (
+          <CardEvidenceRow
+            key={row.card_id}
+            row={row}
+            profile={profile}
+            candidate={candidate}
+            index={index}
+            /* 첫 카드만 펴 둔다 — 전부 접으면 무엇이 있는지 모르고, 전부 펴면 화면이 길다 */
+            open={index === 0}
+          />
+        ))}
+      </div>
     </>
   )
 }
+
+export { STATUS_COPY }

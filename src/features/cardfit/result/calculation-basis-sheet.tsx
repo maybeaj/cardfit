@@ -84,10 +84,10 @@ export function CalculationBasisSheet({
       </div>
 
       <BottomSheet.Actions>
-        <button type="button" className="secondary" onClick={onClose}>
+        <button type="button" className="ghost" onClick={onClose}>
           {BASIS_COPY.close}
         </button>
-        <Link className="primary" href="/app/evidence">
+        <Link className="secondary" href="/app/evidence">
           {BASIS_COPY.full}
         </Link>
       </BottomSheet.Actions>

@@ -1,4 +1,4 @@
-import type { AllocationRow, BenefitRule, BenefitTier, CardProduct } from './types'
+import type { AllocationReason, AllocationRow, BenefitRule, BenefitTier, CardProduct } from './types'
 import { HORIZON_MONTHS, type MonthlySpend } from './plan'
 import { benefitOf, tierFor } from './benefit'
 
@@ -89,7 +89,16 @@ export function simulate(
         row.amount += amount
         row.benefit += gained
       } else {
-        rows.set(key, { category, card_id: bestId, amount, benefit: gained })
+        /*
+         * 담당 사유는 고른 뒤에 판정한다. 고르는 기준은 한계 혜택이고, 그 결과가
+         * 혜택 업종이라서인지 다른 카드의 한도가 차서인지를 규칙으로 되읽는다.
+         */
+        const bestRule = rules.get(bestId)
+        const covered =
+          (bestRule?.categories.includes(category) ?? false) &&
+          !(bestRule?.excluded.includes(category) ?? true)
+        const reason: AllocationReason = covered ? '주 혜택 업종' : '월 한도 분산'
+        rows.set(key, { category, card_id: bestId, amount, benefit: gained, reason })
       }
     }
 

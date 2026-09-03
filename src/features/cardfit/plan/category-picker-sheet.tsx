@@ -49,7 +49,7 @@ export function CategoryPickerSheet({
   const titleId = useSheetTitleId()
 
   return (
-    <BottomSheet open={open} onClose={onClose} labelledBy={titleId} className="category-sheet">
+    <BottomSheet open={open} onClose={onClose} labelledBy={titleId} className="category-sheet" handleClassName="category-sheet-handle">
       <h2 id={titleId} className="category-sheet-title">
         {PLAN_NOTICE.addCategoryTitle}
       </h2>

@@ -25,9 +25,9 @@ export function CurrentSummary({
 
   return (
     <div className="grid current-summary">
-      <Metric label={CURRENT_STATE_NOTICE.spendLabel}>
+      <Metric label={CURRENT_STATE_NOTICE.spendLabel} className="metric-with-action">
         <div className="metric-value-row">
-          <strong className="tabular-nums">
+          <strong className="metric-value tabular-nums">
             {hidden ? CURRENT_STATE_NOTICE.masked : won(annualSpend)}
           </strong>
           <button
@@ -39,7 +39,9 @@ export function CurrentSummary({
             <span className="eye-icon" aria-hidden>
               {hidden ? "◌" : "◉"}
             </span>
-            {hidden ? CURRENT_STATE_NOTICE.show : CURRENT_STATE_NOTICE.hide}
+            <span className="visibility-label">
+              {hidden ? CURRENT_STATE_NOTICE.show : CURRENT_STATE_NOTICE.hide}
+            </span>
           </button>
         </div>
       </Metric>

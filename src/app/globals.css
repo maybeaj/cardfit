@@ -1839,3 +1839,121 @@ body {
   text-decoration: none;
   white-space: nowrap;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   v0.5 s3·s6 이식 — 입력 합계·건너뛰기와 상세 근거.
+   기준본의 raw 변수를 우리 토큰으로 옮긴다.
+   ══════════════════════════════════════════════════════════════ */
+.error{color:var(--color-danger);background:var(--color-danger-soft);padding:12px;border-radius:12px;font-size:13px}
+.spend-evidence{margin:14px 0 4px;padding:12px;border:1px solid #cfe0f6;border-radius:13px;background:#f7faff}
+.spend-evidence-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid #e4ebf4;font-size:12px}
+.spend-evidence-row:first-of-type{border-top:0}
+.spend-evidence-row span{color:var(--color-subtle);text-align:right}
+.card-evidence-list{display:grid;gap:11px;margin-top:13px}
+.card-evidence{overflow:hidden;border:1px solid #dce5ee;border-radius:15px;background:#fff}
+.card-evidence summary{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:9px;align-items:center;padding:11px;cursor:pointer;list-style:none}
+.card-evidence summary::-webkit-details-marker{display:none}
+.card-evidence summary img{width:52px;height:33px;object-fit:cover;border-radius:6px;box-shadow:0 3px 7px #15223818}
+.card-evidence summary b{display:block;font-size:13px}
+.card-evidence summary small{display:block;margin-top:2px;color:var(--color-subtle);font-size:11px}
+.card-evidence summary .open-mark{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#eef3f8;color:#617086;font-size:14px}
+.card-evidence[open] summary .open-mark{transform:rotate(180deg)}
+.card-evidence-body{padding:0 11px 12px;border-top:1px solid #edf1f5}
+.performance-box{margin:10px 0;padding:10px;border-radius:11px;background:#eef5ff}
+.performance-box span{display:block;color:#526176;font-size:11px}
+.performance-box strong{display:block;margin-top:2px;color:#245cc7;font-size:14px}
+.performance-table{width:100%;margin:8px 0 11px;border-collapse:collapse;font-size:11px}
+.performance-table th,.performance-table td{padding:6px 4px;border:1px solid #e1e8f0;text-align:center}
+.performance-table th{background:#f7f9fc;color:#526176}
+.benefit-rule-list{display:grid;gap:7px}
+.benefit-rule{display:grid;grid-template-columns:29px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px;border-radius:10px;background:#f8fafc}
+.benefit-rule .rule-icon{display:grid;place-items:center;width:29px;height:29px;border-radius:9px;background:#fff;font-size:14px}
+.benefit-rule b{display:block;font-size:11px}
+.benefit-rule small{display:block;margin-top:1px;color:var(--color-subtle);font-size:11px;line-height:1.35}
+.benefit-rule strong{color:var(--color-positive);font-size:11px;white-space:nowrap}
+.evidence-caution{margin:9px 0 0;color:#6c7787;font-size:11px;line-height:1.45}
+.official-link{display:inline-flex;margin-top:9px;color:var(--color-blue);font-size:11px;font-weight:850;text-decoration:none}
+.evidence-six-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:13px}
+.evidence-six-item{padding:9px;border:1px solid #dce5ee;border-radius:10px;background:#f8fafc}
+.evidence-six-item b{display:block;color:#245cc7;font-size:11px}
+.evidence-six-item span{display:block;margin-top:3px;color:#526176;font-size:11px;line-height:1.4}
+.future-total strong{color:var(--color-blue);font-size:18px}
+.future-total strong{color:#191f28;font-size:22px}
+.notice:before,.legal-note:before,.evidence-caution:before{content:"안내";display:block;margin-bottom:5px;color:#6b7684;font-size:12px;font-weight:800}
+.evidence-six-grid{grid-template-columns:1fr;gap:0;border-top:1px solid var(--color-line)}
+.evidence-six-item{padding:14px 0;border:0;border-bottom:1px solid var(--color-line);border-radius:0;background:#fff}
+.evidence-six-item b{color:#3182f6}
+.card-evidence-list{gap:0;border-top:1px solid var(--color-line)}
+.card-evidence summary{padding:16px 0}
+.card-evidence-body{padding:0 0 18px}
+.performance-table th{background:#f7f8fa}
+.benefit-rule{background:#f7f8fa}
+.benefit-rule strong{color:#1b64da}
+.evidence-six-item b,.evidence-six-item span{font-size:14px}
+.card-evidence summary b{font-size:16px}
+.performance-box span,.performance-box strong{font-size:14px}
+.notice:before,.legal-note:before,.evidence-caution:before{font-size:12px}
+.notice:before,.legal-note:before,.evidence-caution:before{font-size:13px;font-weight:600}
+
+/* 적용된 실적구간 줄을 표시한다 — 표에서 어느 줄이 쓰였는지 알아야 대조가 된다 */
+.performance-table tr.applied td {
+  background: var(--color-mint);
+  font-weight: 800;
+}
+/* 근거 6항목 개요 */
+.evidence-six-grid {
+  display: grid;
+  gap: 8px;
+  margin: 13px 0 4px;
+}
+.evidence-six-item {
+  padding: 10px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+.evidence-six-item b {
+  display: block;
+  font-size: 12px;
+  color: var(--color-blue);
+}
+.evidence-six-item span {
+  display: block;
+  margin-top: 3px;
+  color: var(--color-subtle);
+  font-size: 11px;
+  line-height: 1.45;
+}
+/* 입력 화면 합계와 건너뛰기 */
+.future-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 13px;
+  background: var(--color-blue-soft);
+}
+.future-total span {
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 800;
+}
+.future-total strong {
+  color: #12327c;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.skip-action {
+  display: grid;
+  place-items: center;
+  min-height: 46px;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--color-subtle);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}

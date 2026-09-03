@@ -31,7 +31,7 @@ test('기준본 s0~s7 플로우를 순서대로 통과한다', async ({ page }) 
 
   // s2 현재 카드와 혜택 확인 — 지표 2개 + 보유 카드 아코디언
   await expect(page).toHaveURL(/\/app\/summary$/)
-  await expect(page.getByRole('heading', { name: /지금 가지고 있는 카드부터/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /지금 쓰는 카드를/ })).toBeVisible()
   await expect(page.getByText('최근 12개월 지출액')).toBeVisible()
   await expect(page.getByText('최근 12개월 받은 혜택')).toBeVisible()
 
@@ -48,7 +48,7 @@ test('기준본 s0~s7 플로우를 순서대로 통과한다', async ({ page }) 
 
   // s3 미래 지출 확인
   await expect(page).toHaveURL(/\/app\/plan$/)
-  await expect(page.getByRole('heading', { name: /예상되는 지출액을 입력해주세요/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /앞으로 쓸 돈을/ })).toBeVisible()
   // 지출 감소는 항목별 토글로 받는다 — 금액 칸에 마이너스를 직접 입력받지 않는다 (`T20`)
   // 증감 토글과 감소 입력을 제공하지 않는다 (T10 · UI-002)
   await expect(page.getByText('줄어요')).toHaveCount(0)
@@ -57,21 +57,21 @@ test('기준본 s0~s7 플로우를 순서대로 통과한다', async ({ page }) 
 
   // s4 계산 조건 — 스테퍼와 예/아니오
   await expect(page).toHaveURL(/\/app\/constraint$/)
-  await expect(page.getByRole('heading', { name: /어느 정도까지 바꿔도 괜찮나요/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /카드를 얼마나/ })).toBeVisible()
   await expect(page.getByText('사용 카드 최대 수')).toBeVisible()
   await expect(page.getByText('신규 카드 포함')).toBeVisible()
   await expect(page.getByRole('button', { name: '사용 카드 최대 수 늘리기' })).toBeVisible()
   await page.getByRole('button', { name: '이 계획대로 계산하기' }).click()
 
-  // s5 계산 결과 — 결론 배너 + 지출 탐색 + 카드별 상태 + 배분표
+  // s5 계산 결과 — 결론 배너 + 지출 탐색 + 배분표 + 카드별 역할
   await expect(page).toHaveURL(/\/app\/result$/, { timeout: 15_000 })
-  await expect(
-    page.getByRole('heading', { name: '확인한 앞으로 12개월 계획 기준 결과' }),
-  ).toBeVisible({ timeout: 15_000 })
+  // 결과 화면에는 제목을 두지 않는다 — 결론 배너가 그 자리다 (v0.5)
+  await expect(page.locator('.panel > h2')).toHaveCount(0)
+  await expect(page.getByText('현재보다 늘어나는 연간 혜택')).toBeVisible({ timeout: 15_000 })
   for (const label of ['적게', '예상대로', '많이']) {
     await expect(page.getByRole('button', { name: label })).toBeVisible()
   }
-  await expect(page.getByText('카드별 상태')).toBeVisible()
+  await expect(page.getByText('카드별 역할')).toBeVisible()
   const like = page.getByRole('button', { name: '이 조합 선택하기' })
   await like.click()
   const liked = page.getByRole('button', { name: '좋아요를 반영했어요' })
@@ -97,7 +97,7 @@ test('기준본 s0~s7 플로우를 순서대로 통과한다', async ({ page }) 
 
   // s6 근거 검증 — 6항목
   await expect(page).toHaveURL(/\/app\/evidence$/)
-  await expect(page.getByRole('heading', { name: '이 결과가 나온 이유' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /카드마다 혜택이/ })).toBeVisible()
   for (const field of ['실적구간', '혜택한도', '연회비', '제외조건', '기준일', '미반영 항목']) {
     await expect(page.getByText(new RegExp(field)).first()).toBeVisible()
   }
@@ -176,7 +176,7 @@ test('화면 콘텐츠에 다크 영역을 쓰지 않는다', async ({ page }) =
    * 칠했고, 그대로 옮기면 결론 배너의 신호값이 죽는다 (`T13`).
    */
   await page.goto('/app/plan')
-  await page.getByRole('button', { name: /지출 항목 추가/ }).click()
+  await page.getByRole('button', { name: /지출 추가/ }).click()
   await expect(page.getByRole('dialog', { name: '카테고리 선택' })).toBeVisible()
   expect(await countDark()).toBe(0)
   await page.getByRole('button', { name: '닫기' }).click()
@@ -225,7 +225,7 @@ test('결제 배분표가 카드 역할보다 위에 있다 (T2)', async ({ page
   await expect(page).toHaveURL(/\/app\/result$/, { timeout: 15_000 })
 
   const allocation = page.getByText('이렇게 나눠 쓰세요')
-  const roles = page.getByText('카드별 상태')
+  const roles = page.getByText('카드별 역할')
   await expect(allocation).toBeVisible({ timeout: 15_000 })
   await expect(roles).toBeVisible()
 

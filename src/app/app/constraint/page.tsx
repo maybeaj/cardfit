@@ -43,7 +43,6 @@ export default function ConstraintScreen() {
     <Screen>
       <ScreenHeader
         title={CONSTRAINT_COPY.title}
-        lead={CONSTRAINT_COPY.lead}
         backHref="/app/plan"
       />
 

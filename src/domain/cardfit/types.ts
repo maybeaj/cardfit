@@ -109,12 +109,23 @@ export interface Profile {
 
 /* ── 계산 산출물 ─────────────────────────────────────────── */
 
+/** FR-004 배분 한 줄 — 어느 지출을 어느 카드로 결제하는가 */
 export interface AllocationRow {
   category: string
   card_id: string
   amount: number
   benefit: number
+  /**
+   * 이 카드가 담당하게 된 이유 (UI-006).
+   *
+   * `주 혜택 업종`은 그 카테고리가 카드의 혜택 대상이라는 뜻이고, `월 한도 분산`은
+   * 그렇지 않은데도 다른 카드의 월 한도가 차서 이쪽이 유리해졌다는 뜻이다.
+   * 사유를 적지 않으면 사용자가 배분을 검증할 수 없다.
+   */
+  reason: AllocationReason
 }
+
+export type AllocationReason = '주 혜택 업종' | '월 한도 분산'
 
 export interface CardEvidence {
   card_id: string

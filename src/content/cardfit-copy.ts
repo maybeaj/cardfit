@@ -19,17 +19,17 @@ export const DATA_NOTICE = {
 /**
  * UI-011 온보딩 — v0.5 기준본 s0의 최종 렌더 상태.
  *
- * 아이콘과 부연 문단, 하단 안내 문구를 두지 않는다. 기준본의 `UX review`가 전부
- * 걷어냈고(`.onboarding-copy`와 `.note`는 넣었다가 도로 지운다), 남은 것은
- * 제목·3단계·CTA뿐이다. 첫 화면에서 읽을 것을 줄이는 게 이 화면의 목적이다.
+ * 부연 문단과 하단 안내를 두지 않는다 — `UX review`가 `.onboarding-copy`와 `.note`를
+ * 넣었다가 도로 지운다. **아이콘은 남는다.** 스크립트는 각 단계의 `b`와 `small`만 바꾸고
+ * `.step-icon`은 건드리지 않는다.
  */
 export const ONBOARDING_COPY = {
   kicker: '앞으로의 소비까지 맞춤 계산',
   title: ['예정된 지출에 맞는', '카드 조합을 추천해 드려요'],
   steps: [
-    { title: '지금 받은 혜택 확인', body: '최근 소비와 카드 혜택을 살펴봐요.' },
-    { title: '예정된 지출 반영', body: '여행이나 예식처럼 큰 지출을 더해요.' },
-    { title: '더 나을 때만 추천', body: '바꿨을 때 늘어나는 혜택을 비교해요.' },
+    { icon: '📊', title: '지금 받은 혜택 확인', body: '최근 소비와 카드 혜택을 살펴봐요.' },
+    { icon: '🗓️', title: '예정된 지출 반영', body: '여행이나 예식처럼 큰 지출을 더해요.' },
+    { icon: '✨', title: '더 나을 때만 추천', body: '바꿨을 때 늘어나는 혜택을 비교해요.' },
   ],
   cta: '내 카드 조합 찾기',
 } as const
@@ -89,8 +89,7 @@ export const CURRENT_STATE_NOTICE = {
   basis: '최근 12개월 소비 기준',
   futureNotIncluded: '앞으로의 지출은 아직 반영되지 않았어요',
   /** UI-001 현재 카드와 혜택 확인 — 기준본 s2 */
-  title: '지금 가지고 있는 카드부터 살펴볼게요.',
-  lead: '최근 12개월 동안의 카드 사용 흐름을 한눈에 확인해보세요.',
+  title: ['지금 쓰는 카드를', '확인해 주세요.'],
   spendLabel: '최근 12개월 지출액',
   benefitLabel: '최근 12개월 받은 혜택',
   benefitCaption: '결제내역과 카드 혜택 기준을 대조한 계산값',
@@ -112,9 +111,8 @@ export const PLAN_NOTICE = {
   confirmCta: '이 계획대로 계산하기',
   calculating: '계산하고 있어요',
   /** UI-002 미래지출 입력 — 기준본 s3 */
-  title: '예상되는 지출액을 입력해주세요.',
-  lead: '앞으로 늘어날 지출만 확인해 주세요.',
-  addItem: '＋ 지출 항목 추가',
+  title: ['앞으로 쓸 돈을', '입력해 주세요.'],
+  addItem: '＋ 지출 추가',
   addCategoryTitle: '카테고리 선택',
   addCategoryCta: '이 항목 추가',
   addCategoryNote: '마일리지는 카드별 적립 기준이 달라 이번 프로토타입에서는 제외했습니다.',
@@ -130,16 +128,16 @@ export const PLAN_NOTICE = {
   durationShort: '지출 기간',
   once: '한 번에',
   months: (n: number) => `${n}개월`,
-  emptyMessage: '앞으로 쓸 돈을 입력하면 카드 조합을 확인할 수 있어요.',
+  emptyMessage: '금액을 입력해 주세요.',
+  totalLabel: '총 예정 지출',
   remove: '삭제',
   next: '다음',
-  skip: '이 단계 건너뛰기',
+  skip: '건너뛰기',
 } as const
 
 /** UI-003 변경 조건 — 기준본 s4. 상한은 T11(사용 카드 3장·신규 1장)을 따른다. */
 export const CONSTRAINT_COPY = {
-  title: '어느 정도까지 바꿔도 괜찮나요?',
-  lead: '불필요하게 카드를 늘리지 않도록 계산 조건을 확인합니다.',
+  title: ['카드를 얼마나', '바꿔도 괜찮나요?'],
   maxCardsLabel: '사용 카드 최대 수',
   maxCardsHint: '결과 조합에 포함할 보유 카드 수 · 최대 3장',
   newCardLabel: '신규 카드 포함',
@@ -178,10 +176,8 @@ export const CONCLUSION_COPY = {
   relaxHint: '제약을 풀면 더 나은 조합이 있어요',
   reviewedTitle: '검토했던 대안',
   /** UI-005 결과 — 기준본 s5 */
-  title: '확인한 앞으로 12개월 계획 기준 결과',
   passStatus: '✓ 바꿀 가치가 충분해요',
   holdStatus: '✓ 지금은 바꾸지 않아도 돼요',
-  cardStatusHeading: '카드별 상태',
   baselineTitle: '비교 기준선',
   /**
    * 종착 행동 — 누르면 같은 화면에서 `다음에 하면 되는 일`이 펼쳐진다.
@@ -228,6 +224,30 @@ export const CONCLUSION_COPY = {
 } as const
 
 /**
+ * UI-006 결제 배분 — 기준본 s5의 `#allocation`.
+ *
+ * 행마다 담당 사유를 적고 합계를 함께 보인다. 합계가 확인한 계획과 어긋나면 화면이
+ * 그 사실을 스스로 말한다 — 조용히 맞는 척하지 않는다 (`NFR-001`).
+ */
+export const ALLOCATION_COPY = {
+  heading: '이렇게 나눠 쓰세요',
+  totalLabel: '배분 합계',
+  totalMatch: '확인한 계획과 같은 금액입니다',
+  totalMismatch: '확인한 계획과 금액이 다릅니다 · 다시 계산해 주세요',
+} as const
+
+/** UI-005 카드별 역할 — 기준본 s5의 `#statuses` */
+export const CARD_ROLE_COPY = {
+  heading: '카드별 역할',
+  paid: (amount: string) => `이 카드로 결제 ${amount}`,
+  /** `정리` 카드는 앞으로 결제가 없다. 받던 혜택과 앞으로 받을 혜택을 섞지 않는다 */
+  noFuturePayment: '앞으로의 결제 없음',
+  expected: (amount: string) => `예상 연간 혜택 ${amount}`,
+  past: (amount: string) => `지금까지 받던 혜택 ${amount}`,
+  issuerLink: '카드사 페이지 ›',
+} as const
+
+/**
  * UI-007 계산 기준 요약 바텀시트 — 기준본 `#resultEvidenceModal`.
  *
  * **전체 근거 화면(`/app/evidence`)과 다른 화면이다.** 여기에는 금액이 어떻게 만들어졌는지
@@ -265,8 +285,8 @@ export const EVIDENCE_COPY = {
   disclaimer: '계산 결과는 참고용이며 실제 혜택은 카드사 약관·심사에 따릅니다',
   applyCta: '다음 행동 보기',
   /** UI-007 근거 — 기준본 s6 */
-  title: '이 결과가 나온 이유',
-  lead: '결론 카드마다 다음 6개 근거를 확인합니다. 수치는 예시이며 실제 혜택은 카드사 약관·심사에 따릅니다.',
+  title: ['카드마다 혜택이', '어떻게 계산됐나요?'],
+  lead: '실적구간과 업종별 할인율, 월 한도를 카드 약관 기준으로 쉽게 풀어봤어요.',
   notice:
     '미반영 항목은 결론 차액에 합산하지 않습니다. 기준일이 3개월을 초과하면 경고를 표시하되 결과를 자동 무효화하지 않습니다.',
   backToResult: '결과로 돌아가기',

@@ -6,10 +6,9 @@ import { CALC_NOTICE, DATA_NOTICE, EVIDENCE_COPY } from '@/content/cardfit-copy'
 import { EvidenceDetails } from '@/features/cardfit/result/evidence-details'
 import {
   Actions,
-  GhostLink,
   Note,
   Notice,
-  PrimaryButton,
+  GhostLink,
   Screen,
   ScreenHeader,
 } from '@/components/shell'
@@ -22,7 +21,7 @@ import { useDemo } from '@/state/store'
  */
 export default function EvidenceScreen() {
   const router = useRouter()
-  const { calculation, error, pending, profile } = useDemo()
+  const { calculation, error, profile } = useDemo()
 
   useEffect(() => {
     if (error) {
@@ -40,9 +39,6 @@ export default function EvidenceScreen() {
 
   const shown = calculation.decision === '변경' ? calculation.chosen : calculation.current
 
-  // 근거를 다 본 뒤 다음 행동으로 넘어간다. 선택 자체는 결과 화면의 `좋아요`가 맡는다 (`T12`)
-  const goNext = () => router.push('/app/confirm')
-
   return (
     <Screen>
       <ScreenHeader
@@ -55,16 +51,16 @@ export default function EvidenceScreen() {
 
       <EvidenceDetails calculation={calculation} profile={profile} candidate={shown} />
 
+      {/* 6항목 미달로 후보에서 뺀 카드와 사유 (`T41`) — 조용히 감추지 않는다 */}
       {calculation.excluded_cards.length > 0 ? (
-        <div className="mt-3 rounded-xl bg-[var(--color-bg)] p-2.5">
-          <b className="text-[10px]">{EVIDENCE_COPY.excludedTitle}</b>
-          <ul className="mt-1.5 mb-0 list-none p-0">
-            {calculation.excluded_cards.map((item) => (
-              <li key={item.card_id} className="text-[9px] text-[var(--color-subtle)]">
-                · {item.card_id} — {item.reason}
-              </li>
-            ))}
-          </ul>
+        <div className="spend-evidence">
+          <h3>{EVIDENCE_COPY.excludedTitle}</h3>
+          {calculation.excluded_cards.map((item) => (
+            <div key={item.card_id} className="spend-evidence-row">
+              <b>{item.card_id}</b>
+              <span>{item.reason}</span>
+            </div>
+          ))}
         </div>
       ) : null}
 
@@ -75,10 +71,11 @@ export default function EvidenceScreen() {
         {EVIDENCE_COPY.disclaimer} · {DATA_NOTICE.sampleFootnote}
       </p>
 
+      {/*
+        여기서 끝내지 않는다 — 종착 행동은 결과 화면의 `이 조합 선택하기`다 (`T12` · UI-008).
+        근거는 확인하러 들어왔다 돌아가는 곳이라 나가는 문 하나만 둔다.
+      */}
       <Actions>
-        <PrimaryButton onClick={goNext} disabled={pending}>
-          {EVIDENCE_COPY.applyCta}
-        </PrimaryButton>
         <GhostLink href="/app/result">{EVIDENCE_COPY.backToResult}</GhostLink>
       </Actions>
     </Screen>

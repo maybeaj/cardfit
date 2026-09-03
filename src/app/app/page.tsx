@@ -37,10 +37,13 @@ export default function OnboardingScreen() {
         <br />
         {ONBOARDING_COPY.title[1]}
       </h2>
-      {/* 아이콘과 부연을 두지 않는다 — 첫 화면에서 읽을 것을 줄인다 (v0.5) */}
+      {/* 부연 문단과 하단 안내는 두지 않는다. 아이콘은 계약에 있다 (v0.5) */}
       <div className="onboarding-steps" aria-label="CardFit 이용 과정">
         {ONBOARDING_COPY.steps.map((step) => (
           <div key={step.title} className="onboarding-step">
+            <span className="step-icon" aria-hidden>
+              {step.icon}
+            </span>
             <div>
               <b>{step.title}</b>
               <small>{step.body}</small>

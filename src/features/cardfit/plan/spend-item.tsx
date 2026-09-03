@@ -36,7 +36,7 @@ export function SpendItem({
   const amountLabelId = `spend-amount-${item.plan_id}`
 
   return (
-    <div className="spend">
+    <article className="spend">
       <div className="spend-header">
         <span className="spend-index" aria-hidden>
           {index + 1}
@@ -59,58 +59,60 @@ export function SpendItem({
         </button>
       </div>
 
-      <div className="spend-controls">
-        {/*
-          라벨은 첫 항목에만 보인다. 항목마다 반복하면 같은 문장이 화면을 채워
-          정작 입력값이 안 보인다. 보조기술에는 `aria-label`로 계속 전달한다.
-        */}
-        <label
-          className={index === 0 ? 'amount-label' : 'amount-label sr-only'}
-          htmlFor={amountLabelId}
-        >
-          {PLAN_NOTICE.amountLabel}
-        </label>
-        <div className="amount-field">
-          <input
-            id={amountLabelId}
-            type="number"
-            min={0}
-            inputMode="numeric"
-            aria-label={`${item.category} ${PLAN_NOTICE.amountLabel} (${PLAN_NOTICE.amountUnit})`}
-            value={item.amount / MANWON}
-            onChange={(event) =>
-              onChange({ amount: Math.max(0, Number(event.target.value) || 0) * MANWON })
-            }
-          />
-          <small>{PLAN_NOTICE.amountUnit}</small>
+      <div className="spend-body">
+        <div className="spend-controls">
+          {/*
+            라벨은 첫 항목에만 보인다. 항목마다 반복하면 같은 문장이 화면을 채워
+            정작 입력값이 안 보인다. 보조기술에는 `aria-label`로 계속 전달한다.
+          */}
+          <label
+            className={index === 0 ? 'amount-label' : 'amount-label sr-only'}
+            htmlFor={amountLabelId}
+          >
+            {PLAN_NOTICE.amountLabel}
+          </label>
+          <div className="amount-field">
+            <input
+              id={amountLabelId}
+              type="number"
+              min={0}
+              inputMode="numeric"
+              aria-label={`${item.category} ${PLAN_NOTICE.amountLabel} (${PLAN_NOTICE.amountUnit})`}
+              value={item.amount / MANWON}
+              onChange={(event) =>
+                onChange({ amount: Math.max(0, Number(event.target.value) || 0) * MANWON })
+              }
+            />
+            <small>{PLAN_NOTICE.amountUnit}</small>
+          </div>
+          <span className="amount-echo" aria-hidden>
+            {item.amount > 0 ? won(item.amount) : PLAN_NOTICE.amountZero}
+          </span>
         </div>
-        <span className="amount-echo" aria-hidden>
-          {item.amount > 0 ? won(item.amount) : PLAN_NOTICE.amountZero}
-        </span>
-      </div>
 
-      {/*
-        기간 선택이 결과를 바꾼다 — 같은 금액도 한 달에 몰면 월 혜택한도에 걸리고
-        열두 달에 펴면 실적구간을 못 넘는다. 시점이 아니라 기간을 묻는 이유다.
-      */}
-      <div className="spend-duration">
-        <span className="spend-duration-label">
-          {index === 0 ? PLAN_NOTICE.durationQuestion : PLAN_NOTICE.durationShort}
-        </span>
-        <div className="duration-options" role="group" aria-label={`${item.category} 지출 기간`}>
-          {SPENDING_MONTHS.map((months) => (
-            <button
-              key={months}
-              type="button"
-              className={item.spending_months === months ? 'active' : ''}
-              aria-pressed={item.spending_months === months}
-              onClick={() => onChange({ spending_months: months })}
-            >
-              {months === 1 ? PLAN_NOTICE.once : PLAN_NOTICE.months(months)}
-            </button>
-          ))}
+        {/*
+          기간 선택이 결과를 바꾼다 — 같은 금액도 한 달에 몰면 월 혜택한도에 걸리고
+          열두 달에 펴면 실적구간을 못 넘는다. 시점이 아니라 기간을 묻는 이유다.
+        */}
+        <div className="spend-duration">
+          <span className="spend-duration-label">
+            {index === 0 ? PLAN_NOTICE.durationQuestion : PLAN_NOTICE.durationShort}
+          </span>
+          <div className="duration-options" role="group" aria-label={`${item.category} 지출 기간`}>
+            {SPENDING_MONTHS.map((months) => (
+              <button
+                key={months}
+                type="button"
+                className={item.spending_months === months ? 'active' : ''}
+                aria-pressed={item.spending_months === months}
+                onClick={() => onChange({ spending_months: months })}
+              >
+                {months === 1 ? PLAN_NOTICE.once : PLAN_NOTICE.months(months)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </article>
   )
 }

@@ -2,15 +2,14 @@
 
 import { useMemo, useState } from 'react'
 import { PLAN_NOTICE } from '@/content/cardfit-copy'
-import { manwon } from '@/domain/cardfit/format'
+import Link from 'next/link'
+import { won } from '@/domain/cardfit/format'
 import { isPlanEmpty, planTotal } from '@/domain/cardfit/plan'
 import type { FutureSpendPlan } from '@/domain/cardfit/types'
 import { CategoryPickerSheet } from '@/features/cardfit/plan/category-picker-sheet'
 import { SpendItem } from '@/features/cardfit/plan/spend-item'
 import {
   Actions,
-  ErrorNote,
-  GhostLink,
   PrimaryButton,
   PrimaryLink,
   Screen,
@@ -81,7 +80,7 @@ export default function PlanScreen() {
 
   return (
     <Screen>
-      <ScreenHeader title={PLAN_NOTICE.title} lead={PLAN_NOTICE.lead} backHref="/app/summary" />
+      <ScreenHeader title={PLAN_NOTICE.title} backHref="/app/summary" />
 
       {/* 빈 폼으로 열지 않는다는 사실을 화면에서도 밝힌다 (T3 · FR-006) */}
       <p className="footer">{PLAN_NOTICE.prefilled}</p>
@@ -99,7 +98,7 @@ export default function PlanScreen() {
         ))}
       </div>
 
-      <button type="button" className="add-spend-button" onClick={() => setPicking('new')}>
+      <button type="button" className="secondary add-spend-button" onClick={() => setPicking('new')}>
         {PLAN_NOTICE.addItem}
       </button>
 
@@ -119,17 +118,16 @@ export default function PlanScreen() {
         </div>
       ) : null}
 
+      {/* 합계는 늘 자리를 지킨다 — 0건일 때만 그 자리에 안내가 대신 선다 */}
       {empty ? (
-        <div className="mt-3 grid gap-2">
-          <ErrorNote>{PLAN_NOTICE.emptyMessage}</ErrorNote>
+        <>
+          <div className="error">{PLAN_NOTICE.emptyMessage}</div>
           <SecondaryButton onClick={refillPlan}>{PLAN_NOTICE.refill}</SecondaryButton>
-        </div>
+        </>
       ) : (
-        <div className="total">
-          <span>확인할 앞으로 12개월 계획</span>
-          <span className="tabular-nums">
-            {plan.length}건 · {manwon(planTotal(plan))}
-          </span>
+        <div className="future-total">
+          <span>{PLAN_NOTICE.totalLabel}</span>
+          <strong className="tabular-nums">{won(planTotal(plan))}</strong>
         </div>
       )}
 
@@ -138,18 +136,20 @@ export default function PlanScreen() {
           <PrimaryButton disabled>{PLAN_NOTICE.next}</PrimaryButton>
         ) : (
           <>
+            {/*
+              기준본 s3의 `건너뛰기` — 제안값을 지우지 않고 그대로 둔 채 조건 화면으로 간다.
+              수정 없이 넘어가는 것이므로 화면의 전체 값이 확인된 계획이 된다 (`T37`).
+              계획이 0건이면 계산 자체가 막히므로 이때는 우회로를 남기지 않는다 (`AC-001`).
+            */}
+            <Link className="skip-action" href="/app/constraint">
+              {PLAN_NOTICE.skip}
+            </Link>
             <PrimaryLink
               href="/app/constraint"
               onClick={() => logEvent('입력완료', { items: plan.length })}
             >
               {PLAN_NOTICE.next}
             </PrimaryLink>
-            {/*
-              기준본 s3의 `이 단계 건너뛰기` — 제안값을 지우지 않고 그대로 둔 채 조건 화면으로 간다.
-              수정 없이 넘어가는 것이므로 화면의 전체 값이 확인된 계획이 된다 (`T37`).
-              계획이 0건이면 계산 자체가 막히므로 이때는 우회로를 남기지 않는다 (`AC-001`).
-            */}
-            <GhostLink href="/app/constraint">{PLAN_NOTICE.skip}</GhostLink>
           </>
         )}
       </Actions>

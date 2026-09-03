@@ -21,17 +21,8 @@ export default function CurrentCardsScreen() {
 
   return (
     <Screen>
-      <ScreenHeader
-        title={
-          <>
-            지금 가지고 있는 카드부터
-            <br />
-            살펴볼게요.
-          </>
-        }
-        lead={CURRENT_STATE_NOTICE.lead}
-        backHref="/app"
-      />
+      {/* 제목을 코드에 직접 쓰지 않는다 — 문구는 외부화 파일이 정본이다 */}
+      <ScreenHeader title={CURRENT_STATE_NOTICE.title} backHref="/app" />
 
       <CurrentSummary annualSpend={d.annualSpend} annualBenefit={d.currentAnnualBenefit} />
       <OwnedCardList cards={d.perCard} />

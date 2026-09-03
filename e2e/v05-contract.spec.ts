@@ -28,9 +28,14 @@ test.describe('v0.5 화면 계약', () => {
     }
 
     await expect(page.getByRole('button', { name: '내 카드 조합 찾기' })).toBeVisible()
-    // `UX review`가 걷어낸 것들 — 부연 문단과 하단 안내는 남기지 않는다
+
+    /*
+     * `UX review`가 걷어내는 것은 부연 문단과 하단 안내뿐이다. **아이콘은 남는다** —
+     * 스크립트가 각 단계의 `b`와 `small`만 바꾸고 `.step-icon`은 건드리지 않는다.
+     * 스크린샷만 보고 "아이콘이 없다"고 읽어 지운 적이 있어 개수로 고정해 둔다.
+     */
     await expect(page.locator('.onboarding-copy')).toHaveCount(0)
-    await expect(page.locator('.step-icon')).toHaveCount(0)
+    await expect(page.locator('.step-icon')).toHaveCount(3)
   })
 
   test('02·03 마이데이터 동의 — 필수 2항목과 그 자리에서 펼치는 상세', async ({ page }) => {
@@ -66,7 +71,7 @@ test.describe('v0.5 화면 계약', () => {
 
   test('06 카테고리 선택 — 7묶음 바텀시트', async ({ page }) => {
     await page.goto('/app/plan')
-    await page.getByRole('button', { name: /지출 항목 추가/ }).click()
+    await page.getByRole('button', { name: /지출 추가/ }).click()
 
     const sheet = page.getByRole('dialog', { name: '카테고리 선택' })
     await expect(sheet).toBeVisible()
@@ -86,7 +91,7 @@ test.describe('v0.5 화면 계약', () => {
      * SRS UI-006이 "배분표를 결론 바로 아래, 카드별 역할은 그 아래"로 못박고 있다.
      */
     const allocation = await page.getByText('이렇게 나눠 쓰세요').boundingBox()
-    const roles = await page.getByText('카드별 상태').boundingBox()
+    const roles = await page.getByText('카드별 역할').boundingBox()
     expect(allocation!.y).toBeLessThan(roles!.y)
   })
 
@@ -141,7 +146,7 @@ test.describe('v0.5 화면 계약', () => {
 
   test('모든 시트가 같은 방식으로 닫힌다', async ({ page }) => {
     await page.goto('/app/plan')
-    const open = () => page.getByRole('button', { name: /지출 항목 추가/ }).click()
+    const open = () => page.getByRole('button', { name: /지출 추가/ }).click()
     const sheet = page.getByRole('dialog')
 
     await open()

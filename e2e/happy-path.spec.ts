@@ -105,10 +105,10 @@ test('입력을 모두 지우면 다음 단계로 갈 수 없다 (AC-001)', asyn
   const count = await deleteButtons.count()
   for (let i = 0; i < count; i += 1) await deleteButtons.first().click()
 
-  await expect(page.getByText('앞으로 쓸 돈을 입력하면 카드 조합을 확인할 수 있어요.')).toBeVisible()
+  await expect(page.getByText('금액을 입력해 주세요.')).toBeVisible()
   await expect(page.getByRole('button', { name: '다음' })).toBeDisabled()
   // 계획이 0건이면 건너뛰기로 우회할 수도 없어야 한다
-  await expect(page.getByRole('link', { name: '이 단계 건너뛰기' })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: '건너뛰기' })).toHaveCount(0)
 
   await page.getByRole('button', { name: '과거 패턴으로 다시 채우기' }).click()
   await expect(page.locator('input[type=number]')).toHaveCount(3)
@@ -126,7 +126,7 @@ test('기준본 s3의 항목 추가와 건너뛰기가 동작한다', async ({ p
 
   // ＋ 지출 항목 추가 → 카테고리 바텀시트 → 카테고리 선택
   await expect(page.locator('input[type=number]')).toHaveCount(3)
-  await page.getByRole('button', { name: /지출 항목 추가/ }).click()
+  await page.getByRole('button', { name: /지출 추가/ }).click()
   const sheet = page.getByRole('dialog', { name: '카테고리 선택' })
   await expect(sheet).toBeVisible()
   await sheet.locator('summary', { hasText: '여행' }).click()
@@ -134,8 +134,8 @@ test('기준본 s3의 항목 추가와 건너뛰기가 동작한다', async ({ p
   await expect(sheet).toHaveCount(0)
   await expect(page.locator('input[type=number]')).toHaveCount(4)
 
-  // 이 단계 건너뛰기 → 계산 조건으로 간다
-  await page.getByRole('link', { name: '이 단계 건너뛰기' }).click()
+  // 건너뛰기 → 계산 조건으로 간다
+  await page.getByRole('link', { name: '건너뛰기' }).click()
   await expect(page).toHaveURL(/\/app\/constraint$/)
 })
 

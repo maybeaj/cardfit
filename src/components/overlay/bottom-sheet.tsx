@@ -18,6 +18,7 @@ export function BottomSheet({
   onClose,
   labelledBy,
   className,
+  handleClassName = 'sheet-handle',
   children,
 }: {
   open: boolean
@@ -25,6 +26,8 @@ export function BottomSheet({
   /** 제목 노드의 id. `BottomSheet.Header`가 넘겨주는 값을 그대로 쓴다 */
   labelledBy?: string
   className?: string
+  /** 기준본이 시트마다 다른 손잡이 클래스를 쓴다 — 카테고리 시트는 `category-sheet-handle` */
+  handleClassName?: string
   children: ReactNode
 }) {
   const sheetRef = useRef<HTMLDivElement>(null)
@@ -106,7 +109,7 @@ export function BottomSheet({
         tabIndex={-1}
         className={className ? `bottom-sheet ${className}` : 'bottom-sheet'}
       >
-        <div className="sheet-handle" aria-hidden />
+        <div className={handleClassName} aria-hidden />
         {children}
       </div>
     </div>

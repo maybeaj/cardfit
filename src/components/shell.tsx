@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 import type { CardStatus } from '@/domain/cardfit/types'
 
 /**
@@ -36,10 +36,22 @@ export function ScreenHeader({
   lead,
   backHref,
 }: {
-  title: ReactNode
+  /**
+   * 배열이면 줄바꿈으로 잇는다 — 기준본이 `h2`를 `<br>`로 끊는다.
+   * 결과 화면처럼 제목이 없는 화면도 있다 — 결론 배너가 제목 역할을 한다.
+   */
+  title?: ReactNode | readonly string[]
   lead?: ReactNode
   backHref?: string
 }) {
+  const heading = Array.isArray(title)
+    ? (title as readonly string[]).map((line, index) => (
+        <Fragment key={line}>
+          {index > 0 ? <br /> : null}
+          {line}
+        </Fragment>
+      ))
+    : (title as ReactNode)
   return (
     <>
       {backHref ? (
@@ -56,7 +68,7 @@ export function ScreenHeader({
           </svg>
         </Link>
       ) : null}
-      <h2>{title}</h2>
+      {title ? <h2>{heading}</h2> : null}
       {lead ? <p className="sub">{lead}</p> : null}
     </>
   )

@@ -114,7 +114,7 @@ export function MydataConsentSheet({
         {CONSENT_COPY.legalNote}
       </p>
 
-      <button type="button" className="sheet-submit" disabled={!allChecked} onClick={onAccept}>
+      <button type="button" className="primary sheet-submit" disabled={!allChecked} onClick={onAccept}>
         {CONSENT_COPY.submit}
       </button>
     </BottomSheet>

@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CONCLUSION_COPY, DATA_NOTICE, PLAN_NOTICE } from '@/content/cardfit-copy'
+import {
+  ALLOCATION_COPY,
+  CARD_ROLE_COPY,
+  CONCLUSION_COPY,
+  DATA_NOTICE,
+  PLAN_NOTICE,
+} from '@/content/cardfit-copy'
 import { CalculationBasisSheet } from '@/features/cardfit/result/calculation-basis-sheet'
 import { BenefitSummary } from '@/features/cardfit/result/benefit-summary'
 import { CardRoleList } from '@/features/cardfit/result/card-role-list'
@@ -31,6 +37,7 @@ export default function ResultScreen() {
     error,
     pending,
     profile,
+    plan,
     constraint,
     clearError,
     confirmCombination,
@@ -124,7 +131,8 @@ export default function ResultScreen() {
 
   return (
     <Screen>
-      <ScreenHeader title={CONCLUSION_COPY.title} backHref="/app/constraint" />
+      {/* 결과 화면에는 제목을 두지 않는다 — 결론 배너가 그 자리다 (v0.5) */}
+      <ScreenHeader backHref="/app/constraint" />
 
       <div className="result-shell">
         <ScenarioTabs selected={scenario} onSelect={setScenario} />
@@ -151,14 +159,24 @@ export default function ResultScreen() {
       {/*
         결제 배분표가 결과 화면의 주인공이다 (`T2`). 카드 역할보다 위에 둔다 —
         사용자가 결정할 것은 "어느 카드를 쓰냐"가 아니라 "어디에 어느 카드로 결제하냐"다.
+        기준본은 `카드별 역할` 제목에 `order:2`를 걸어 자기 목록과 떼어 놓지만, 제목과
+        내용이 분리된 쪽 버그라 따라가지 않는다 (SRS UI-006).
       */}
-      <PaymentAllocation candidate={shown} cards={profile.cards} />
-      <CardRoleList calculation={shownCalculation} cards={profile.cards} />
-      <ReviewedAlternatives reviewed={shownCalculation.reviewed} cards={profile.cards} />
+      <div className="result-section-heading allocation-heading">
+        <h3>{ALLOCATION_COPY.heading}</h3>
+      </div>
+      <PaymentAllocation candidate={shown} cards={profile.cards} plan={plan} />
 
       <p className="footer">
         {CONCLUSION_COPY.constraintCaption(constraint.max_cards, constraint.allow_new_card)}
       </p>
+
+      <div className="result-section-heading cards-heading">
+        <h3>{CARD_ROLE_COPY.heading}</h3>
+      </div>
+      <CardRoleList calculation={shownCalculation} cards={profile.cards} />
+      <ReviewedAlternatives reviewed={shownCalculation.reviewed} cards={profile.cards} />
+
       <p className="footer">{DATA_NOTICE.sampleFootnote}</p>
 
       <ResultActions liked={liked} onLike={likeCombination} />
