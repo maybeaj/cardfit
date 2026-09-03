@@ -24,9 +24,7 @@ const STEPS = FLOW_ORDER.length
 export function FlowProgress() {
   const pathname = usePathname()
 
-  // 계산 중 화면은 결과와 같은 칸으로 본다 — 없는 단계를 새로 만들지 않는다
-  const normalized = pathname === '/app/calculating' ? '/app/result' : pathname
-  const index = FLOW_ORDER.indexOf(normalized as (typeof FLOW_ORDER)[number])
+  const index = FLOW_ORDER.indexOf(pathname as (typeof FLOW_ORDER)[number])
   // 동의 시트는 온보딩 위에 열리므로 경로가 /app 그대로다. 최소 1칸은 채운다
   const filled = index < 0 ? 1 : index + 1
 

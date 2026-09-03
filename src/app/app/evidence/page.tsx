@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { DATA_NOTICE, EVIDENCE_COPY } from '@/content/copy'
+import { CALC_NOTICE, DATA_NOTICE, EVIDENCE_COPY } from '@/content/copy'
 import { EvidenceDetails } from '@/components/evidence-details'
 import {
   Actions,
@@ -70,6 +70,7 @@ export default function EvidenceScreen() {
 
       <Notice>{EVIDENCE_COPY.notice}</Notice>
       <Note>{EVIDENCE_COPY.qualifyingModel}</Note>
+      <Note>{CALC_NOTICE.engine}</Note>
       <p className="footer">
         {EVIDENCE_COPY.disclaimer} · {DATA_NOTICE.sampleFootnote}
       </p>

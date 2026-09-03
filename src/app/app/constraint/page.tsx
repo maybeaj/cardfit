@@ -21,20 +21,26 @@ const MIN_CARDS_LIMIT = 1
 
 export default function ConstraintScreen() {
   const router = useRouter()
-  const { plan, constraint, updateConstraint } = useDemo()
+  const { plan, constraint, updateConstraint, requestCalculation } = useDemo()
 
   const changeMax = (delta: number) => {
     const next = Math.min(MAX_CARDS_LIMIT, Math.max(MIN_CARDS_LIMIT, constraint.max_cards + delta))
     updateConstraint({ max_cards: next })
   }
 
+  /*
+   * 계산하고 결과로 바로 간다. 중간에 대기 화면을 두지 않는 이유 —
+   * 규칙 엔진이 동기 함수라 기다릴 것이 없고, 없는 지연을 연출하면
+   * 사용자가 그만큼 더 기다리게 된다.
+   */
   const confirm = () => {
     logEvent('계산요청', {
       items: plan.length,
       max_cards: constraint.max_cards,
       allow_new_card: constraint.allow_new_card,
     })
-    router.push('/app/calculating')
+    requestCalculation()
+    router.push('/app/result')
   }
 
   return (
