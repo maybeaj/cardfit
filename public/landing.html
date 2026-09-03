@@ -129,65 +129,65 @@
     </section>
 
     <!-- INTERACTIVE SIMULATOR PREVIEW -->
+    <!-- FIXED EXAMPLE PREVIEW -->
     <section id="simulator" class="py-16 bg-white border-y border-[#E5E8EB] relative">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-10">
-                <h2 class="text-2xl md:text-3xl font-extrabold text-[#191F28] mb-3">⚡ 간단 미래 지출 맛보기 시뮬레이터</h2>
-                <p class="text-[#4E5968] text-sm md:text-base">목표 지출과 예산을 선택하고 카드핏으로 얻을 수 있는 추가 혜택을 미리 확인해 보세요.</p>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-[#191F28] mb-3">⚡ 실제 예시로 미리 확인해보세요</h2>
+                <p class="text-[#4E5968] text-sm md:text-base">앞으로 12개월 지출 계획을 알려주면, 지금 조합과 비교해 얼마나 유리한지 계산해드려요.</p>
             </div>
 
-            <!-- Interactive Widget Card -->
+            <!-- Fixed Example Card -->
             <div class="bg-[#F2F4F6] p-6 md:p-10 rounded-3xl glow-effect max-w-3xl mx-auto border border-[#E5E8EB]">
-                <!-- Step 1: Category Selection -->
-                <div class="mb-8">
-                    <label class="block text-[#191F28] text-sm font-semibold mb-3">1. 앞으로 12개월 내 가장 큰 지출 카테고리는?</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="categoryButtons">
-                        <button onclick="selectCategory(this, 120)" class="cat-btn bg-[#3182F6] text-white font-bold p-3 rounded-xl text-sm flex items-center justify-center space-x-2 transition-all">
-                            <span>💒 결혼 준비</span>
-                        </button>
-                        <button onclick="selectCategory(this, 85)" class="cat-btn bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#E5E8EB] p-3 rounded-xl text-sm flex items-center justify-center space-x-2 transition-all">
-                            <span>🏠 이사/인테리어</span>
-                        </button>
-                        <button onclick="selectCategory(this, 60)" class="cat-btn bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#E5E8EB] p-3 rounded-xl text-sm flex items-center justify-center space-x-2 transition-all">
-                            <span>🚗 차량 구입</span>
-                        </button>
-                        <button onclick="selectCategory(this, 45)" class="cat-btn bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#E5E8EB] p-3 rounded-xl text-sm flex items-center justify-center space-x-2 transition-all">
-                            <span>✈️ 여행/기타</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Step 2: Amount Slider -->
-                <div class="mb-8">
-                    <div class="flex justify-between items-center mb-3">
-                        <label class="text-[#191F28] text-sm font-semibold">2. 예상 총 지출 금액</label>
-                        <div class="flex items-baseline gap-1">
-                            <input type="number" id="amountInput" inputmode="numeric" min="500" max="8000" step="250" value="3000"
-                                oninput="onAmountInputTyping(this.value)" onchange="onAmountInputCommit(this)" onblur="onAmountInputCommit(this)"
-                                class="w-24 text-right text-xl font-extrabold text-[#3182F6] bg-transparent border-b-2 border-[#D6E4FF] focus:border-[#3182F6] outline-none" />
-                            <span class="text-xl font-extrabold text-[#3182F6]">만원</span>
+                <div class="mb-6">
+                    <label class="block text-[#191F28] text-sm font-semibold mb-3">앞으로 12개월 지출 계획 (예시)</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-white border border-[#E5E8EB] rounded-xl p-3 text-center">
+                            <div class="text-xs text-[#8B95A1] mb-1">가전·가구</div>
+                            <div class="font-bold text-[#191F28]">840만원</div>
                         </div>
-                    </div>
-                    <input type="range" id="amountRange" min="500" max="8000" step="250" value="3000" oninput="onAmountRangeChange(this.value)" class="w-full h-3 bg-[#E5E8EB] rounded-lg appearance-none cursor-pointer accent-[#3182F6]">
-                    <div class="flex justify-between text-xs text-[#8B95A1] mt-2 font-medium">
-                        <span>500만원</span>
-                        <span>3,000만원</span>
-                        <span class="relative left-1">5,500만원</span>
-                        <span>8,000만원+</span>
+                        <div class="bg-white border border-[#E5E8EB] rounded-xl p-3 text-center">
+                            <div class="text-xs text-[#8B95A1] mb-1">여행</div>
+                            <div class="font-bold text-[#191F28]">320만원</div>
+                        </div>
+                        <div class="bg-white border border-[#E5E8EB] rounded-xl p-3 text-center">
+                            <div class="text-xs text-[#8B95A1] mb-1">예식</div>
+                            <div class="font-bold text-[#191F28]">480만원</div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Result Box -->
                 <div class="bg-white rounded-2xl p-6 border border-[#D6E4FF] text-center relative overflow-hidden soft-shadow">
-                    <div class="text-xs text-[#3182F6] font-bold uppercase tracking-wider mb-1">카드핏 최적 조합 적용 시 예상 혜택</div>
+                    <div class="text-xs text-[#3182F6] font-bold uppercase tracking-wider mb-1">이 조합이면</div>
                     <div class="text-3xl md:text-4xl font-black text-[#191F28] my-2">
-                        약 <span id="benefitResult" class="gradient-text">128 만원</span> 추가 환급/할인
+                        연 <span class="gradient-text">186,000원</span> 더 유리해요
                     </div>
-                    <p class="text-xs text-[#8B95A1] mb-5">*(기존 카드 유지 2장 + 신규 캐시백 특화 카드 1장 조합 산출 기준)</p>
+                    <p class="text-xs text-[#8B95A1] mb-5">추가 혜택 +224,000원 · 연회비 −38,000원</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left mb-5">
+                        <div class="bg-[#F2F4F6] rounded-xl p-3">
+                            <span class="inline-block text-[10px] font-bold text-[#4E5968] bg-white border border-[#E5E8EB] rounded-full px-2 py-0.5 mb-1">유지</span>
+                            <div class="text-sm font-bold text-[#191F28]">A카드 · 신한 Deep Dream</div>
+                        </div>
+                        <div class="bg-[#F2F4F6] rounded-xl p-3">
+                            <span class="inline-block text-[10px] font-bold text-[#4E5968] bg-white border border-[#E5E8EB] rounded-full px-2 py-0.5 mb-1">정리</span>
+                            <div class="text-sm font-bold text-[#191F28]">B카드 · 삼성 taptap</div>
+                        </div>
+                        <div class="bg-[#F2F4F6] rounded-xl p-3">
+                            <span class="inline-block text-[10px] font-bold text-[#3182F6] bg-[#EFF6FF] border border-[#D6E4FF] rounded-full px-2 py-0.5 mb-1">신규</span>
+                            <div class="text-sm font-bold text-[#191F28]">C카드 · 우리 카드의정석 EVERY</div>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-[#8B95A1] mb-5">*(예시 데이터 기준. 바꿀 만큼 유리하지 않으면 "지금 카드 유지"도 정상적인 결과예요)</p>
 
                     <button onclick="startSimulation()" class="w-full bg-[#3182F6] hover:bg-[#1B64DA] text-white font-bold py-3.5 px-6 rounded-xl text-sm transition-all">
-                        정밀 5단계 진단 시작하기 (무료)
+                        내 상황으로 직접 확인하기 (무료)
                     </button>
+                </div>
+            </div>
+        </div>
                 </div>
             </div>
         </div>
@@ -367,53 +367,6 @@
 
     <!-- INTERACTIVE JAVASCRIPT -->
     <script>
-        let currentMultiplier = 120;
-
-        function selectCategory(btn, multiplier) {
-            document.querySelectorAll('.cat-btn').forEach(b => {
-                b.className = 'cat-btn bg-white hover:bg-[#F2F4F6] text-[#4E5968] border border-[#E5E8EB] p-3 rounded-xl text-sm flex items-center justify-center space-x-2 transition-all';
-            });
-            btn.className = 'cat-btn bg-[#3182F6] text-white font-bold p-3 rounded-xl text-sm flex items-center justify-center space-x-2 transition-all';
-            currentMultiplier = multiplier;
-            updateCalculation();
-        }
-
-        function updateCalculation(amountVal) {
-            if (amountVal === undefined || isNaN(amountVal)) {
-                amountVal = parseInt(document.getElementById('amountRange').value) || 0;
-            }
-            const benefit = Math.round((amountVal * 0.032) + (currentMultiplier * 0.3));
-            document.getElementById('benefitResult').innerText = benefit.toLocaleString() + ' 만원';
-        }
-
-        // 슬라이더를 움직이면 입력창도 같은 값으로 맞춘다
-        function onAmountRangeChange(val) {
-            const amountVal = parseInt(val);
-            document.getElementById('amountInput').value = amountVal;
-            updateCalculation(amountVal);
-        }
-
-        // 타이핑 중에는 예상 혜택만 미리 갱신한다 — 슬라이더는 아직 움직이지 않아서
-        // "다 입력하기 전" 중간 상태(예: 5000을 입력하려고 5, 50, 500을 거치는 중)에
-        // 슬라이더가 먼저 최소값으로 튀는 것처럼 보이는 불일치를 막는다.
-        function onAmountInputTyping(val) {
-            const amountVal = parseInt(val);
-            if (isNaN(amountVal)) return;
-            updateCalculation(amountVal);
-        }
-
-        // 입력을 마치면(포커스 아웃 또는 엔터) 500~8000 범위·250 단위로 값을 다듬고
-        // 그제서야 슬라이더를 같은 값으로 맞춰 항상 서로 일치하게 한다.
-        function onAmountInputCommit(el) {
-            let v = parseInt(el.value);
-            if (isNaN(v)) v = 3000;
-            v = Math.max(500, Math.min(8000, v));
-            v = Math.round(v / 250) * 250;
-            el.value = v;
-            document.getElementById('amountRange').value = v;
-            updateCalculation(v);
-        }
-
         function startSimulation() {
             // 앱 온보딩으로 이동한다. `restart`는 이전 세션 입력을 지우고 처음부터 시작하라는 뜻이다.
             window.location.href = "/app?restart=1";
