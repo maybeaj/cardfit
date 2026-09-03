@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { PhoneShell } from '@/components/shell'
+import { ConsentGate } from '@/components/consent-gate'
 import { FlowProvider } from '@/state/store'
 
 export const metadata: Metadata = {
@@ -20,7 +21,9 @@ export const metadata: Metadata = {
 export default function AppFlowLayout({ children }: { children: ReactNode }) {
   return (
     <FlowProvider>
-      <PhoneShell>{children}</PhoneShell>
+      <ConsentGate>
+        <PhoneShell>{children}</PhoneShell>
+      </ConsentGate>
     </FlowProvider>
   )
 }

@@ -293,6 +293,9 @@
     .device #s5 .result.hold{border-color:#e5e8eb!important;background:#f7f8fa}
     .device #s5 .benefit-delta{display:block;margin-top:10px;color:#4e5968}
     .device #s5 .result-evidence-trigger{border-color:#cfe9dd;color:#4e5968}
+    .device #s5 .cards-heading{order:2}.device #s5 .allocation-heading{order:3}.device #s5 .allocation{order:4}.device #s5 .footer{order:5}.device #s5 .result-card-list{order:6}.device #s5 .actions{order:7}.device #s5 .next-actions{order:8}
+    .category-options button{border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;background:#fff!important;text-align:left}
+    .category-options button.selected{color:#008f5b!important;background:#e8f8f1!important}
     .device #s3 .spend-category{min-height:44px;font-size:19px!important;font-weight:500!important;line-height:1.35}
     .device #s3 .spend-category optgroup{font-size:16px;font-weight:600;color:#4e5968}
     .device #s3 .spend-category{position:absolute;inset:0;opacity:0;pointer-events:none}
@@ -477,7 +480,7 @@
     ['쇼핑·생활',['쇼핑','백화점','마트','편의점','가전/가구','생활','간편결제']],
     ['식비·여가',['음식/배달','카페','구독']],
     ['통신',['통신']],
-    ['큰 지출',['예식']],
+    ['이벤트',['예식']],
     ['기타',['전 가맹점','기타']]
   ];
   categoryOptions=function(selected){return categoryGroups.map(group=>`<optgroup label="${group[0]}">${group[1].map(category=>`<option value="${category}" ${category===selected?'selected':''}>${category}</option>`).join('')}</optgroup>`).join('')};
@@ -491,7 +494,7 @@
   function openCategorySheet(select){
     activeCategorySelect=select;
     const groups=categorySheet.querySelector('.category-sheet-groups');
-    groups.innerHTML=categoryGroups.map((group,index)=>`<details class="category-group" ${group[1].includes(select.value)?'open':''}><summary>${group[0]}</summary><div class="category-options">${group[1].map(category=>`<button type="button" class="${category===select.value?'selected':''}" data-category="${category}">${category}</button>`).join('')}</div></details>`).join('');
+    groups.innerHTML=categoryGroups.map(group=>`<details class="category-group"><summary>${group[0]}</summary><div class="category-options">${group[1].map(category=>`<button type="button" class="${category===select.value?'selected':''}" data-category="${category}">${category}</button>`).join('')}</div></details>`).join('');
     groups.querySelectorAll('button[data-category]').forEach(button=>button.addEventListener('click',()=>{if(!activeCategorySelect)return;activeCategorySelect.value=button.dataset.category;activeCategorySelect.dispatchEvent(new Event('change',{bubbles:true}));closeCategorySheet()}));
     categorySheet.classList.remove('hidden');document.querySelector('.device-screen').classList.add('modal-open');
   }
@@ -500,6 +503,11 @@
   function decorateCategoryPickers(){document.querySelectorAll('#spends .spend-category').forEach(select=>{if(select.previousElementSibling?.classList.contains('category-trigger'))return;const trigger=document.createElement('button');trigger.type='button';trigger.className='category-trigger';trigger.textContent=select.value;trigger.setAttribute('aria-label',`${select.value} 카테고리 선택`);trigger.addEventListener('click',()=>openCategorySheet(select));select.addEventListener('change',()=>{trigger.textContent=select.value;trigger.setAttribute('aria-label',`${select.value} 카테고리 선택`)});select.parentElement.insertBefore(trigger,select)});}
   const originalRenderSpendsForPicker=renderSpends;renderSpends=function(){originalRenderSpendsForPicker();decorateCategoryPickers()};
   renderSpends();
+  const resultHeadings=document.querySelectorAll('#s5 .result-section-heading');
+  if(resultHeadings[0])resultHeadings[0].classList.add('allocation-heading');
+  if(resultHeadings[1])resultHeadings[1].classList.add('cards-heading');
+  const htmlResultPanel=document.querySelector('#s5 .panel');
+  if(htmlResultPanel){const cardsHeading=htmlResultPanel.querySelector('.cards-heading');const cardList=htmlResultPanel.querySelector('#statuses');if(cardsHeading&&cardList)htmlResultPanel.insertBefore(cardsHeading,cardList);}
   if(location.hash==='#consent')setTimeout(()=>openConsent(),0);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js" onload="mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#eaf1ff',primaryTextColor:'#152238',primaryBorderColor:'#2563eb',lineColor:'#7b8da5'}})"></script>

@@ -132,7 +132,7 @@ body {
   overscroll-behavior: contain;
   border-radius: 43px;
   background: var(--color-bg);
-  font-size: 13px;
+  font-size: 14px;
   scrollbar-width: none;
   padding-bottom: 14px;
 }
@@ -164,7 +164,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 850;
 }
 .status-icons {
@@ -186,7 +186,7 @@ body {
   margin: 15px auto 0;
   text-align: center;
   color: var(--color-subtle);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 /* 진행 표시줄 */
@@ -310,7 +310,7 @@ body {
 .panel .sub {
   margin: 0;
   color: var(--color-subtle);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.55;
 }
 
@@ -330,7 +330,7 @@ body {
   width: 100%;
   min-height: 42px;
   padding: 10px 12px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 850;
   border-radius: 11px;
   border: 0;
@@ -364,7 +364,7 @@ body {
   align-self: flex-start;
   border-radius: 999px;
   padding: 4px 8px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   background: var(--color-blue-soft);
   color: var(--color-blue);
@@ -375,7 +375,7 @@ body {
 .notice {
   padding: 11px 12px;
   border-radius: 12px;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.55;
   margin: 12px 0;
 }
@@ -392,7 +392,7 @@ body {
   border-radius: 11px;
   background: var(--color-danger-soft);
   color: var(--color-danger);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.45;
 }
 
@@ -417,7 +417,7 @@ body {
 .evidence small {
   display: block;
   color: var(--color-subtle);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.4;
 }
 .metric strong {
@@ -461,7 +461,7 @@ body {
   padding: 12px;
   border-radius: 12px;
   background: #f1f6fb;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 850;
   margin-top: 10px;
 }
@@ -474,11 +474,11 @@ body {
   min-height: 58px;
 }
 .rule b {
-  font-size: 12px;
+  font-size: 14px;
   white-space: nowrap;
 }
 .rule .sub {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .stepper {
@@ -514,7 +514,7 @@ body {
   border: 0;
   background: #fff;
   color: var(--color-subtle);
-  font-size: 11px;
+  font-size: 13px;
   cursor: pointer;
 }
 .choice-group .choice.active {
@@ -542,17 +542,17 @@ body {
 }
 .result p {
   margin: 4px 0 0;
-  font-size: 11px;
+  font-size: 13px;
 }
 .result small {
   display: block;
   margin-top: 4px;
   color: var(--color-subtle);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.4;
 }
 .status {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 900;
   color: var(--color-positive);
 }
@@ -571,13 +571,13 @@ body {
   border-color: var(--color-mint-line);
 }
 .evidence b {
-  font-size: 11px;
+  font-size: 13px;
 }
 .evidence em {
   font-style: normal;
   color: var(--color-positive);
   font-weight: 900;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .action {
@@ -588,16 +588,16 @@ body {
   margin: 7px 0;
 }
 .action b {
-  font-size: 11px;
+  font-size: 13px;
 }
 .action small {
   display: block;
   color: var(--color-subtle);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.4;
 }
 .action .tag {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 850;
   padding: 5px 8px;
   border-radius: 999px;
@@ -610,7 +610,7 @@ body {
   border: 0;
   border-radius: 9px;
   padding: 8px 9px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 850;
   white-space: nowrap;
   cursor: pointer;
@@ -619,7 +619,7 @@ body {
 
 .footer {
   color: var(--color-subtle);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.45;
   margin: 12px 0 0;
 }
@@ -627,13 +627,13 @@ body {
 /* ── 온보딩 ────────────────────────────────────────────────── */
 .onboarding-kicker {
   color: var(--color-blue);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.08em;
   margin-bottom: 8px;
 }
 .onboarding-copy {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.55;
   color: var(--color-subtle);
 }
@@ -663,13 +663,13 @@ body {
 }
 .onboarding-step b {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
 }
 .onboarding-step small {
   display: block;
   margin-top: 1px;
   color: var(--color-subtle);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.4;
 }
 .image-brand {
@@ -709,7 +709,7 @@ body {
   border-radius: 999px;
   background: #f7f9fc;
   color: #526176;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   box-shadow: 0 2px 6px #18324d0a;
   cursor: pointer;
@@ -720,7 +720,7 @@ body {
   color: var(--color-blue);
 }
 .visibility-toggle .eye-icon {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1;
 }
 
@@ -769,7 +769,7 @@ body {
   display: block;
   margin-top: 3px;
   color: var(--color-subtle);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.4;
 }
 
@@ -783,7 +783,7 @@ body {
 .section-heading p {
   margin: 0;
   color: var(--color-subtle);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.45;
 }
 .card-list {
@@ -816,7 +816,7 @@ body {
   flex-wrap: wrap;
 }
 .card-title-row b {
-  font-size: 11px;
+  font-size: 13px;
 }
 .category-tag {
   display: inline-flex;
@@ -824,7 +824,7 @@ body {
   border-radius: 999px;
   background: #eef4ff;
   color: #3565ad;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 850;
   white-space: nowrap;
 }
@@ -840,7 +840,7 @@ body {
   border-radius: 50%;
   background: #f0f4f8;
   color: #617086;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 900;
 }
 .card-detail {
@@ -854,7 +854,7 @@ body {
 .card-detail > b {
   display: block;
   margin-bottom: 8px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .card-detail ul {
   display: grid;
@@ -873,7 +873,7 @@ body {
   border-radius: 9px;
   background: #fff;
   color: #4d5e73;
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.35;
 }
 .benefit-list-icon {
@@ -884,7 +884,7 @@ body {
   flex: 0 0 24px;
   border-radius: 8px;
   background: var(--color-blue-soft);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 /* ── 미래 지출 입력 ──────────────────────────────────────────
@@ -924,7 +924,7 @@ body {
   border-radius: 7px;
   background: var(--color-blue);
   color: #fff;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 900;
 }
 .spend-category {
@@ -933,7 +933,7 @@ body {
   border: 0;
   background: transparent;
   padding: 4px 3px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 850;
   color: var(--color-ink);
 }
@@ -944,7 +944,7 @@ body {
   border-radius: 7px;
   background: transparent;
   color: var(--color-subtle);
-  font-size: 9px;
+  font-size: 11px;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -959,7 +959,7 @@ body {
   display: block;
   margin-bottom: 6px;
   color: #526176;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
 }
 .amount-field {
@@ -983,7 +983,7 @@ body {
 }
 .amount-field small {
   align-self: center;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   color: #526176;
 }
@@ -996,7 +996,7 @@ body {
   display: block;
   margin-bottom: 7px;
   color: #46566b;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 850;
 }
 .duration-options {
@@ -1011,7 +1011,7 @@ body {
   border-radius: 9px;
   background: #fff;
   color: var(--color-subtle);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   white-space: nowrap;
   cursor: pointer;
@@ -1030,7 +1030,7 @@ body {
   border-radius: 11px;
   background: var(--color-blue-soft);
   color: var(--color-blue);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 850;
   cursor: pointer;
 }
@@ -1046,7 +1046,7 @@ body {
 .scenario-explorer .label {
   display: block;
   color: var(--color-subtle);
-  font-size: 10px;
+  font-size: 12px;
   margin-bottom: 7px;
 }
 .scenario-tabs {
@@ -1060,7 +1060,7 @@ body {
   border-radius: 8px;
   background: #fff;
   color: var(--color-subtle);
-  font-size: 11px;
+  font-size: 13px;
   cursor: pointer;
 }
 .scenario-tabs button.active {
@@ -1071,7 +1071,7 @@ body {
 }
 .scenario-value {
   margin-top: 9px;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--color-subtle);
 }
 .scenario-value b {
@@ -1085,7 +1085,7 @@ body {
   font-size: 23px;
 }
 [data-screen='s4'] .panel > .sub {
-  font-size: 13px;
+  font-size: 14px;
 }
 [data-screen='s4'] .rule {
   display: grid;
@@ -1104,7 +1104,7 @@ body {
 [data-screen='s4'] .rule .sub {
   display: block;
   margin-top: 5px;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.45;
 }
 [data-screen='s4'] .stepper b {
@@ -1186,7 +1186,7 @@ body {
 .benefit-label {
   display: block;
   color: #376b5a;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 850;
 }
 .result.hold .benefit-label {
@@ -1205,7 +1205,7 @@ body {
   color: var(--color-warning);
 }
 .benefit-value small {
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: -0.02em;
 }
 .benefit-delta {
@@ -1215,7 +1215,7 @@ body {
   border-radius: 999px;
   background: #fff;
   color: var(--color-positive);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 850;
   box-shadow: 0 3px 9px #087a5514;
 }
@@ -1234,7 +1234,7 @@ body {
   border-top: 1px solid #bfe6d6;
   background: transparent;
   color: #356052;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 850;
   text-align: left;
   cursor: pointer;
@@ -1260,7 +1260,7 @@ body {
 }
 .result-section-heading span {
   color: var(--color-subtle);
-  font-size: 9px;
+  font-size: 11px;
 }
 .result-card-list {
   display: grid;
@@ -1305,18 +1305,18 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 13px;
 }
 .result-card-copy small {
   display: block;
   margin-top: 3px;
   color: var(--color-subtle);
-  font-size: 9px;
+  font-size: 11px;
 }
 .result-card-copy strong {
   display: block;
   margin-top: 2px;
-  font-size: 11px;
+  font-size: 13px;
 }
 .state-pill {
   display: grid;
@@ -1324,7 +1324,7 @@ body {
   min-width: 36px;
   padding: 6px 7px;
   border-radius: 999px;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 900;
 }
 .state-pill.new {
@@ -1343,7 +1343,7 @@ body {
   display: inline-flex;
   margin-top: 5px;
   color: var(--color-blue);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 850;
   text-decoration: none;
 }
@@ -1368,7 +1368,7 @@ body {
 .evidence-sheet .evidence-summary span {
   display: block;
   color: #477563;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
 }
 .evidence-sheet .evidence-summary strong {
@@ -1388,7 +1388,7 @@ body {
   gap: 12px;
   padding: 10px 0;
   border-bottom: 1px solid #edf1f5;
-  font-size: 10px;
+  font-size: 12px;
 }
 .evidence-sheet .evidence-line span {
   color: var(--color-subtle);
@@ -1404,7 +1404,7 @@ body {
   min-height: 42px;
   padding: 10px 12px;
   border-radius: 11px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 850;
   cursor: pointer;
 }
@@ -1426,7 +1426,7 @@ body {
   gap: 10px;
   padding: 7px 0;
   border-top: 1px solid #e4ebf4;
-  font-size: 10px;
+  font-size: 12px;
 }
 .spend-evidence-row:first-of-type {
   border-top: 0;
@@ -1450,13 +1450,13 @@ body {
 .evidence-six-item b {
   display: block;
   color: #245cc7;
-  font-size: 9px;
+  font-size: 11px;
 }
 .evidence-six-item span {
   display: block;
   margin-top: 3px;
   color: #526176;
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.4;
 }
 .card-evidence-list {
@@ -1491,13 +1491,13 @@ body {
 }
 .card-evidence summary b {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
 }
 .card-evidence summary small {
   display: block;
   margin-top: 2px;
   color: var(--color-subtle);
-  font-size: 9px;
+  font-size: 11px;
 }
 .card-evidence summary .open-mark {
   display: grid;
@@ -1507,7 +1507,7 @@ body {
   border-radius: 50%;
   background: #eef3f8;
   color: #617086;
-  font-size: 13px;
+  font-size: 14px;
 }
 .card-evidence[open] summary .open-mark {
   transform: rotate(180deg);
@@ -1525,19 +1525,19 @@ body {
 .performance-box span {
   display: block;
   color: #526176;
-  font-size: 9px;
+  font-size: 11px;
 }
 .performance-box strong {
   display: block;
   margin-top: 2px;
   color: #245cc7;
-  font-size: 12px;
+  font-size: 14px;
 }
 .performance-table {
   width: 100%;
   margin: 8px 0 11px;
   border-collapse: collapse;
-  font-size: 8px;
+  font-size: 11px;
 }
 .performance-table th,
 .performance-table td {
@@ -1569,35 +1569,35 @@ body {
   height: 29px;
   border-radius: 9px;
   background: #fff;
-  font-size: 13px;
+  font-size: 14px;
 }
 .benefit-rule b {
   display: block;
-  font-size: 9px;
+  font-size: 11px;
 }
 .benefit-rule small {
   display: block;
   margin-top: 1px;
   color: var(--color-subtle);
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.35;
 }
 .benefit-rule strong {
   color: var(--color-positive);
-  font-size: 9px;
+  font-size: 11px;
   white-space: nowrap;
 }
 .evidence-caution {
   margin: 9px 0 0;
   color: #6c7787;
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.45;
 }
 .official-link {
   display: inline-flex;
   margin-top: 9px;
   color: var(--color-blue);
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 850;
   text-decoration: none;
 }
@@ -1657,7 +1657,7 @@ body {
 }
 .sheet-eyebrow {
   color: var(--color-blue);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.08em;
   margin-bottom: 6px;
@@ -1671,7 +1671,7 @@ body {
 .sheet-sub {
   margin: 0 0 13px;
   color: var(--color-subtle);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.45;
 }
 .consent-purpose {
@@ -1682,11 +1682,11 @@ body {
   border-radius: 10px;
   background: #f7f9fc;
   margin: 6px 0;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.4;
 }
 .consent-purpose b {
-  font-size: 10px;
+  font-size: 12px;
 }
 .consent-purpose span {
   color: var(--color-subtle);
@@ -1702,7 +1702,7 @@ body {
   align-items: start;
   padding: 10px 0;
   border-bottom: 1px solid #edf1f5;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.35;
   cursor: pointer;
 }
@@ -1717,18 +1717,18 @@ body {
 }
 .consent-items label span b {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
 }
 .consent-items label span small {
   display: block;
   margin-top: 2px;
   color: var(--color-subtle);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.4;
 }
 .consent-items label .detail-link {
   color: var(--color-blue);
-  font-size: 9px;
+  font-size: 11px;
   white-space: nowrap;
   margin-top: 2px;
 }
@@ -1749,10 +1749,10 @@ body {
   background: #f6f8ff;
 }
 .consent-items .consent-all span b {
-  font-size: 12px;
+  font-size: 14px;
 }
 .consent-items .consent-all span small {
-  font-size: 9px;
+  font-size: 11px;
 }
 .consent-term {
   display: flex;
@@ -1762,7 +1762,7 @@ body {
   padding: 10px;
   border-radius: 10px;
   background: #f7f9fc;
-  font-size: 10px;
+  font-size: 12px;
 }
 .consent-term span {
   color: var(--color-subtle);
@@ -1770,7 +1770,7 @@ body {
 .legal-note {
   margin: 10px 0 12px;
   color: var(--color-subtle);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.45;
 }
 .sheet-submit {
@@ -1780,7 +1780,7 @@ body {
   border-radius: 11px;
   background: var(--color-blue);
   color: #fff;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 850;
   cursor: pointer;
 }
@@ -1806,14 +1806,14 @@ body {
 }
 .allocation-what b {
   display: block;
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: -0.01em;
 }
 .allocation-what small {
   display: block;
   margin-top: 2px;
   color: var(--color-subtle);
-  font-size: 10px;
+  font-size: 12px;
 }
 .allocation-amount {
   font-size: 14px;
@@ -1840,13 +1840,13 @@ body {
 }
 .allocation-card b {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
 }
 .allocation-card small {
   display: block;
   margin-top: 1px;
   color: var(--color-blue);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
 }
 .allocation-total {
@@ -1859,7 +1859,7 @@ body {
   background: var(--color-blue-soft);
 }
 .allocation-total b {
-  font-size: 12px;
+  font-size: 14px;
   color: #1d4ed8;
 }
 .allocation-total span {
@@ -1876,7 +1876,7 @@ body {
   display: block;
   margin-top: 2px;
   color: #4a6ba8;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 /* `정리` 카드의 금액은 앞으로 받을 혜택이 아니다 — 무게를 낮춘다 */
@@ -1889,7 +1889,7 @@ body {
 .scenario-tabs button small {
   display: block;
   margin-top: 2px;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   opacity: 0.75;
 }
@@ -1904,7 +1904,7 @@ body {
 }
 .next-actions h3 {
   margin: 0 0 10px;
-  font-size: 13px;
+  font-size: 14px;
 }
 .next-action {
   display: grid;
@@ -1918,13 +1918,13 @@ body {
 }
 .next-action b {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
 }
 .next-action small {
   display: block;
   margin-top: 2px;
   color: var(--color-subtle);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.4;
 }
 .next-link {
@@ -1935,7 +1935,7 @@ body {
   border-radius: 9px;
   background: var(--color-blue);
   color: #fff;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 850;
   text-decoration: none;
   white-space: nowrap;
@@ -1943,7 +1943,7 @@ body {
 .tiny-note {
   margin: 8px 0 0;
   color: #3d6b5b;
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
@@ -1952,7 +1952,7 @@ body {
   display: block;
   margin-top: 6px;
   color: var(--color-subtle);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-align: right;
 }
@@ -1966,7 +1966,7 @@ body {
   border-radius: 12px;
   background: var(--color-ink);
   color: #fff;
-  font-size: 11px;
+  font-size: 13px;
 }
 .undo-bar button {
   min-height: 32px;
@@ -1974,7 +1974,7 @@ body {
   border-radius: 8px;
   background: #ffffff26;
   color: #fff;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 850;
   cursor: pointer;
 }
@@ -2113,13 +2113,13 @@ body {
   .panel .sub { font-size: 14px; line-height: 1.65; }
   .actions button, .actions a { min-height: 50px; padding: 12px 14px; font-size: 15px; border-radius: 13px; }
   .note, .notice { padding: 13px 14px; font-size: 13px; line-height: 1.6; }
-  .metric span, .cardrow small, .evidence small { font-size: 12px; }
+  .metric span, .cardrow small, .evidence small { font-size: 13px; }
   .metric strong { font-size: 21px; }
-  .onboarding-kicker { font-size: 12px; }
+  .onboarding-kicker { font-size: 13px; }
   .onboarding-copy { font-size: 14px; line-height: 1.65; }
   .onboarding-step b { font-size: 14px; }
-  .onboarding-step small { font-size: 12px; line-height: 1.5; }
-  .footer { font-size: 12px; }
+  .onboarding-step small { font-size: 13px; line-height: 1.5; }
+  .footer { font-size: 13px; }
 }
 
 :where(button, a):focus-visible {
@@ -2173,3 +2173,46 @@ body {
     @apply font-sans;
   }
 }
+
+/* v0.4 interaction polish: collapsed disclosure controls and the result hierarchy. */
+.screen[data-screen='s5'] .cards-heading { order: 2; }
+.screen[data-screen='s5'] .allocation-heading { order: 3; }
+.screen[data-screen='s5'] .allocation { order: 4; }
+.screen[data-screen='s5'] .footer { order: 5; }
+.screen[data-screen='s5'] .result-card-list { order: 6; }
+.screen[data-screen='s5'] .actions { order: 7; }
+.screen[data-screen='s5'] .next-actions { order: 8; }
+.screen[data-screen='s5'] .result {
+  position: relative;
+  overflow: hidden;
+  padding: 22px 20px;
+  border: 1px solid #bfe8d6;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #e7f8f0, #f4fcf8);
+  box-shadow: 0 8px 24px #008f5b14;
+}
+.screen[data-screen='s5'] .result::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  content: '';
+  background: #00a86b;
+}
+.screen[data-screen='s5'] .result.hold { border-color: #e5e8eb; background: #f7f8fa; box-shadow: none; }
+.screen[data-screen='s5'] .result.hold::before { background: #b6bec8; }
+
+/* Consent uses one compact summary row and closed detail disclosures. */
+.compact-consent .consent-all { margin: 0 0 8px; padding: 14px 0; border-radius: 0; background: #fff; }
+.compact-consent .consent-all span b { font-size: 16px; }
+.consent-row { border-bottom: 1px solid var(--line); }
+.consent-row > summary { display: flex; align-items: center; justify-content: space-between; min-height: 58px; padding: 0; cursor: pointer; list-style: none; }
+.consent-row > summary::-webkit-details-marker { display: none; }
+.consent-row > summary > span:last-child { color: var(--muted); font-size: 24px; }
+.consent-row > summary > label { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: center; border: 0; }
+.consent-row > summary > label input { width: 22px; height: 22px; }
+.consent-row > summary > label b { font-size: 15px; font-weight: 500; }
+.consent-row em { margin-right: 5px; color: var(--primary); font-size: 13px; font-style: normal; }
+.consent-detail-body { margin: 0 0 14px 32px; padding: 14px; border-radius: 12px; background: #f7f8fa; color: var(--muted); font-size: 14px; line-height: 1.55; }
+.consent-detail-body b { display: block; margin-bottom: 5px; color: var(--foreground); font-size: 15px; }
+.consent-detail-body p { margin: 4px 0; }
+.consent-reassurance { margin: 18px 0 0; color: var(--muted); font-size: 14px; text-align: center; }

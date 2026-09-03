@@ -73,11 +73,11 @@ export default function EvidenceScreen() {
       </div>
 
       <div className="card-evidence-list">
-        {outcome.cards.map((card, index) => {
+        {outcome.cards.map((card) => {
           const rule = CARD_RULES[card.name]
           if (!rule) return null
           return (
-            <details key={card.name} className="card-evidence" open={index === 0}>
+            <details key={card.name} className="card-evidence">
               <summary>
                 <Image src={card.art} alt={card.name} width={52} height={33} unoptimized />
                 <span>

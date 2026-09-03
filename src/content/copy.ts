@@ -50,9 +50,9 @@ export const ONBOARDING_COPY = {
  * 실제 본인인증·전송요구는 구현하지 않는다 — 체크박스는 동의 구조를 검증하는 UI다.
  */
 export const CONSENT_COPY = {
-  eyebrow: 'CARDFIT · MYDATA',
-  title: '마이데이터 이용 동의하기',
-  lead: '카드 조합을 계산하기 위해 필요한 정보만 이용합니다.',
+  eyebrow: '마이데이터 연결',
+  title: '내 카드 정보를 불러올까요?',
+  lead: '카드와 결제 내역을 불러와 내게 맞는 카드 조합을 계산해요.',
   purpose: {
     label: '이용 목적',
     body: '현재 카드와 최근 소비를 확인하고, 앞으로의 지출 계획에 맞는 카드 조합을 계산합니다.',
@@ -87,7 +87,7 @@ export const CONSENT_COPY = {
   detailLink: '전문 보기',
   /** 실연동 전까지는 열 수 있는 문서가 없다. 링크처럼 보이게 두지 않는다 */
   detailPending: '전문 준비 중',
-  submit: '마이데이터 이용 동의하기',
+  submit: '동의하고 계속하기',
   close: '닫기',
 } as const
 

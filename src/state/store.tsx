@@ -63,6 +63,8 @@ function initialState(): FlowState {
 }
 
 interface FlowContextValue extends FlowState {
+  /** 세션 복원이 끝난 뒤에만 동의 게이트가 화면을 판단한다. */
+  hydrated: boolean
   /** 현재 선택한 시나리오의 결과. 계산 전에는 `null` */
   outcome: Outcome | null
   planTotal: number
@@ -104,6 +106,7 @@ function restore(): FlowState | null {
 
 export function FlowProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<FlowState>(initialState)
+  const [isHydrated, setIsHydrated] = useState(false)
   const hydrated = useRef(false)
 
   useEffect(() => {
@@ -120,12 +123,14 @@ export function FlowProvider({ children }: { children: ReactNode }) {
       // 주소창에 표시가 남으면 새로고침할 때마다 입력이 지워진다
       window.history.replaceState(null, '', window.location.pathname)
       hydrated.current = true
+      setIsHydrated(true)
       return
     }
 
     const restored = restore()
     if (restored) setState(restored)
     hydrated.current = true
+    setIsHydrated(true)
   }, [])
 
   useEffect(() => {
@@ -153,6 +158,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
 
     return {
       ...state,
+      hydrated: isHydrated,
       outcome,
       planTotal: signedTotal(state.spends),
       planEmpty: isPlanEmpty(state.spends),
@@ -246,7 +252,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
 
       reset: () => setState(initialState()),
     }
-  }, [state, patchSpends])
+  }, [state, patchSpends, isHydrated])
 
   return <FlowContext.Provider value={value}>{children}</FlowContext.Provider>
 }

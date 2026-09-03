@@ -111,7 +111,49 @@ export default function ResultScreen() {
         FR-004 결제수단 배분 — 화면의 본문이다.
         금액을 새로 만들지 않고 확인한 계획을 나누기만 하므로 합은 항상 계획 총액과 같다.
       */}
-      <div className="result-section-heading">
+      <div className="result-section-heading cards-heading">
+        <h3>{RESULT_COPY.cardsHeading}</h3>
+        <span>{RESULT_COPY.cardsSub}</span>
+      </div>
+
+      {/* 카드마다 신규·유지·정리 중 하나만 붙는다. `정리`에는 실행 버튼을 두지 않는다 (AC-003) */}
+      <div className="result-card-list">
+        {allocation.byCard.map((card) => {
+          const state = STATE_CLASS[card.state]
+          const organized = card.state === '정리'
+          return (
+            <div key={card.name} className={`result-card status-${state}`}>
+              <Image src={card.art} alt={card.name} width={64} height={40} unoptimized />
+              <div className="result-card-copy">
+                <b>{card.name}</b>
+                <small>
+                  {organized
+                    ? RESULT_COPY.cardNoAmount
+                    : `${RESULT_COPY.cardAmountLabel} ${krw(card.amount)}`}
+                </small>
+                <strong className={organized ? 'is-past' : undefined}>
+                  {organized ? RESULT_COPY.cardPastBenefitLabel : RESULT_COPY.cardBenefitLabel}{' '}
+                  {krw(card.benefit)}
+                </strong>
+                {card.state === '신규' ? (
+                  <a
+                    className="issuer-link"
+                    href={issuerUrl(card.name)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => logEvent('아웃링크클릭', { card: card.name, from: 'result' })}
+                  >
+                    {RESULT_COPY.issuerLink}
+                  </a>
+                ) : null}
+              </div>
+              <span className={`state-pill ${state}`}>{card.state}</span>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="result-section-heading allocation-heading">
         <h3>{RESULT_COPY.allocationHeading}</h3>
         <span>{RESULT_COPY.allocationSub}</span>
       </div>
@@ -143,52 +185,6 @@ export default function ResultScreen() {
       </div>
       {/* T39 — 상한 안에서의 최선임을 밝히고 `최적 조합`으로 단정하지 않는다 */}
       <p className="footer">{CONCLUSION_COPY.boundedOptimum}</p>
-
-      <div className="result-section-heading">
-        <h3>{RESULT_COPY.cardsHeading}</h3>
-        <span>{RESULT_COPY.cardsSub}</span>
-      </div>
-
-      {/* 카드마다 신규·유지·정리 중 하나만 붙는다. `정리`에는 실행 버튼을 두지 않는다 (AC-003) */}
-      <div className="result-card-list">
-        {allocation.byCard.map((card) => {
-          const state = STATE_CLASS[card.state]
-          const organized = card.state === '정리'
-          return (
-            <div key={card.name} className={`result-card status-${state}`}>
-              <Image src={card.art} alt={card.name} width={64} height={40} unoptimized />
-              <div className="result-card-copy">
-                <b>{card.name}</b>
-                <small>
-                  {organized
-                    ? RESULT_COPY.cardNoAmount
-                    : `${RESULT_COPY.cardAmountLabel} ${krw(card.amount)}`}
-                </small>
-                <strong className={organized ? 'is-past' : undefined}>
-                  {organized ? RESULT_COPY.cardPastBenefitLabel : RESULT_COPY.cardBenefitLabel}{' '}
-                  {krw(card.benefit)}
-                </strong>
-                {/*
-                  신규 발급 1장만 카드사 공식 페이지로 이동시킨다 (`T25`).
-                  좋아요를 누르지 않은 사용자에게도 길이 보여야 한다.
-                */}
-                {card.state === '신규' ? (
-                  <a
-                    className="issuer-link"
-                    href={issuerUrl(card.name)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => logEvent('아웃링크클릭', { card: card.name, from: 'result' })}
-                  >
-                    {RESULT_COPY.issuerLink}
-                  </a>
-                ) : null}
-              </div>
-              <span className={`state-pill ${state}`}>{card.state}</span>
-            </div>
-          )
-        })}
-      </div>
 
       <Actions>
         {/* 북극성(조합 선호율)의 분자다 — 별도 확정 화면을 두지 않는다 (FR-008) */}
