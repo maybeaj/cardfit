@@ -294,6 +294,7 @@
     .device #s5 .benefit-delta{display:block;margin-top:10px;color:#4e5968}
     .device #s5 .result-evidence-trigger{border-color:#cfe9dd;color:#4e5968}
     .device #s3 .spend-category{min-height:44px;font-size:19px!important;font-weight:500!important;line-height:1.35}
+    .device #s3 .spend-category optgroup{font-size:16px;font-weight:600;color:#4e5968}
     .compact-consent .consent-all{margin:0!important;padding:14px 38px 14px 0!important;border-bottom:1px solid var(--line);border-radius:0;background:#fff}
     .compact-consent .consent-all,.consent-row>label{grid-template-columns:22px minmax(0,1fr);gap:10px}
     .compact-consent input[type="checkbox"]{width:22px;height:22px;margin:0;align-self:center}
@@ -453,6 +454,18 @@
   const originalRefineResultCopy=refineResultCopy;
   refineResultCopy=function(){originalRefineResultCopy();if(!outcome)return;const footer=document.querySelector('#s5 .footer');if(footer)footer.textContent=`최대 ${maxCards}장 · ${includeNew?'신규 카드 포함':'보유 카드만'} 조건의 추천 결과`};
   if(outcomes){outcomes={low:buildScenario('low',.72),expected:buildScenario('expected',1),high:buildScenario('high',1.28)};outcome=outcomes[selectedScenario];renderOutcome()}
+  /* Group the visible picker while preserving the exact calculation category value. */
+  const categoryGroups=[
+    ['여행',['여행']],
+    ['교통·차량',['교통','주유']],
+    ['쇼핑·생활',['쇼핑','백화점','마트','편의점','가전/가구','생활','간편결제']],
+    ['식비·여가',['음식/배달','카페','구독']],
+    ['통신',['통신']],
+    ['큰 지출',['예식']],
+    ['기타',['전 가맹점','기타']]
+  ];
+  categoryOptions=function(selected){return categoryGroups.map(group=>`<optgroup label="${group[0]}">${group[1].map(category=>`<option value="${category}" ${category===selected?'selected':''}>${category}</option>`).join('')}</optgroup>`).join('')};
+  renderSpends();
   if(location.hash==='#consent')setTimeout(()=>openConsent(),0);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js" onload="mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#eaf1ff',primaryTextColor:'#152238',primaryBorderColor:'#2563eb',lineColor:'#7b8da5'}})"></script>
