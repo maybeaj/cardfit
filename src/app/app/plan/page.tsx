@@ -1,11 +1,11 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { PLAN_NOTICE } from '@/content/copy'
 import { manwon } from '@/domain/format'
 import { isPlanEmpty, planTotal } from '@/domain/plan'
 import type { FutureSpendPlan } from '@/domain/types'
-import { AddSpendPicker } from '@/features/cardfit/plan/add-spend-picker'
+import { CategorySheet } from '@/features/cardfit/plan/category-sheet'
 import { SpendItem } from '@/features/cardfit/plan/spend-item'
 import {
   Actions,
@@ -30,13 +30,35 @@ export default function PlanScreen() {
   const { plan, updatePlan, refillPlan } = useDemo()
   const empty = useMemo(() => isPlanEmpty(plan), [plan])
 
+  /** 바텀시트가 열린 항목. `'new'`는 항목 추가용 */
+  const [picking, setPicking] = useState<string | null>(null)
+  /**
+   * 삭제는 확인 없이 실행하고 되돌리기를 준다 (UI-002).
+   * 확인 창을 띄우면 제안값을 정리하는 흐름이 매번 끊긴다. 자리를 기억해 두었다가
+   * 되돌릴 때 원래 순서로 돌려놓는다 — 맨 뒤에 붙이면 목록이 뒤섞인다.
+   */
+  const [removed, setRemoved] = useState<{ item: FutureSpendPlan; at: number } | null>(null)
+
   const patchItem = (planId: string, next: Partial<FutureSpendPlan>) => {
     updatePlan(
       plan.map((item) => (item.plan_id === planId ? { ...item, ...next, source: 'user' } : item)),
     )
   }
 
-  const removeItem = (planId: string) => updatePlan(plan.filter((item) => item.plan_id !== planId))
+  const removeItem = (planId: string) => {
+    const at = plan.findIndex((item) => item.plan_id === planId)
+    if (at < 0) return
+    setRemoved({ item: plan[at]!, at })
+    updatePlan(plan.filter((item) => item.plan_id !== planId))
+  }
+
+  const undoRemove = () => {
+    if (!removed) return
+    const next = [...plan]
+    next.splice(Math.min(removed.at, next.length), 0, removed.item)
+    updatePlan(next)
+    setRemoved(null)
+  }
 
   const addItem = (category: string) => {
     updatePlan([
@@ -51,6 +73,12 @@ export default function PlanScreen() {
     ])
   }
 
+  const pickCategory = (category: string) => {
+    if (picking === 'new') addItem(category)
+    else if (picking) patchItem(picking, { category })
+    setPicking(null)
+  }
+
   return (
     <Screen>
       <ScreenHeader title={PLAN_NOTICE.title} lead={PLAN_NOTICE.lead} backHref="/app/summary" />
@@ -59,17 +87,38 @@ export default function PlanScreen() {
       <p className="footer">{PLAN_NOTICE.prefilled}</p>
 
       <div className="mt-1">
-        {plan.map((item) => (
+        {plan.map((item, index) => (
           <SpendItem
             key={item.plan_id}
             item={item}
+            index={index}
             onChange={(next) => patchItem(item.plan_id, next)}
             onRemove={() => removeItem(item.plan_id)}
+            onPickCategory={() => setPicking(item.plan_id)}
           />
         ))}
       </div>
 
-      <AddSpendPicker onAdd={addItem} />
+      <button type="button" className="add-spend-button" onClick={() => setPicking('new')}>
+        {PLAN_NOTICE.addItem}
+      </button>
+
+      {picking ? (
+        <CategorySheet
+          selected={plan.find((item) => item.plan_id === picking)?.category}
+          onSelect={pickCategory}
+          onClose={() => setPicking(null)}
+        />
+      ) : null}
+
+      {removed ? (
+        <div className="undo-bar" role="status">
+          <span>{PLAN_NOTICE.removed(removed.item.category)}</span>
+          <button type="button" onClick={undoRemove}>
+            {PLAN_NOTICE.undo}
+          </button>
+        </div>
+      ) : null}
 
       {empty ? (
         <div className="mt-3 grid gap-2">

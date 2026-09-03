@@ -106,11 +106,14 @@ test('탭 네비게이션을 그리지 않는다 (T14)', async ({ page }) => {
 test('기준본 s3의 항목 추가와 건너뛰기가 동작한다', async ({ page }) => {
   await page.goto('/app/plan')
 
-  // ＋ 지출 항목 추가 → 카테고리 피커 → 이 항목 추가
+  // ＋ 지출 항목 추가 → 카테고리 바텀시트 → 카테고리 선택
   await expect(page.locator('input[type=number]')).toHaveCount(3)
   await page.getByRole('button', { name: /지출 항목 추가/ }).click()
-  await expect(page.getByText('추가할 지출 카테고리')).toBeVisible()
-  await page.getByRole('button', { name: '이 항목 추가' }).click()
+  const sheet = page.getByRole('dialog', { name: '카테고리 선택' })
+  await expect(sheet).toBeVisible()
+  await sheet.locator('summary', { hasText: '여행' }).click()
+  await sheet.getByRole('button', { name: '여행', exact: true }).click()
+  await expect(sheet).toHaveCount(0)
   await expect(page.locator('input[type=number]')).toHaveCount(4)
 
   // 이 단계 건너뛰기 → 계산 조건으로 간다

@@ -139,8 +139,8 @@ test('결과에서 뒤로 가는 버튼들이 기준본과 같은 곳으로 간�
 
 test('화면 콘텐츠에 다크 영역을 쓰지 않는다', async ({ page }) => {
   // 기준본의 결론 배너는 다크가 아니라 의미색이다 — 통과=민트, 유지=앰버.
-  await page.goto('/app')
-  const darkCount = await page.evaluate(() => {
+  const countDark = () =>
+    page.evaluate(() => {
     const isDark = (color: string) => {
       const match = color.match(/\d+/g)
       if (!match || match.length < 3) return false
@@ -153,8 +153,25 @@ test('화면 콘텐츠에 다크 영역을 쓰지 않는다', async ({ page }) =
       const bg = getComputedStyle(el).backgroundColor
       return bg && bg !== 'transparent' && isDark(bg)
     }).length
-  })
-  expect(darkCount).toBe(0)
+    })
+
+  await page.goto('/app')
+  expect(await countDark()).toBe(0)
+
+  /*
+   * 입력 화면은 상태에 따라 나타나는 영역이 있어 정적 방문으로는 검사되지 않는다.
+   * 바텀시트와 되돌리기 바를 실제로 띄운 뒤 센다 — 기준본은 되돌리기 바를 다크로
+   * 칠했고, 그대로 옮기면 결론 배너의 신호값이 죽는다 (`T13`).
+   */
+  await page.goto('/app/plan')
+  await page.getByRole('button', { name: /지출 항목 추가/ }).click()
+  await expect(page.getByRole('dialog', { name: '카테고리 선택' })).toBeVisible()
+  expect(await countDark()).toBe(0)
+  await page.getByRole('button', { name: '닫기' }).click()
+
+  await page.getByRole('button', { name: /항목 삭제$/ }).first().click()
+  await expect(page.getByText('되돌리기')).toBeVisible()
+  expect(await countDark()).toBe(0)
 })
 
 test('지출 탐색 탭이 결론 금액을 다시 계산한다', async ({ page }) => {
