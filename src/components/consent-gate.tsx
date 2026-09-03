@@ -17,6 +17,8 @@ export function ConsentGate({ children }: { children: ReactNode }) {
     router.replace('/app')
   }, [consented, hydrated, pathname, router])
 
-  if (pathname !== '/app' && (!hydrated || !consented || redirecting)) return null
+  if (pathname !== '/app' && (!hydrated || !consented || redirecting)) {
+    return <div className="route-loading" role="status" aria-live="polite">불러오는 중…</div>
+  }
   return <>{children}</>
 }

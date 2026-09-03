@@ -2261,3 +2261,4 @@ body {
 .consent-detail-body b { display: block; margin-bottom: 5px; color: var(--foreground); font-size: 15px; }
 .consent-detail-body p { margin: 4px 0; }
 .consent-reassurance { margin: 18px 0 0; color: var(--muted); font-size: 14px; text-align: center; }
+.route-loading { display: grid; min-height: 100dvh; place-items: center; color: #6b7684; font-size: 16px; background: #f7f9fb; }

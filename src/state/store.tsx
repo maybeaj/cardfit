@@ -163,7 +163,17 @@ export function FlowProvider({ children }: { children: ReactNode }) {
       planTotal: signedTotal(state.spends),
       planEmpty: isPlanEmpty(state.spends),
 
-      consent: () => setState((prev) => ({ ...prev, consented: true })),
+      consent: () => {
+        // 내비게이션 직후에도 게이트가 동의 상태를 놓치지 않도록 먼저 저장한다.
+        // React 상태 반영과 sessionStorage effect는 같은 클릭 이벤트에서 순서가 뒤섞일 수 있다.
+        setState((prev) => ({ ...prev, consented: true }))
+        try {
+          const current = restore() ?? initialState()
+          window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, consented: true }))
+        } catch {
+          // 저장 실패 시에도 메모리 상태로 계속 진행한다.
+        }
+      },
 
       setCategory: (index, category) =>
         patchSpends((spends) =>

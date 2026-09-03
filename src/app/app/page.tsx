@@ -22,7 +22,8 @@ export default function OnboardingScreen() {
     // 프로토타입에서는 동의 후 예시 데이터를 쓴다. 실제 인증·전송요구는 하지 않는다 (`T8` · D-001)
     consent()
     setConsentOpen(false)
-    router.push('/app/summary')
+    // 동의 상태가 provider와 sessionStorage에 반영된 뒤 이동해 게이트 공백을 방지한다.
+    window.setTimeout(() => router.push('/app/summary'), 0)
   }
 
   return (
