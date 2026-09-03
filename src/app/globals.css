@@ -2174,6 +2174,51 @@ body {
   }
 }
 
+/* HTML prototype parity: future-spend category picker */
+.category-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 3px;
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 19px !important;
+  font-weight: 500 !important;
+  text-align: left;
+}
+.category-trigger::after { content: '⌄'; color: #8b95a1; font-size: 18px; }
+.category-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(25, 31, 40, .4);
+}
+.category-sheet {
+  width: 100%;
+  max-height: 76%;
+  overflow: auto;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  border-radius: 24px 24px 0 0;
+  background: #fff;
+  box-shadow: 0 -12px 30px rgba(0,0,0,.12);
+}
+.category-sheet-handle { width: 38px; height: 4px; margin: 0 auto 18px; border-radius: 99px; background: #d8dce0; }
+.category-sheet-title { margin: 0 0 14px; font-size: 22px; font-weight: 600; }
+.category-group { border-top: 1px solid var(--line); }
+.category-group summary { padding: 15px 0; cursor: pointer; list-style: none; font-size: 16px; font-weight: 600; }
+.category-group summary::-webkit-details-marker { display: none; }
+.category-group summary::after { content: '＋'; float: right; color: #8b95a1; font-weight: 400; }
+.category-group[open] summary::after { content: '−'; }
+.category-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0 0 14px; }
+.category-options button { min-height: 44px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: #333d4b; font-size: 15px; font-weight: 500; text-align: left; }
+.category-options button:hover, .category-options button.selected { border-color: #00a86b; background: #e8f8f1; color: #008f5b; }
+.category-sheet-close { width: 100%; min-height: 46px; margin-top: 8px; border: 0; border-radius: 11px; background: #f2f4f6; color: #6b7684; font-size: 16px; font-weight: 500; }
+
 /* v0.4 interaction polish: collapsed disclosure controls and the result hierarchy. */
 .screen[data-screen='s5'] .cards-heading { order: 2; }
 .screen[data-screen='s5'] .allocation-heading { order: 3; }
