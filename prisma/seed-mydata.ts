@@ -58,7 +58,7 @@ export async function seedMydata(prisma: PrismaClient): Promise<{
           id: `${MYDATA_FIXTURE_ID}:${item.plan_id}`,
           category: item.category,
           amount: item.amount,
-          monthOffset: item.month_offset,
+          spendingMonths: item.spending_months,
         })),
       },
     },

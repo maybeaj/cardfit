@@ -70,13 +70,22 @@ export interface PastSpend {
   monthly_amount: number
 }
 
+/** 기준본 s3의 지출 기간 선택지 — `한 번에 / 3개월 / 6개월 / 12개월` */
+export const SPENDING_MONTHS = [1, 3, 6, 12] as const
+export type SpendingMonths = (typeof SPENDING_MONTHS)[number]
+
 export interface FutureSpendPlan {
   plan_id: string
   category: string
   /** 앞으로 늘어날 금액. 감소는 입력받지 않는다 (T10 · UI-002) */
   amount: number
-  /** 기준일 +1~12개월 */
-  month_offset: number
+  /**
+   * 실제 결제가 발생하는 기간 (T10 · UI-002).
+   *
+   * 시점이 아니라 기간이다 — 같은 금액도 한 달에 몰면 월 혜택한도에 걸리고
+   * 열두 달에 펴면 실적구간을 못 넘는다. 어느 쪽이 유리한지가 결론을 바꾼다.
+   */
+  spending_months: SpendingMonths
   source: 'suggested' | 'user'
 }
 

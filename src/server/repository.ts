@@ -110,7 +110,7 @@ export async function loadProfile(fixtureId: string): Promise<ActionResult<Profi
     plan_id: item.id.split(':').slice(1).join(':') || item.id,
     category: item.category,
     amount: item.amount,
-    month_offset: item.monthOffset,
+    spending_months: item.spendingMonths as FutureSpendPlan['spending_months'],
     source: 'suggested',
   }))
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { NET_BENEFIT_FLOOR, NET_BENEFIT_RATIO, calculatePlan } from './calc'
-import { isPlanEmpty } from './plan'
+import { buildMonthlySpend, isPlanEmpty } from './plan'
 import { BANNED_TERMS, CONCLUSION_COPY, findBannedTerms } from '@/content/copy'
 import { changeCase, maintainCase } from '@/fixtures'
 import { EXPECTED } from '@/fixtures/expected'
@@ -254,7 +254,7 @@ describe('미래지출은 증가만 받는다 (T10 · UI-002)', () => {
     const item = {
       plan_id: 'i1',
       category: '식비',
-      month_offset: 1,
+      spending_months: 1 as const,
       source: 'user' as const,
     }
     const base = run(changeCase, [{ ...item, amount: 300_000 }])
@@ -274,7 +274,7 @@ describe('미래지출은 증가만 받는다 (T10 · UI-002)', () => {
         plan_id: 'i2',
         category: '식비',
         amount: 99_000_000,
-        month_offset: 1,
+        spending_months: 1 as const,
         source: 'user' as const,
       },
     ])
@@ -283,6 +283,53 @@ describe('미래지출은 증가만 받는다 (T10 · UI-002)', () => {
     for (const row of result.calculation.current.allocations) {
       expect(row.amount).toBeGreaterThanOrEqual(0)
     }
+  })
+})
+
+describe('지출 기간 (T10 · UI-002)', () => {
+  const item = (spending_months: 1 | 3 | 6 | 12, amount: number) => ({
+    plan_id: 'd1',
+    category: '여행',
+    amount,
+    spending_months,
+    source: 'user' as const,
+  })
+
+  it('금액을 기간에 걸쳐 나누고 총액은 정확히 보존한다', () => {
+    // 1,000,000을 3으로 나누면 333,333.33… — 달마다 반올림하면 총액이 어긋난다
+    const past = [{ category: '여행', monthly_amount: 0 }]
+    const months = buildMonthlySpend(past, [item(3, 1_000_000)])
+    const spent = months.map((m) => m.get('여행') ?? 0)
+
+    expect(spent.slice(0, 3).reduce((a, b) => a + b, 0)).toBe(1_000_000)
+    expect(spent.slice(3).every((v) => v === 0)).toBe(true)
+    // 남는 원은 첫 달에 몰아 넣는다
+    expect(spent[0]).toBe(333_334)
+    expect(spent[1]).toBe(333_333)
+    expect(spent[2]).toBe(333_333)
+  })
+
+  it('한 번에는 첫 달에만 쌓는다', () => {
+    const months = buildMonthlySpend([{ category: '여행', monthly_amount: 0 }], [item(1, 900_000)])
+    expect(months[0]?.get('여행')).toBe(900_000)
+    expect(months[1]?.get('여행') ?? 0).toBe(0)
+  })
+
+  it('과거 기저 위에 더한다 — 덮어쓰지 않는다', () => {
+    const past = [{ category: '여행', monthly_amount: 100_000 }]
+    const months = buildMonthlySpend(past, [item(12, 1_200_000)])
+    expect(months[0]?.get('여행')).toBe(200_000)
+    expect(months[11]?.get('여행')).toBe(200_000)
+  })
+
+  it('기간이 달라지면 결론 금액도 달라진다 — 월 한도에 걸리는 정도가 다르다', () => {
+    const lump = run(changeCase, [item(1, 12_000_000)])
+    const spread = run(changeCase, [item(12, 12_000_000)])
+    expect(lump.ok && spread.ok).toBe(true)
+    if (!lump.ok || !spread.ok) return
+    expect(spread.calculation.chosen.gross_benefit).not.toBe(
+      lump.calculation.chosen.gross_benefit,
+    )
   })
 })
 

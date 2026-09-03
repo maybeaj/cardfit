@@ -128,6 +128,11 @@ export const PLAN_NOTICE = {
   amountZero: '금액을 입력해 주세요',
   removed: (category: string) => `${category} 항목을 지웠어요`,
   undo: '되돌리기',
+  durationQuestion: '얼마 동안 지출할 예정인가요?',
+  /** 두 번째 항목부터는 질문을 반복하지 않는다 */
+  durationShort: '지출 기간',
+  once: '한 번에',
+  months: (n: number) => `${n}개월`,
   emptyMessage: '앞으로 쓸 돈을 입력하면 카드 조합을 확인할 수 있어요.',
   remove: '삭제',
   next: '다음',

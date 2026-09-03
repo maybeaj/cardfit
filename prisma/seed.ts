@@ -70,7 +70,7 @@ async function seedProfile(profile: Profile, label: string) {
           id: `${profile.fixture_id}:${item.plan_id}`,
           category: item.category,
           amount: item.amount,
-          monthOffset: item.month_offset,
+          spendingMonths: item.spending_months,
         })),
       },
     },

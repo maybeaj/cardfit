@@ -67,7 +67,7 @@ export default function PlanScreen() {
         plan_id: `u${Date.now()}`,
         category,
         amount: 0,
-        month_offset: 3,
+        spending_months: 3,
         source: 'user',
       },
     ])

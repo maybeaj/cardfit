@@ -2,6 +2,7 @@
 
 import { engine } from '@/domain/recommendation'
 import { isPlanEmpty } from '@/domain/plan'
+import { SPENDING_MONTHS } from '@/domain/types'
 import type { Calculation, Constraint, FutureSpendPlan, Profile } from '@/domain/types'
 import type { Prisma } from '@prisma/client'
 import { actionError, type ActionResult } from './errors'
@@ -38,7 +39,7 @@ function validatePlan(plan: FutureSpendPlan[]): string[] {
   const problems: string[] = []
   for (const item of plan) {
     if (!Number.isInteger(item.amount) || item.amount < 0) problems.push(`${item.category}: 금액`)
-    if (item.month_offset < 1 || item.month_offset > 12) problems.push(`${item.category}: 시점`)
+    if (!SPENDING_MONTHS.includes(item.spending_months)) problems.push(`${item.category}: 지출 기간`)
     if (!item.category.trim()) problems.push('카테고리 누락')
   }
   if (isPlanEmpty(plan)) problems.push('확인할 계획 0건')
@@ -70,7 +71,7 @@ export async function startSessionAction(
         planKey: item.plan_id,
         category: item.category,
         amount: item.amount,
-        monthOffset: item.month_offset,
+        spendingMonths: item.spending_months,
         origin: 'suggested',
         confirmed: false,
       })),
@@ -107,7 +108,7 @@ export async function savePlanAction(
           planKey: item.plan_id,
           category: item.category,
           amount: item.amount,
-            monthOffset: item.month_offset,
+            spendingMonths: item.spending_months,
           origin: item.source,
           confirmed: false,
         })),

@@ -2,10 +2,10 @@
 
 import { PLAN_NOTICE } from '@/content/copy'
 import { won } from '@/domain/format'
-import type { FutureSpendPlan } from '@/domain/types'
+import { SPENDING_MONTHS, type FutureSpendPlan } from '@/domain/types'
 
 /**
- * UI-002 지출 항목 한 줄 — 카테고리·금액·시점.
+ * UI-002 지출 항목 한 줄 — 카테고리·금액·지출 기간.
  *
  * 증감 토글과 감소 입력을 두지 않는다 (`T10`). 입력한 금액은 전부 추가 지출이다 —
  * 감소를 받으면 카드 사용을 줄이라는 서비스로 읽힌다.
@@ -89,17 +89,28 @@ export function SpendItem({
         </span>
       </div>
 
-      <select
-        aria-label={`${item.category} 시점`}
-        value={item.month_offset}
-        onChange={(event) => onChange({ month_offset: Number(event.target.value) })}
-      >
-        {Array.from({ length: 12 }, (_, n) => (
-          <option key={n + 1} value={n + 1}>
-            {n + 1}개월 내
-          </option>
-        ))}
-      </select>
+      {/*
+        기간 선택이 결과를 바꾼다 — 같은 금액도 한 달에 몰면 월 혜택한도에 걸리고
+        열두 달에 펴면 실적구간을 못 넘는다. 시점이 아니라 기간을 묻는 이유다.
+      */}
+      <div className="spend-duration">
+        <span className="spend-duration-label">
+          {index === 0 ? PLAN_NOTICE.durationQuestion : PLAN_NOTICE.durationShort}
+        </span>
+        <div className="duration-options" role="group" aria-label={`${item.category} 지출 기간`}>
+          {SPENDING_MONTHS.map((months) => (
+            <button
+              key={months}
+              type="button"
+              className={item.spending_months === months ? 'active' : ''}
+              aria-pressed={item.spending_months === months}
+              onClick={() => onChange({ spending_months: months })}
+            >
+              {months === 1 ? PLAN_NOTICE.once : PLAN_NOTICE.months(months)}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

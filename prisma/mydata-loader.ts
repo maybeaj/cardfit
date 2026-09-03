@@ -78,15 +78,19 @@ function buildSuggestions(rows: MydataTransactionRow[]): Profile['suggested_plan
     .filter(([, value]) => value.count <= LUMPY_MAX_COUNT)
     .sort((a, b) => b[1].total - a[1].total || a[0].localeCompare(b[0], 'ko'))
 
-  // 제안 시점은 결정론적으로 배치한다 — 무작위면 같은 입력에 다른 결과가 나온다 (NFR-001)
-  const offsets = [3, 2, 5]
+  /*
+   * 제안 기간은 결정론적으로 배치한다 — 무작위면 같은 입력에 다른 결과가 나온다 (NFR-001).
+   * 큰 금액일수록 짧게 잡는다. `lumpy`는 드물게 크게 쓰는 업종이라 여러 달에 나눠 쓰는
+   * 성격이 아니고, 한 달에 몰릴 때 월 혜택한도에 걸리는지가 이 화면이 보여줄 값이다.
+   */
+  const spans = [1, 3, 6] as const
 
   return lumpy.slice(0, 3).map(([category, value], index) => ({
     plan_id: `mydata-p${index + 1}`,
     category,
     // 만원 단위로 내려 제안한다. 과거 실적을 그대로 미래로 단정하지 않는다는 뜻이다
     amount: Math.floor(value.total / 10_000) * 10_000,
-    month_offset: offsets[index] ?? 6,
+    spending_months: spans[index] ?? 3,
     source: 'suggested' as const,
   }))
 }

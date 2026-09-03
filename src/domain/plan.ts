@@ -17,10 +17,22 @@ export function buildMonthlySpend(past: PastSpend[], plan: FutureSpendPlan[]): M
     months.push(bucket)
   }
   for (const item of plan) {
-    const index = item.month_offset - 1
-    const bucket = months[index]
-    if (!bucket) continue
-    bucket.set(item.category, (bucket.get(item.category) ?? 0) + item.amount)
+    /*
+     * 확인한 금액을 기간에 걸쳐 나눈다.
+     *
+     * 나머지를 버리면 배분 합계가 계획 총액과 어긋난다 (NFR-001 · UI-006). 몫을 바닥으로
+     * 깔고 남는 원을 첫 달에 몰아 총액을 정확히 보존한다 — 달마다 반올림하면 최대
+     * `기간-1`원이 사라진다.
+     */
+    const span = Math.min(item.spending_months, HORIZON_MONTHS)
+    const base = Math.floor(item.amount / span)
+    const remainder = item.amount - base * span
+    for (let m = 0; m < span; m += 1) {
+      const bucket = months[m]
+      if (!bucket) continue
+      const add = base + (m === 0 ? remainder : 0)
+      bucket.set(item.category, (bucket.get(item.category) ?? 0) + add)
+    }
   }
   return months
 }
